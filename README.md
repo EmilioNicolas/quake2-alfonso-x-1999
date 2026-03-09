@@ -6,7 +6,7 @@ Salva al Instituto Alfonso X de la invasion alienigena. Recorre sus pasillos, cl
 
 ## Jugar online
 
-**[https://emilionicolas.github.io/quake2-alfonso-x-1999/](https://emilionicolas.github.io/quake2-alfonso-x-1999/)**
+**[https://emilionicolas.github.io/quake2-alfonso-x-1999/](https://emilionicolas.github.io/quake2-alfonso-x-1999/)** - Jugable directamente en el navegador.
 
 ## Controles
 
