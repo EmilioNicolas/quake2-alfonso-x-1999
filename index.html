@@ -355,12 +355,6 @@
                         document.getElementById('victoryOverlay').style.display = 'flex';
                     }, 5000);
                 }
-                if (!Module._victoryShown && text && text.indexOf('Map: alfonsox') !== -1) {
-                    Module._victoryShown = true;
-                    setTimeout(function() {
-                        document.getElementById('victoryOverlay').style.display = 'flex';
-                    }, 5000);
-                }
                 console.log(text);
                 outputElement.value += text + '\n';
                 outputElement.scrollTop = outputElement.scrollHeight;
