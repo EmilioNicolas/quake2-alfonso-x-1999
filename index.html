@@ -22,49 +22,62 @@
             background: radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a0a 70%);
             text-align: center;
             padding: 20px;
+            position: relative;
+            overflow: hidden;
         }
+        /* Quake 2 logo SVG background */
+        #landing::before {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cpath d='M100 10 L130 50 L180 60 L145 95 L155 145 L100 120 L45 145 L55 95 L20 60 L70 50 Z' fill='none' stroke='%23ff6600' stroke-width='1.5' opacity='0.12'/%3E%3Cpath d='M100 30 L120 55 L160 62 L132 88 L140 128 L100 110 L60 128 L68 88 L40 62 L80 55 Z' fill='none' stroke='%23ff6600' stroke-width='1' opacity='0.08'/%3E%3Ccircle cx='100' cy='80' r='60' fill='none' stroke='%23ff6600' stroke-width='0.5' opacity='0.06'/%3E%3Ccircle cx='100' cy='80' r='80' fill='none' stroke='%23ff6600' stroke-width='0.5' opacity='0.04'/%3E%3Cpath d='M85 55 L85 105 L115 80 Z' fill='%23ff6600' opacity='0.06'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-size: contain;
+            opacity: 1;
+            z-index: 0;
+            animation: pulse 4s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
+        #landing > * { position: relative; z-index: 1; }
         h1 {
-            font-size: 2.5em;
+            font-size: 3em;
             color: #ff6600;
-            text-shadow: 0 0 20px rgba(255,102,0,0.5);
+            text-shadow: 0 0 30px rgba(255,102,0,0.6), 0 0 60px rgba(255,102,0,0.2);
+            margin-bottom: 20px;
+            letter-spacing: 3px;
+        }
+        .tagline {
+            font-size: 1.1em;
+            color: #999;
             margin-bottom: 10px;
+            line-height: 1.6;
+            max-width: 500px;
         }
-        h2 {
-            font-size: 1.2em;
-            color: #888;
-            margin-bottom: 30px;
-            font-weight: normal;
+        .year {
+            font-size: 0.85em;
+            color: #555;
+            margin-bottom: 40px;
         }
-        .maps {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        .map-card {
-            background: rgba(255,102,0,0.1);
-            border: 1px solid #ff6600;
-            padding: 15px 25px;
-            border-radius: 4px;
-        }
-        .map-card h3 { color: #ff6600; font-size: 1.1em; }
-        .map-card p { color: #999; font-size: 0.85em; margin-top: 5px; }
         #playBtn {
             background: #ff6600;
             color: #000;
             border: none;
-            padding: 18px 50px;
-            font-size: 1.4em;
+            padding: 20px 60px;
+            font-size: 1.6em;
             font-family: 'Courier New', monospace;
             font-weight: bold;
             cursor: pointer;
-            letter-spacing: 2px;
+            letter-spacing: 4px;
             transition: all 0.2s;
             margin-bottom: 15px;
+            text-transform: uppercase;
         }
-        #playBtn:hover { background: #ff8833; transform: scale(1.05); }
-        #playBtn:disabled { background: #555; cursor: wait; }
+        #playBtn:hover { background: #ff8833; transform: scale(1.08); box-shadow: 0 0 30px rgba(255,102,0,0.4); }
+        #playBtn:disabled { background: #555; cursor: wait; box-shadow: none; transform: none; }
         #statusText {
             color: #888;
             font-size: 0.9em;
@@ -87,12 +100,13 @@
             transition: width 0.3s;
         }
         .credits {
-            color: #555;
+            color: #444;
             font-size: 0.75em;
-            margin-top: 20px;
+            margin-top: 30px;
             line-height: 1.6;
         }
-        .credits a { color: #777; }
+        .credits a { color: #666; text-decoration: none; }
+        .credits a:hover { color: #ff6600; }
 
         /* Game view */
         #gameView { display: none; width: 100vw; height: 100vh; }
@@ -111,33 +125,18 @@
             padding: 10px;
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
     <div id="landing">
         <h1>INSTITUTO ALFONSO X</h1>
-        <h2>3 mapas custom de Quake II &mdash; creados en 1999</h2>
-        <div class="maps">
-            <div class="map-card">
-                <h3>ALFONSOX</h3>
-                <p>El instituto</p>
-            </div>
-            <div class="map-card">
-                <h3>ALF2</h3>
-                <p>La expansion</p>
-            </div>
-            <div class="map-card">
-                <h3>DISCO</h3>
-                <p>La discoteca</p>
-            </div>
-        </div>
+        <p class="tagline">Los alienigenas han invadido el instituto.<br>Recorre sus pasillos, clases y la discoteca.<br>Eres la ultima esperanza. Salva el Alfonso X.</p>
+        <p class="year">Quake II &mdash; 1999</p>
         <button id="playBtn" onclick="startGame()">JUGAR</button>
         <div id="statusText"></div>
         <div class="progress-bar" id="progressBar"><div class="fill" id="progressFill"></div></div>
         <div class="credits">
-            Hecho por <a href="https://x.com/javilopen" target="_blank">Javi</a> y <a href="https://x.com/emailnicolas" target="_blank">Emilio</a> en 1999<br>
-            Motor: Quake II engine (id Software) via <a href="https://github.com/GMH-Code/Qwasm2" target="_blank">Qwasm2</a><br>
-            Requiere descarga de ~37MB (demo shareware de Quake II)
+            Hecho por <a href="https://x.com/javilopen" target="_blank">@javilopen</a> y <a href="https://x.com/emailnicolas" target="_blank">@emailnicolas</a> en 1999<br>
+            Motor: Quake II (id Software) via <a href="https://github.com/GMH-Code/Qwasm2" target="_blank">Qwasm2</a>
         </div>
     </div>
 
@@ -148,9 +147,6 @@
     </div>
 
     <script>
-    var DEMO_URL = 'https://deponie.yamagi.org/quake2/idstuff/q2-314-demo-x86.exe';
-    var PAK_PATH_IN_ZIP = 'Install/Data/baseq2/pak0.pak';
-
     function setStatus(msg) {
         document.getElementById('statusText').textContent = msg;
     }
@@ -168,14 +164,14 @@
         btn.textContent = 'CARGANDO...';
 
         try {
-            setStatus('Descargando Quake II Demo (37MB)...');
+            setStatus('Descargando assets del juego (48MB)...');
             setProgress(5);
 
-            var response = await fetch(DEMO_URL);
+            var response = await fetch('pak0.pak');
             if (!response.ok) throw new Error('Download failed: ' + response.status);
 
             var reader = response.body.getReader();
-            var contentLength = +response.headers.get('Content-Length') || 39000000;
+            var contentLength = +response.headers.get('Content-Length') || 50000000;
             var received = 0;
             var chunks = [];
 
@@ -184,20 +180,12 @@
                 if (result.done) break;
                 chunks.push(result.value);
                 received += result.value.length;
-                var pct = Math.min(70, Math.round((received / contentLength) * 70));
+                var pct = Math.min(80, Math.round((received / contentLength) * 80));
                 setProgress(pct);
                 setStatus('Descargando... ' + Math.round(received / 1024 / 1024) + ' / ' + Math.round(contentLength / 1024 / 1024) + ' MB');
             }
 
-            var blob = new Blob(chunks);
-            setStatus('Extrayendo pak0.pak...');
-            setProgress(75);
-
-            var zip = await JSZip.loadAsync(blob);
-            var pakFile = zip.file(PAK_PATH_IN_ZIP);
-            if (!pakFile) throw new Error('pak0.pak not found in demo');
-
-            var pakData = await pakFile.async('uint8array');
+            var pakData = new Uint8Array(await new Blob(chunks).arrayBuffer());
             setStatus('Iniciando Quake II...');
             setProgress(90);
 
