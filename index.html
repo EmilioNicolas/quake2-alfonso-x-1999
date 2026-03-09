@@ -238,7 +238,7 @@
         fill.style.width = pct + '%';
     }
 
-    var PAK_PARTS = ['pak0.pak.part_aa', 'pak0.pak.part_ab', 'pak0.pak.part_ac', 'pak0.pak.part_ad'];
+    var RELEASE_BASE = 'https://github.com/EmilioNicolas/quake2-alfonso-x-1999/releases/download/v1.0/';
     var TOTAL_SIZE_MB = 187;
 
     async function startGame() {
@@ -247,53 +247,31 @@
         btn.textContent = 'CARGANDO...';
 
         try {
-            // Download all pak0 chunks + pak1 with a single global progress
             var downloaded = 0;
-            var allParts = [];
 
-            for (var i = 0; i < PAK_PARTS.length; i++) {
-                var response = await fetch(PAK_PARTS[i]);
-                if (!response.ok) throw new Error('Download failed');
+            function makeProgress(bytes) {
+                downloaded += bytes;
+                var mb = Math.round(downloaded / 1048576);
+                setProgress(Math.round((downloaded / (TOTAL_SIZE_MB * 1048576)) * 85));
+                setStatus(mb + ' / ' + TOTAL_SIZE_MB + ' MB');
+            }
+
+            async function fetchPak(name) {
+                var response = await fetch(RELEASE_BASE + name);
+                if (!response.ok) throw new Error('Download failed: ' + name);
                 var reader = response.body.getReader();
                 var chunks = [];
                 while (true) {
                     var result = await reader.read();
                     if (result.done) break;
                     chunks.push(result.value);
-                    downloaded += result.value.length;
-                    var mb = Math.round(downloaded / 1048576);
-                    setProgress(Math.round((downloaded / (TOTAL_SIZE_MB * 1048576)) * 85));
-                    setStatus(mb + ' / ' + TOTAL_SIZE_MB + ' MB');
+                    makeProgress(result.value.length);
                 }
-                allParts.push(new Uint8Array(await new Blob(chunks).arrayBuffer()));
+                return new Uint8Array(await new Blob(chunks).arrayBuffer());
             }
 
-            // Merge pak0 chunks
-            var pak0Size = 0;
-            for (var i = 0; i < allParts.length; i++) pak0Size += allParts[i].length;
-            var pakData = new Uint8Array(pak0Size);
-            var offset = 0;
-            for (var i = 0; i < allParts.length; i++) {
-                pakData.set(allParts[i], offset);
-                offset += allParts[i].length;
-            }
-            allParts = null;
-
-            // Download pak1
-            var resp1 = await fetch('pak1.pak');
-            if (!resp1.ok) throw new Error('Download failed');
-            var reader1 = resp1.body.getReader();
-            var chunks1 = [];
-            while (true) {
-                var r = await reader1.read();
-                if (r.done) break;
-                chunks1.push(r.value);
-                downloaded += r.value.length;
-                var mb = Math.round(downloaded / 1048576);
-                setProgress(Math.round((downloaded / (TOTAL_SIZE_MB * 1048576)) * 85));
-                setStatus(mb + ' / ' + TOTAL_SIZE_MB + ' MB');
-            }
-            var pak1Data = new Uint8Array(await new Blob(chunks1).arrayBuffer());
+            var pakData = await fetchPak('pak0.pak');
+            var pak1Data = await fetchPak('pak1.pak');
 
             setStatus('Iniciando...');
             setProgress(90);
