@@ -325,6 +325,7 @@
         window.Module = {
             _canLockPointer: true,
             print: function(text) {
+                if (Module._quitting) return;
                 if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
                 console.log(text);
                 outputElement.value += text + '\n';
@@ -333,6 +334,9 @@
             canvas: canvasElement,
             setStatus: function(text) {},
             onExit: function() {
+                Module._quitting = true;
+                canvasElement.style.display = 'none';
+                outputElement.style.display = 'none';
                 document.getElementById('gameView').style.display = 'none';
                 document.getElementById('landing').style.display = 'none';
                 document.getElementById('endScreen').style.display = 'flex';
@@ -348,6 +352,7 @@
                 canvasElement.focus();
             },
             showConsole: function() {
+                if (Module._quitting) return;
                 canvasElement.style.display = 'none';
                 outputElement.style.display = 'block';
                 outputElement.scrollTop = outputElement.scrollHeight;
