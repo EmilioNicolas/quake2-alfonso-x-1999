@@ -128,6 +128,40 @@
             padding: 10px;
         }
 
+        /* Victory overlay */
+        #victoryOverlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 9999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            cursor: pointer;
+        }
+        #victoryOverlay h2 {
+            font-size: 2em;
+            color: #ff6600;
+            text-shadow: 0 0 40px rgba(255,102,0,0.5);
+            letter-spacing: 4px;
+            font-weight: normal;
+            margin-bottom: 20px;
+        }
+        #victoryOverlay p {
+            color: #999;
+            font-size: 1em;
+            line-height: 1.8;
+            margin-bottom: 8px;
+        }
+        #victoryOverlay .dismiss {
+            color: #444;
+            font-size: 0.75em;
+            margin-top: 30px;
+            letter-spacing: 2px;
+        }
+
         /* End screen */
         #endScreen {
             display: none;
@@ -203,6 +237,13 @@
             <a href="https://github.com/GMH-Code/Qwasm2" target="_blank">Qwasm2</a> / id Software<br>
             <a href="https://github.com/EmilioNicolas/quake2-alfonso-x-1999" target="_blank">GitHub</a>
         </div>
+    </div>
+
+    <div id="victoryOverlay" onclick="this.style.display='none'">
+        <h2>ENHORABUENA!</h2>
+        <p>Has salvado al Instituto Alfonso X<br>de la invasion alienigena!</p>
+        <p>Gracias por jugar.</p>
+        <p class="dismiss">[ click para continuar ]</p>
     </div>
 
     <div id="endScreen">
@@ -307,6 +348,11 @@
                 if (text && text.indexOf('shutting down') !== -1) {
                     Module.onExit();
                     return;
+                }
+                if (text && text.indexOf('maps/final.bsp') !== -1) {
+                    setTimeout(function() {
+                        document.getElementById('victoryOverlay').style.display = 'flex';
+                    }, 2000);
                 }
                 console.log(text);
                 outputElement.value += text + '\n';
