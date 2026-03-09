@@ -47,11 +47,12 @@
             letter-spacing: 1px;
         }
         .year {
-            font-size: 0.7em;
-            color: #333;
-            margin-bottom: 50px;
-            letter-spacing: 3px;
+            font-size: 0.8em;
+            color: #ff6600;
+            margin-bottom: 30px;
+            letter-spacing: 5px;
             text-transform: uppercase;
+            opacity: 0.5;
         }
         #playBtn {
             background: transparent;
@@ -101,13 +102,13 @@
             transition: width 0.3s;
         }
         .credits {
-            color: #2a2a2a;
-            font-size: 0.65em;
+            color: #666;
+            font-size: 0.75em;
             margin-top: 50px;
             line-height: 1.8;
             letter-spacing: 1px;
         }
-        .credits a { color: #3a3a3a; text-decoration: none; }
+        .credits a { color: #888; text-decoration: none; }
         .credits a:hover { color: #ff6600; }
 
         /* Game view */
@@ -161,13 +162,13 @@
             opacity: 0.3;
         }
         #endScreen .end-credits {
-            color: #333;
-            font-size: 0.7em;
+            color: #777;
+            font-size: 0.8em;
             line-height: 1.8;
             letter-spacing: 1px;
             margin-bottom: 40px;
         }
-        #endScreen .end-credits a { color: #444; text-decoration: none; }
+        #endScreen .end-credits a { color: #999; text-decoration: none; }
         #endScreen .end-credits a:hover { color: #ff6600; }
         #replayBtn {
             background: transparent;
@@ -190,10 +191,10 @@
 </head>
 <body>
     <div id="landing">
-        <h1>INSTITUTO ALFONSO X</h1>
+        <p class="year">QUAKE II &mdash; 1999</p>
+        <h1>INSTITUTO ALFONSO X, MURCIA</h1>
         <div class="line"></div>
-        <p class="tagline">Los alienigenas han invadido el instituto.<br>Recorre sus pasillos, clases y la discoteca.<br>Eres la ultima esperanza.</p>
-        <p class="year">Quake II &mdash; 1999</p>
+        <p class="tagline">Los alienigenas han invadido el instituto.<br>Recorre sus pasillos, clases y el salon de actos.<br>Eres la ultima esperanza.</p>
         <button id="playBtn" onclick="startGame()">JUGAR</button>
         <div id="statusText"></div>
         <div class="progress-bar" id="progressBar"><div class="fill" id="progressFill"></div></div>
