@@ -349,10 +349,11 @@
                     Module.onExit();
                     return;
                 }
-                if (text && text.indexOf('maps/final.bsp') !== -1 || text && text.indexOf('maps/alfonsox.bsp') !== -1) {
-                    setTimeout(function() {
-                        document.getElementById('victoryOverlay').style.display = 'flex';
-                    }, 2000);
+                if (!Module._victoryShown && text && text.trim() === 'final') {
+                    Module._victoryQueued = true;
+                }
+                if (!Module._victoryShown && text && text.trim() === 'alfonsox') {
+                    Module._victoryQueued = true;
                 }
                 console.log(text);
                 outputElement.value += text + '\n';
@@ -377,6 +378,13 @@
                 canvasElement.style.width = '100vw';
                 canvasElement.style.height = '100vh';
                 canvasElement.focus();
+                if (Module._victoryQueued) {
+                    Module._victoryQueued = false;
+                    Module._victoryShown = true;
+                    setTimeout(function() {
+                        document.getElementById('victoryOverlay').style.display = 'flex';
+                    }, 2000);
+                }
             },
             showConsole: function() {
                 if (Module._quitting) return;
