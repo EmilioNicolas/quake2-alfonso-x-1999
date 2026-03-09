@@ -330,7 +330,26 @@
                 delete window._pak1Data;
                 outputElement.style.display = 'block';
             },
-            arguments: ['+set', 'skill', '0', '+map', 'alfonsox']
+            arguments: [
+                '+set', 'skill', '0',
+                '+set', 'vid_ref', 'gles3',
+                '+set', 'gl_texturemode', 'GL_LINEAR_MIPMAP_LINEAR',
+                '+set', 'gl3_particle_size', '40',
+                '+set', 'gl3_particle_fade_factor', '0.8',
+                '+set', 'gl_modulate', '2.5',
+                '+set', 'gl3_intensity', '2.0',
+                '+set', 'gl3_overbrightbits', '1.3',
+                '+set', 'gl_anisotropic', '16',
+                '+set', 'gl_msaa_samples', '4',
+                '+set', 'r_vsync', '1',
+                '+set', 'cl_lights', '1',
+                '+set', 'gl_shadows', '1',
+                '+set', 'crosshair', '1',
+                '+set', 'freelook', '1',
+                '+set', 'cl_run', '1',
+                '+set', 'sensitivity', '3',
+                '+map', 'alfonsox'
+            ]
         };
 
         var script = document.createElement('script');
