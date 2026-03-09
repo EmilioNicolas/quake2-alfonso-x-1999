@@ -327,6 +327,10 @@
             print: function(text) {
                 if (Module._quitting) return;
                 if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+                if (text && text.indexOf('shutting down') !== -1) {
+                    Module.onExit();
+                    return;
+                }
                 console.log(text);
                 outputElement.value += text + '\n';
                 outputElement.scrollTop = outputElement.scrollHeight;
