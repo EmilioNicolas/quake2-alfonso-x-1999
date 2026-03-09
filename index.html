@@ -214,7 +214,10 @@
             Motor: Quake II (id Software) / <a href="https://github.com/GMH-Code/Qwasm2" target="_blank">Qwasm2</a><br>
             <a href="https://github.com/EmilioNicolas/quake2-alfonso-x-1999" target="_blank">GitHub</a>
         </div>
-        <button id="replayBtn" onclick="location.reload()">VOLVER</button>
+        <div style="display:flex; gap:20px;">
+            <button id="replayBtn" onclick="location.reload()">JUGAR DE NUEVO</button>
+            <button id="replayBtn" onclick="document.getElementById('endScreen').style.display='none'; document.getElementById('landing').style.display='flex';" style="border-color:#555; color:#555;">VOLVER</button>
+        </div>
     </div>
 
     <div id="gameView">
