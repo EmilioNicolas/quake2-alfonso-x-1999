@@ -3,11 +3,11 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Instituto Alfonso X - Quake 2 Custom Maps (1999)</title>
+    <title>Instituto Alfonso X - Quake II (1999)</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            background: #0a0a0a;
+            background: #000;
             color: #e0e0e0;
             font-family: 'Courier New', monospace;
             overflow: hidden;
@@ -19,76 +19,77 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
-            background: radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a0a 70%);
+            background: #000;
             text-align: center;
             padding: 20px;
-            position: relative;
-            overflow: hidden;
         }
-        /* Quake 2 logo SVG background */
-        #landing::before {
-            content: '';
-            position: absolute;
-            width: 500px;
-            height: 500px;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cpath d='M100 10 L130 50 L180 60 L145 95 L155 145 L100 120 L45 145 L55 95 L20 60 L70 50 Z' fill='none' stroke='%23ff6600' stroke-width='1.5' opacity='0.12'/%3E%3Cpath d='M100 30 L120 55 L160 62 L132 88 L140 128 L100 110 L60 128 L68 88 L40 62 L80 55 Z' fill='none' stroke='%23ff6600' stroke-width='1' opacity='0.08'/%3E%3Ccircle cx='100' cy='80' r='60' fill='none' stroke='%23ff6600' stroke-width='0.5' opacity='0.06'/%3E%3Ccircle cx='100' cy='80' r='80' fill='none' stroke='%23ff6600' stroke-width='0.5' opacity='0.04'/%3E%3Cpath d='M85 55 L85 105 L115 80 Z' fill='%23ff6600' opacity='0.06'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-size: contain;
-            opacity: 1;
-            z-index: 0;
-            animation: pulse 4s ease-in-out infinite;
+        .line {
+            width: 60px;
+            height: 1px;
+            background: #ff6600;
+            margin: 0 auto 40px;
+            opacity: 0.4;
         }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(1.05); }
-        }
-        #landing > * { position: relative; z-index: 1; }
         h1 {
-            font-size: 3em;
+            font-size: 2.2em;
             color: #ff6600;
-            text-shadow: 0 0 30px rgba(255,102,0,0.6), 0 0 60px rgba(255,102,0,0.2);
-            margin-bottom: 20px;
-            letter-spacing: 3px;
+            text-shadow: 0 0 40px rgba(255,102,0,0.3);
+            margin-bottom: 12px;
+            letter-spacing: 6px;
+            font-weight: normal;
         }
         .tagline {
-            font-size: 1.1em;
-            color: #999;
-            margin-bottom: 10px;
-            line-height: 1.6;
-            max-width: 500px;
+            font-size: 0.95em;
+            color: #666;
+            margin-bottom: 8px;
+            line-height: 1.8;
+            max-width: 420px;
+            letter-spacing: 1px;
         }
         .year {
-            font-size: 0.85em;
-            color: #555;
-            margin-bottom: 40px;
-        }
-        #playBtn {
-            background: #ff6600;
-            color: #000;
-            border: none;
-            padding: 20px 60px;
-            font-size: 1.6em;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-            cursor: pointer;
-            letter-spacing: 4px;
-            transition: all 0.2s;
-            margin-bottom: 15px;
+            font-size: 0.7em;
+            color: #333;
+            margin-bottom: 50px;
+            letter-spacing: 3px;
             text-transform: uppercase;
         }
-        #playBtn:hover { background: #ff8833; transform: scale(1.08); box-shadow: 0 0 30px rgba(255,102,0,0.4); }
-        #playBtn:disabled { background: #555; cursor: wait; box-shadow: none; transform: none; }
-        #statusText {
-            color: #888;
-            font-size: 0.9em;
+        #playBtn {
+            background: transparent;
+            color: #ff6600;
+            border: 1px solid #ff6600;
+            padding: 16px 70px;
+            font-size: 1.2em;
+            font-family: 'Courier New', monospace;
+            font-weight: normal;
+            cursor: pointer;
+            letter-spacing: 6px;
+            transition: all 0.3s;
             margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+        #playBtn:hover {
+            background: #ff6600;
+            color: #000;
+            box-shadow: 0 0 40px rgba(255,102,0,0.3);
+        }
+        #playBtn:disabled {
+            border-color: #333;
+            color: #333;
+            cursor: wait;
+            background: transparent;
+            box-shadow: none;
+        }
+        #statusText {
+            color: #555;
+            font-size: 0.8em;
+            margin-bottom: 12px;
             min-height: 1.2em;
+            letter-spacing: 1px;
         }
         .progress-bar {
-            width: 300px;
-            height: 6px;
-            background: #333;
-            border-radius: 3px;
+            width: 240px;
+            height: 2px;
+            background: #1a1a1a;
             overflow: hidden;
             margin-bottom: 20px;
             display: none;
@@ -100,12 +101,13 @@
             transition: width 0.3s;
         }
         .credits {
-            color: #444;
-            font-size: 0.75em;
-            margin-top: 30px;
-            line-height: 1.6;
+            color: #2a2a2a;
+            font-size: 0.65em;
+            margin-top: 50px;
+            line-height: 1.8;
+            letter-spacing: 1px;
         }
-        .credits a { color: #666; text-decoration: none; }
+        .credits a { color: #3a3a3a; text-decoration: none; }
         .credits a:hover { color: #ff6600; }
 
         /* Game view */
@@ -116,7 +118,7 @@
             font-size: 14px;
             width: 100%;
             height: 100vh;
-            background: #0a0a0a;
+            background: #000;
             color: #999;
             border: none;
             resize: none;
@@ -129,14 +131,15 @@
 <body>
     <div id="landing">
         <h1>INSTITUTO ALFONSO X</h1>
-        <p class="tagline">Los alienigenas han invadido el instituto.<br>Recorre sus pasillos, clases y la discoteca.<br>Eres la ultima esperanza. Salva el Alfonso X.</p>
+        <div class="line"></div>
+        <p class="tagline">Los alienigenas han invadido el instituto.<br>Recorre sus pasillos, clases y la discoteca.<br>Eres la ultima esperanza.</p>
         <p class="year">Quake II &mdash; 1999</p>
         <button id="playBtn" onclick="startGame()">JUGAR</button>
         <div id="statusText"></div>
         <div class="progress-bar" id="progressBar"><div class="fill" id="progressFill"></div></div>
         <div class="credits">
-            Hecho por <a href="https://x.com/javilopen" target="_blank">@javilopen</a> y <a href="https://x.com/emailnicolas" target="_blank">@emailnicolas</a> en 1999<br>
-            Motor: Quake II (id Software) via <a href="https://github.com/GMH-Code/Qwasm2" target="_blank">Qwasm2</a>
+            <a href="https://x.com/javilopen" target="_blank">@javilopen</a> &amp; <a href="https://x.com/emailnicolas" target="_blank">@emailnicolas</a><br>
+            <a href="https://github.com/GMH-Code/Qwasm2" target="_blank">Qwasm2</a> / id Software
         </div>
     </div>
 
@@ -158,43 +161,8 @@
         fill.style.width = pct + '%';
     }
 
-    async function downloadFile(url, label, progressStart, progressEnd) {
-        var response = await fetch(url);
-        if (!response.ok) throw new Error('Download failed: ' + response.status);
-        var reader = response.body.getReader();
-        var contentLength = +response.headers.get('Content-Length') || 1;
-        var received = 0;
-        var chunks = [];
-        while (true) {
-            var result = await reader.read();
-            if (result.done) break;
-            chunks.push(result.value);
-            received += result.value.length;
-            var pct = progressStart + Math.round((received / contentLength) * (progressEnd - progressStart));
-            setProgress(pct);
-            setStatus(label + ' ' + Math.round(received / 1024 / 1024) + '/' + Math.round(contentLength / 1024 / 1024) + ' MB');
-        }
-        return new Uint8Array(await new Blob(chunks).arrayBuffer());
-    }
-
-    async function downloadChunked(parts, label, progressStart, progressEnd) {
-        var allChunks = [];
-        var totalSize = 0;
-        var partRange = (progressEnd - progressStart) / parts.length;
-        for (var i = 0; i < parts.length; i++) {
-            var data = await downloadFile(parts[i], label + ' (' + (i+1) + '/' + parts.length + ')',
-                progressStart + partRange * i, progressStart + partRange * (i+1));
-            allChunks.push(data);
-            totalSize += data.length;
-        }
-        var result = new Uint8Array(totalSize);
-        var offset = 0;
-        for (var i = 0; i < allChunks.length; i++) {
-            result.set(allChunks[i], offset);
-            offset += allChunks[i].length;
-        }
-        return result;
-    }
+    var PAK_PARTS = ['pak0.pak.part_aa', 'pak0.pak.part_ab', 'pak0.pak.part_ac', 'pak0.pak.part_ad'];
+    var TOTAL_SIZE_MB = 187;
 
     async function startGame() {
         var btn = document.getElementById('playBtn');
@@ -202,12 +170,55 @@
         btn.textContent = 'CARGANDO...';
 
         try {
-            var pakData = await downloadChunked(
-                ['pak0.pak.part_aa', 'pak0.pak.part_ab', 'pak0.pak.part_ac', 'pak0.pak.part_ad'],
-                'Descargando...', 2, 70
-            );
-            var pak1Data = await downloadFile('pak1.pak', 'Descargando extras...', 70, 85);
-            setStatus('Iniciando Quake II...');
+            // Download all pak0 chunks + pak1 with a single global progress
+            var downloaded = 0;
+            var allParts = [];
+
+            for (var i = 0; i < PAK_PARTS.length; i++) {
+                var response = await fetch(PAK_PARTS[i]);
+                if (!response.ok) throw new Error('Download failed');
+                var reader = response.body.getReader();
+                var chunks = [];
+                while (true) {
+                    var result = await reader.read();
+                    if (result.done) break;
+                    chunks.push(result.value);
+                    downloaded += result.value.length;
+                    var mb = Math.round(downloaded / 1048576);
+                    setProgress(Math.round((downloaded / (TOTAL_SIZE_MB * 1048576)) * 85));
+                    setStatus(mb + ' / ' + TOTAL_SIZE_MB + ' MB');
+                }
+                allParts.push(new Uint8Array(await new Blob(chunks).arrayBuffer()));
+            }
+
+            // Merge pak0 chunks
+            var pak0Size = 0;
+            for (var i = 0; i < allParts.length; i++) pak0Size += allParts[i].length;
+            var pakData = new Uint8Array(pak0Size);
+            var offset = 0;
+            for (var i = 0; i < allParts.length; i++) {
+                pakData.set(allParts[i], offset);
+                offset += allParts[i].length;
+            }
+            allParts = null;
+
+            // Download pak1
+            var resp1 = await fetch('pak1.pak');
+            if (!resp1.ok) throw new Error('Download failed');
+            var reader1 = resp1.body.getReader();
+            var chunks1 = [];
+            while (true) {
+                var r = await reader1.read();
+                if (r.done) break;
+                chunks1.push(r.value);
+                downloaded += r.value.length;
+                var mb = Math.round(downloaded / 1048576);
+                setProgress(Math.round((downloaded / (TOTAL_SIZE_MB * 1048576)) * 85));
+                setStatus(mb + ' / ' + TOTAL_SIZE_MB + ' MB');
+            }
+            var pak1Data = new Uint8Array(await new Blob(chunks1).arrayBuffer());
+
+            setStatus('Iniciando...');
             setProgress(90);
 
             window._pakData = pakData;
