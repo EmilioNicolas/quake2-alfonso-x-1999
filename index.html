@@ -177,13 +177,35 @@
         return new Uint8Array(await new Blob(chunks).arrayBuffer());
     }
 
+    async function downloadChunked(parts, label, progressStart, progressEnd) {
+        var allChunks = [];
+        var totalSize = 0;
+        var partRange = (progressEnd - progressStart) / parts.length;
+        for (var i = 0; i < parts.length; i++) {
+            var data = await downloadFile(parts[i], label + ' (' + (i+1) + '/' + parts.length + ')',
+                progressStart + partRange * i, progressStart + partRange * (i+1));
+            allChunks.push(data);
+            totalSize += data.length;
+        }
+        var result = new Uint8Array(totalSize);
+        var offset = 0;
+        for (var i = 0; i < allChunks.length; i++) {
+            result.set(allChunks[i], offset);
+            offset += allChunks[i].length;
+        }
+        return result;
+    }
+
     async function startGame() {
         var btn = document.getElementById('playBtn');
         btn.disabled = true;
         btn.textContent = 'CARGANDO...';
 
         try {
-            var pakData = await downloadFile('pak0.pak', 'Descargando...', 2, 70);
+            var pakData = await downloadChunked(
+                ['pak0.pak.part_aa', 'pak0.pak.part_ab', 'pak0.pak.part_ac', 'pak0.pak.part_ad'],
+                'Descargando...', 2, 70
+            );
             var pak1Data = await downloadFile('pak1.pak', 'Descargando extras...', 70, 85);
             setStatus('Iniciando Quake II...');
             setProgress(90);
@@ -225,6 +247,18 @@
             },
             canvas: canvasElement,
             setStatus: function(text) {},
+            onExit: function() {
+                document.getElementById('gameView').style.display = 'none';
+                document.getElementById('landing').style.display = 'flex';
+                var btn = document.getElementById('playBtn');
+                btn.disabled = false;
+                btn.textContent = 'JUGAR';
+                setStatus('');
+                setProgress(0);
+            },
+            quit: function(code, toThrow) {
+                Module.onExit();
+            },
             hideConsole: function() {
                 outputElement.style.display = 'none';
                 canvasElement.style.display = 'block';
