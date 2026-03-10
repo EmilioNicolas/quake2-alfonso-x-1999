@@ -349,7 +349,7 @@
                     Module.onExit();
                     return;
                 }
-                if (!Module._victoryShown && text && text.indexOf('Map: final') !== -1) {
+                if (!Module._victoryShown && text && text.match(/^Map: final$/)) {
                     Module._victoryShown = true;
                     setTimeout(function() {
                         document.getElementById('victoryOverlay').style.display = 'flex';
