@@ -414,53 +414,36 @@
     var CDN = 'https://q2-assets.enicolas-riquelme.workers.dev/';
     var TOTAL_SIZE_MB = 187;
     var isMobile = /Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent) || ('ontouchstart' in window && window.innerWidth < 1024);
+    var _downloaded = 0;
 
-    async function fetchWithProgress(url, maxRetries) {
-        maxRetries = maxRetries || 5;
-        var downloadedBefore = fetchWithProgress._downloaded;
-        var chunks = [];
-        var fileBytes = 0;
-
-        for (var attempt = 0; attempt <= maxRetries; attempt++) {
+    async function downloadOne(url, retries) {
+        for (var attempt = 0; attempt <= retries; attempt++) {
+            var thisBytes = 0;
             try {
-                var headers = {};
-                if (fileBytes > 0) {
-                    headers['Range'] = 'bytes=' + fileBytes + '-';
-                    setStatus('Reconectando...');
+                if (attempt > 0) {
+                    setStatus('Reconectando (' + attempt + '/' + retries + ')...');
+                    await new Promise(function(r) { setTimeout(r, 2000 * attempt); });
                 }
-                var response = await fetch(url, { headers: headers });
-                // 416 = Range not satisfiable = file already complete
-                if (response.status === 416) {
-                    return new Uint8Array(await new Blob(chunks).arrayBuffer());
-                }
-                // If server ignores Range (200 instead of 206), restart
-                if (response.status === 200 && fileBytes > 0) {
-                    chunks = [];
-                    fileBytes = 0;
-                }
-                if (!response.ok && response.status !== 206) throw new Error('HTTP ' + response.status);
-                var reader = response.body.getReader();
+                var resp = await fetch(url);
+                if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                var reader = resp.body.getReader();
+                var parts = [];
                 while (true) {
-                    var result = await reader.read();
-                    if (result.done) break;
-                    chunks.push(result.value);
-                    fileBytes += result.value.length;
-                    fetchWithProgress._downloaded = downloadedBefore + fileBytes;
-                    var mb = Math.round(fetchWithProgress._downloaded / 1048576);
-                    var pct = Math.min(85, Math.round((fetchWithProgress._downloaded / (TOTAL_SIZE_MB * 1048576)) * 85));
-                    setProgress(pct);
-                    setStatus(mb + ' / ' + TOTAL_SIZE_MB + ' MB');
+                    var r = await reader.read();
+                    if (r.done) break;
+                    parts.push(r.value);
+                    thisBytes += r.value.length;
+                    _downloaded += r.value.length;
+                    setProgress(Math.min(85, Math.round((_downloaded / (TOTAL_SIZE_MB * 1048576)) * 85)));
+                    setStatus(Math.round(_downloaded / 1048576) + ' / ' + TOTAL_SIZE_MB + ' MB');
                 }
-                return new Uint8Array(await new Blob(chunks).arrayBuffer());
+                return new Uint8Array(await new Blob(parts).arrayBuffer());
             } catch (e) {
-                if (attempt >= maxRetries) throw e;
-                fetchWithProgress._downloaded = downloadedBefore + fileBytes;
-                setStatus('Conexi\u00f3n perdida, reintentando (' + (attempt + 1) + '/' + maxRetries + ')...');
-                await new Promise(function(r) { setTimeout(r, 2000 * (attempt + 1)); });
+                _downloaded -= thisBytes;
+                if (attempt >= retries) throw new Error('Descarga fallida');
             }
         }
     }
-    fetchWithProgress._downloaded = 0;
 
     async function startGame() {
         var btn = document.getElementById('playBtn');
@@ -468,33 +451,33 @@
         btn.textContent = 'CARGANDO...';
 
         try {
-            fetchWithProgress._downloaded = 0;
-
-            // Download pak0 in 4 chunks (~49MB each) then merge
-            var pak0Chunks = [];
-            var chunkNames = ['pak0_chunk_aa', 'pak0_chunk_ab', 'pak0_chunk_ac', 'pak0_chunk_ad'];
-            for (var i = 0; i < chunkNames.length; i++) {
-                pak0Chunks.push(await fetchWithProgress(CDN + chunkNames[i]));
+            if (isMobile) {
+                try { screen.orientation.lock('landscape').catch(function(){}); } catch(e) {}
             }
+            _downloaded = 0;
+            var files = ['pak0_chunk_aa', 'pak0_chunk_ab', 'pak0_chunk_ac', 'pak0_chunk_ad', 'pak1.pak'];
+            var results = [];
+            for (var i = 0; i < files.length; i++) {
+                results.push(await downloadOne(CDN + files[i], 8));
+            }
+
+            // Merge pak0 chunks
             var pak0Size = 0;
-            for (var i = 0; i < pak0Chunks.length; i++) pak0Size += pak0Chunks[i].length;
+            for (var i = 0; i < 4; i++) pak0Size += results[i].length;
             var pak0 = new Uint8Array(pak0Size);
-            var offset = 0;
-            for (var i = 0; i < pak0Chunks.length; i++) {
-                pak0.set(pak0Chunks[i], offset);
-                offset += pak0Chunks[i].length;
-                pak0Chunks[i] = null;
+            var off = 0;
+            for (var i = 0; i < 4; i++) {
+                pak0.set(results[i], off);
+                off += results[i].length;
+                results[i] = null;
             }
-            pak0Chunks = null;
-
-            var pak1 = await fetchWithProgress(CDN + 'pak1.pak');
 
             window._pakFiles = [
                 { name: '/baseq2/pak0.pak', data: pak0 },
-                { name: '/baseq2/pak1.pak', data: pak1 }
+                { name: '/baseq2/pak1.pak', data: results[4] }
             ];
             pak0 = null;
-            pak1 = null;
+            results = null;
 
             setStatus('Iniciando...');
             setProgress(90);
@@ -505,7 +488,6 @@
             if (isMobile) {
                 document.getElementById('touchControls').style.display = 'block';
                 document.getElementById('touchControls').classList.add('active');
-                try { screen.orientation.lock('landscape').catch(function(){}); } catch(e) {}
             }
 
             setProgress(95);
