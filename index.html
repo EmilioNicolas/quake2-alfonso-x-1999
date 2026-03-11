@@ -600,36 +600,48 @@
         });
 
         // Look zone - right half: drag to look, tap to shoot
-        var lookOrigin = null;
-        var lookMoved = false;
+        // Track by touch identifier to avoid multitouch conflicts
+        var lookTouchId = null;
+        var lookLast = null;
+        var lookTotalDist = 0;
 
         document.getElementById('lookZone').addEventListener('touchstart', function(e) {
             e.preventDefault();
+            if (lookTouchId !== null) return; // already tracking a look touch
             var t = e.changedTouches[0];
-            lookOrigin = { x: t.clientX, y: t.clientY };
-            lookMoved = false;
+            lookTouchId = t.identifier;
+            lookLast = { x: t.clientX, y: t.clientY };
+            lookTotalDist = 0;
         });
 
         document.getElementById('lookZone').addEventListener('touchmove', function(e) {
             e.preventDefault();
-            if (!lookOrigin) return;
-            var t = e.changedTouches[0];
-            var dx = (t.clientX - lookOrigin.x) * 4;
-            var dy = (t.clientY - lookOrigin.y) * 4;
-            lookOrigin = { x: t.clientX, y: t.clientY };
-            if (Math.abs(dx) > 1 || Math.abs(dy) > 1) lookMoved = true;
+            var t = null;
+            for (var i = 0; i < e.changedTouches.length; i++) {
+                if (e.changedTouches[i].identifier === lookTouchId) { t = e.changedTouches[i]; break; }
+            }
+            if (!t || !lookLast) return;
+            var dx = (t.clientX - lookLast.x) * 8;
+            var dy = (t.clientY - lookLast.y) * 8;
+            lookLast = { x: t.clientX, y: t.clientY };
+            lookTotalDist += Math.abs(dx) + Math.abs(dy);
             sendMouseMove(dx, dy);
         });
 
         document.getElementById('lookZone').addEventListener('touchend', function(e) {
             e.preventDefault();
-            // Tap = shoot
-            if (!lookMoved) {
-                sendMouseButton(true);
-                setTimeout(function() { sendMouseButton(false); }, 100);
+            for (var i = 0; i < e.changedTouches.length; i++) {
+                if (e.changedTouches[i].identifier === lookTouchId) {
+                    // Tap = shoot (less than 30px total movement)
+                    if (lookTotalDist < 30) {
+                        sendMouseButton(true);
+                        setTimeout(function() { sendMouseButton(false); }, 100);
+                    }
+                    lookTouchId = null;
+                    lookLast = null;
+                    break;
+                }
             }
-            lookOrigin = null;
-            lookMoved = false;
         });
 
         // Fire buttons (both sides)
