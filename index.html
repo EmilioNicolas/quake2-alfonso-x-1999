@@ -469,14 +469,14 @@
 
         try {
             fetchWithProgress._downloaded = 0;
-            var pakData = await fetchWithProgress(CDN + 'pak0.pak');
-            var pak1Data = await fetchWithProgress(CDN + 'pak1.pak');
+            window._pakFiles = [];
+            var pak0 = await fetchWithProgress(CDN + 'pak0.pak');
+            window._pakFiles.push({ name: '/baseq2/pak0.pak', data: pak0 });
+            var pak1 = await fetchWithProgress(CDN + 'pak1.pak');
+            window._pakFiles.push({ name: '/baseq2/pak1.pak', data: pak1 });
 
             setStatus('Iniciando...');
             setProgress(90);
-
-            window._pakData = pakData;
-            window._pak1Data = pak1Data;
 
             document.getElementById('landing').style.display = 'none';
             document.getElementById('gameView').style.display = 'block';
@@ -727,24 +727,21 @@
                 this.totalDependencies = Math.max(this.totalDependencies, left);
             },
             onRuntimeInitialized: function() {
-                var paks = [
-                    { data: window._pakData, name: '/baseq2/pak0.pak' },
-                    { data: window._pak1Data, name: '/baseq2/pak1.pak' }
-                ];
-                for (var i = 0; i < paks.length; i++) {
-                    if (paks[i].data) {
+                if (window._pakFiles) {
+                    for (var i = 0; i < window._pakFiles.length; i++) {
+                        var p = window._pakFiles[i];
                         try {
-                            var fd = FS.open(paks[i].name, 'w');
-                            FS.write(fd, paks[i].data, 0, paks[i].data.length, 0);
+                            var fd = FS.open(p.name, 'w');
+                            FS.write(fd, p.data, 0, p.data.length, 0);
                             FS.close(fd);
-                            console.log(paks[i].name + ' written: ' + paks[i].data.length + ' bytes');
+                            console.log(p.name + ' written: ' + p.data.length + ' bytes');
                         } catch (e) {
-                            console.error('Error writing ' + paks[i].name + ':', e);
+                            console.error('Error writing ' + p.name + ':', e);
                         }
+                        window._pakFiles[i].data = null;
                     }
+                    delete window._pakFiles;
                 }
-                delete window._pakData;
-                delete window._pak1Data;
                 outputElement.style.display = 'block';
             },
             arguments: [
