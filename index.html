@@ -151,15 +151,31 @@
         }
         #moveZone {
             left: 0; bottom: 0;
-            width: 40vw; height: 50vh;
+            width: 50vw; height: 100vh;
         }
         #lookZone {
             right: 0; bottom: 0;
-            width: 60vw; height: 100vh;
+            width: 50vw; height: 100vh;
         }
-        #fireBtn {
+        #fireBtnLeft {
             position: absolute;
-            right: 20px; bottom: 20px;
+            left: 10px; top: 50%;
+            transform: translateY(-50%);
+            width: 50px; height: 80px;
+            border-radius: 8px;
+            background: rgba(255,102,0,0.2);
+            border: 2px solid rgba(255,102,0,0.4);
+            z-index: 200;
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.5em;
+            color: rgba(255,102,0,0.6);
+        }
+        #fireBtnRight {
+            position: absolute;
+            right: 20px; bottom: 30px;
             width: 70px; height: 70px;
             border-radius: 50%;
             background: rgba(255,102,0,0.3);
@@ -174,7 +190,7 @@
         }
         #jumpBtn {
             position: absolute;
-            right: 100px; bottom: 20px;
+            right: 20px; top: 40%;
             width: 50px; height: 50px;
             border-radius: 50%;
             background: rgba(255,255,255,0.1);
@@ -189,7 +205,7 @@
         }
         #weaponBtns {
             position: absolute;
-            top: 10px; right: 10px;
+            top: 10px; left: 50%; transform: translateX(-50%);
             display: flex; gap: 5px;
             z-index: 200;
             pointer-events: auto;
@@ -207,7 +223,7 @@
         }
         #joystickIndicator {
             position: absolute;
-            width: 80px; height: 80px;
+            width: 100px; height: 100px;
             border-radius: 50%;
             border: 2px solid rgba(255,255,255,0.15);
             display: none;
@@ -216,7 +232,7 @@
         }
         #joystickKnob {
             position: absolute;
-            width: 30px; height: 30px;
+            width: 40px; height: 40px;
             border-radius: 50%;
             background: rgba(255,255,255,0.25);
             top: 50%; left: 50%;
@@ -387,7 +403,8 @@
     <div id="touchControls">
         <div id="moveZone" class="touch-zone"></div>
         <div id="lookZone" class="touch-zone"></div>
-        <div id="fireBtn">FIRE</div>
+        <div id="fireBtnLeft">FIRE</div>
+        <div id="fireBtnRight">FIRE</div>
         <div id="jumpBtn">JUMP</div>
         <div id="weaponBtns">
             <div class="weapon-btn" data-key="2">2</div>
@@ -451,13 +468,6 @@
         btn.textContent = 'CARGANDO...';
 
         try {
-            if (isMobile) {
-                try {
-                    document.documentElement.requestFullscreen().then(function() {
-                        screen.orientation.lock('landscape').catch(function(){});
-                    }).catch(function(){});
-                } catch(e) {}
-            }
             _downloaded = 0;
             var files = ['pak0_chunk_aa', 'pak0_chunk_ab', 'pak0_chunk_ac', 'pak0_chunk_ad', 'pak1.pak'];
             var results = [];
@@ -492,6 +502,11 @@
             if (isMobile) {
                 document.getElementById('touchControls').style.display = 'block';
                 document.getElementById('touchControls').classList.add('active');
+                try {
+                    document.documentElement.requestFullscreen().then(function() {
+                        screen.orientation.lock('landscape').catch(function(){});
+                    }).catch(function(){});
+                } catch(e) {}
             }
 
             setProgress(95);
@@ -547,20 +562,18 @@
     }
 
     if (isMobile) {
-        // Move joystick
+        // Move joystick - left half of screen
         var moveOrigin = null;
-        var joystick = null;
-        var knob = null;
+        var joystick = document.getElementById('joystickIndicator');
+        var knob = document.getElementById('joystickKnob');
 
         document.getElementById('moveZone').addEventListener('touchstart', function(e) {
             e.preventDefault();
             var t = e.touches[0];
             moveOrigin = { x: t.clientX, y: t.clientY };
-            joystick = document.getElementById('joystickIndicator');
-            knob = document.getElementById('joystickKnob');
             joystick.style.display = 'block';
-            joystick.style.left = (t.clientX - 40) + 'px';
-            joystick.style.top = (t.clientY - 40) + 'px';
+            joystick.style.left = (t.clientX - 50) + 'px';
+            joystick.style.top = (t.clientY - 50) + 'px';
         });
 
         document.getElementById('moveZone').addEventListener('touchmove', function(e) {
@@ -569,13 +582,11 @@
             var t = e.touches[0];
             var dx = t.clientX - moveOrigin.x;
             var dy = t.clientY - moveOrigin.y;
-            var max = 35;
+            var max = 40;
             var clampDx = Math.max(-max, Math.min(max, dx));
             var clampDy = Math.max(-max, Math.min(max, dy));
-            if (knob) {
-                knob.style.left = (50 + (clampDx / max) * 35) + '%';
-                knob.style.top = (50 + (clampDy / max) * 35) + '%';
-            }
+            knob.style.left = (50 + (clampDx / max) * 40) + '%';
+            knob.style.top = (50 + (clampDy / max) * 40) + '%';
             updateMoveKeys(dx, dy);
         });
 
@@ -583,39 +594,52 @@
             e.preventDefault();
             moveOrigin = null;
             updateMoveKeys(0, 0);
-            if (joystick) joystick.style.display = 'none';
-            if (knob) { knob.style.left = '50%'; knob.style.top = '50%'; }
+            joystick.style.display = 'none';
+            knob.style.left = '50%';
+            knob.style.top = '50%';
         });
 
-        // Look zone
+        // Look zone - right half: drag to look, tap to shoot
         var lookOrigin = null;
+        var lookMoved = false;
+
         document.getElementById('lookZone').addEventListener('touchstart', function(e) {
             e.preventDefault();
             var t = e.changedTouches[0];
             lookOrigin = { x: t.clientX, y: t.clientY };
+            lookMoved = false;
         });
 
         document.getElementById('lookZone').addEventListener('touchmove', function(e) {
             e.preventDefault();
             if (!lookOrigin) return;
             var t = e.changedTouches[0];
-            var dx = (t.clientX - lookOrigin.x) * 2;
-            var dy = (t.clientY - lookOrigin.y) * 2;
+            var dx = (t.clientX - lookOrigin.x) * 4;
+            var dy = (t.clientY - lookOrigin.y) * 4;
             lookOrigin = { x: t.clientX, y: t.clientY };
+            if (Math.abs(dx) > 1 || Math.abs(dy) > 1) lookMoved = true;
             sendMouseMove(dx, dy);
         });
 
         document.getElementById('lookZone').addEventListener('touchend', function(e) {
             e.preventDefault();
+            // Tap = shoot
+            if (!lookMoved) {
+                sendMouseButton(true);
+                setTimeout(function() { sendMouseButton(false); }, 100);
+            }
             lookOrigin = null;
+            lookMoved = false;
         });
 
-        // Fire button
-        document.getElementById('fireBtn').addEventListener('touchstart', function(e) {
-            e.preventDefault(); sendMouseButton(true);
-        });
-        document.getElementById('fireBtn').addEventListener('touchend', function(e) {
-            e.preventDefault(); sendMouseButton(false);
+        // Fire buttons (both sides)
+        ['fireBtnLeft', 'fireBtnRight'].forEach(function(id) {
+            document.getElementById(id).addEventListener('touchstart', function(e) {
+                e.preventDefault(); sendMouseButton(true);
+            });
+            document.getElementById(id).addEventListener('touchend', function(e) {
+                e.preventDefault(); sendMouseButton(false);
+            });
         });
 
         // Jump button
