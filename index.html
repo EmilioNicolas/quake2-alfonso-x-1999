@@ -323,6 +323,18 @@
             .tagline { font-size: 0.8em; }
             .mobile-note { display: block; }
             #playBtn { padding: 14px 40px; font-size: 1em; }
+            .credits { margin-top: 20px; }
+            .year { margin-bottom: 15px; }
+            .line { margin: 0 auto 20px; }
+        }
+        @media (max-width: 768px) and (orientation: landscape) {
+            h1 { font-size: 1.2em; margin-bottom: 6px; }
+            .tagline { font-size: 0.7em; margin-bottom: 4px; line-height: 1.4; }
+            .year { margin-bottom: 8px; font-size: 0.65em; }
+            .line { margin: 0 auto 10px; }
+            .mobile-note { font-size: 0.6em; margin-bottom: 8px; }
+            #playBtn { padding: 10px 30px; font-size: 0.9em; }
+            .credits { margin-top: 10px; font-size: 0.6em; }
         }
     </style>
 </head>
@@ -443,6 +455,7 @@
             if (isMobile) {
                 document.getElementById('touchControls').style.display = 'block';
                 document.getElementById('touchControls').classList.add('active');
+                try { screen.orientation.lock('landscape').catch(function(){}); } catch(e) {}
             }
 
             setProgress(95);
