@@ -418,15 +418,24 @@
     async function fetchWithProgress(url, maxRetries) {
         maxRetries = maxRetries || 5;
         var downloadedBefore = fetchWithProgress._downloaded;
+        var chunks = [];
+        var fileBytes = 0;
 
         for (var attempt = 0; attempt <= maxRetries; attempt++) {
             try {
-                if (attempt > 0) setStatus('Reconectando...');
-                var response = await fetch(url);
-                if (!response.ok) throw new Error('HTTP ' + response.status);
+                var headers = {};
+                if (fileBytes > 0) {
+                    headers['Range'] = 'bytes=' + fileBytes + '-';
+                    setStatus('Reconectando...');
+                }
+                var response = await fetch(url, { headers: headers });
+                // If server ignores Range (200 instead of 206), restart
+                if (response.status === 200 && fileBytes > 0) {
+                    chunks = [];
+                    fileBytes = 0;
+                }
+                if (!response.ok && response.status !== 206) throw new Error('HTTP ' + response.status);
                 var reader = response.body.getReader();
-                var chunks = [];
-                var fileBytes = 0;
                 while (true) {
                     var result = await reader.read();
                     if (result.done) break;
@@ -441,7 +450,7 @@
                 return new Uint8Array(await new Blob(chunks).arrayBuffer());
             } catch (e) {
                 if (attempt >= maxRetries) throw e;
-                fetchWithProgress._downloaded = downloadedBefore;
+                fetchWithProgress._downloaded = downloadedBefore + fileBytes;
                 setStatus('Conexi\u00f3n perdida, reintentando (' + (attempt + 1) + '/' + maxRetries + ')...');
                 await new Promise(function(r) { setTimeout(r, 2000 * (attempt + 1)); });
             }
