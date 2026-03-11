@@ -452,7 +452,11 @@
 
         try {
             if (isMobile) {
-                try { screen.orientation.lock('landscape').catch(function(){}); } catch(e) {}
+                try {
+                    document.documentElement.requestFullscreen().then(function() {
+                        screen.orientation.lock('landscape').catch(function(){});
+                    }).catch(function(){});
+                } catch(e) {}
             }
             _downloaded = 0;
             var files = ['pak0_chunk_aa', 'pak0_chunk_ab', 'pak0_chunk_ac', 'pak0_chunk_ad', 'pak1.pak'];
