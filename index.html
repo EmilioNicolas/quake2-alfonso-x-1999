@@ -469,11 +469,32 @@
 
         try {
             fetchWithProgress._downloaded = 0;
-            window._pakFiles = [];
-            var pak0 = await fetchWithProgress(CDN + 'pak0.pak');
-            window._pakFiles.push({ name: '/baseq2/pak0.pak', data: pak0 });
+
+            // Download pak0 in 4 chunks (~49MB each) then merge
+            var pak0Chunks = [];
+            var chunkNames = ['pak0_chunk_aa', 'pak0_chunk_ab', 'pak0_chunk_ac', 'pak0_chunk_ad'];
+            for (var i = 0; i < chunkNames.length; i++) {
+                pak0Chunks.push(await fetchWithProgress(CDN + chunkNames[i]));
+            }
+            var pak0Size = 0;
+            for (var i = 0; i < pak0Chunks.length; i++) pak0Size += pak0Chunks[i].length;
+            var pak0 = new Uint8Array(pak0Size);
+            var offset = 0;
+            for (var i = 0; i < pak0Chunks.length; i++) {
+                pak0.set(pak0Chunks[i], offset);
+                offset += pak0Chunks[i].length;
+                pak0Chunks[i] = null;
+            }
+            pak0Chunks = null;
+
             var pak1 = await fetchWithProgress(CDN + 'pak1.pak');
-            window._pakFiles.push({ name: '/baseq2/pak1.pak', data: pak1 });
+
+            window._pakFiles = [
+                { name: '/baseq2/pak0.pak', data: pak0 },
+                { name: '/baseq2/pak1.pak', data: pak1 }
+            ];
+            pak0 = null;
+            pak1 = null;
 
             setStatus('Iniciando...');
             setProgress(90);
