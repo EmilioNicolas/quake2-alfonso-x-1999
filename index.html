@@ -417,32 +417,31 @@
 
     async function fetchWithProgress(url, maxRetries) {
         maxRetries = maxRetries || 5;
-        var chunks = [];
-        var fileDownloaded = 0;
+        var downloadedBefore = fetchWithProgress._downloaded;
 
         for (var attempt = 0; attempt <= maxRetries; attempt++) {
             try {
-                var headers = {};
-                if (fileDownloaded > 0) {
-                    headers['Range'] = 'bytes=' + fileDownloaded + '-';
-                    setStatus('Reconectando...');
-                }
-                var response = await fetch(url, { headers: headers });
-                if (!response.ok && response.status !== 206) throw new Error('HTTP ' + response.status);
+                if (attempt > 0) setStatus('Reconectando...');
+                var response = await fetch(url);
+                if (!response.ok) throw new Error('HTTP ' + response.status);
                 var reader = response.body.getReader();
+                var chunks = [];
+                var fileBytes = 0;
                 while (true) {
                     var result = await reader.read();
                     if (result.done) break;
                     chunks.push(result.value);
-                    fileDownloaded += result.value.length;
-                    fetchWithProgress._downloaded += result.value.length;
+                    fileBytes += result.value.length;
+                    fetchWithProgress._downloaded = downloadedBefore + fileBytes;
                     var mb = Math.round(fetchWithProgress._downloaded / 1048576);
-                    setProgress(Math.round((fetchWithProgress._downloaded / (TOTAL_SIZE_MB * 1048576)) * 85));
+                    var pct = Math.min(85, Math.round((fetchWithProgress._downloaded / (TOTAL_SIZE_MB * 1048576)) * 85));
+                    setProgress(pct);
                     setStatus(mb + ' / ' + TOTAL_SIZE_MB + ' MB');
                 }
                 return new Uint8Array(await new Blob(chunks).arrayBuffer());
             } catch (e) {
                 if (attempt >= maxRetries) throw e;
+                fetchWithProgress._downloaded = downloadedBefore;
                 setStatus('Conexi\u00f3n perdida, reintentando (' + (attempt + 1) + '/' + maxRetries + ')...');
                 await new Promise(function(r) { setTimeout(r, 2000 * (attempt + 1)); });
             }
