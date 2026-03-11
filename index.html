@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Instituto Alfonso X - Quake II (1999)</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -12,6 +12,7 @@
             font-family: 'Courier New', monospace;
             overflow: hidden;
             height: 100vh;
+            touch-action: none;
         }
         #landing {
             display: flex;
@@ -53,6 +54,13 @@
             letter-spacing: 5px;
             text-transform: uppercase;
             opacity: 0.5;
+        }
+        .mobile-note {
+            display: none;
+            color: #555;
+            font-size: 0.75em;
+            margin-bottom: 20px;
+            line-height: 1.6;
         }
         #playBtn {
             background: transparent;
@@ -112,7 +120,7 @@
         .credits a:hover { color: #ff6600; }
 
         /* Game view */
-        #gameView { display: none; width: 100vw; height: 100vh; }
+        #gameView { display: none; width: 100vw; height: 100vh; position: relative; }
         canvas { border: 0; outline: none; background: #000; }
         textarea#output {
             font-family: monospace;
@@ -126,6 +134,94 @@
             display: none;
             outline: none;
             padding: 10px;
+        }
+
+        /* Touch controls */
+        #touchControls {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 100;
+            pointer-events: none;
+        }
+        #touchControls.active { pointer-events: auto; }
+        .touch-zone {
+            position: absolute;
+            pointer-events: auto;
+        }
+        #moveZone {
+            left: 0; bottom: 0;
+            width: 40vw; height: 50vh;
+        }
+        #lookZone {
+            right: 0; bottom: 0;
+            width: 60vw; height: 100vh;
+        }
+        #fireBtn {
+            position: absolute;
+            right: 20px; bottom: 20px;
+            width: 70px; height: 70px;
+            border-radius: 50%;
+            background: rgba(255,102,0,0.3);
+            border: 2px solid rgba(255,102,0,0.5);
+            z-index: 200;
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6em;
+            color: rgba(255,102,0,0.7);
+        }
+        #jumpBtn {
+            position: absolute;
+            right: 100px; bottom: 20px;
+            width: 50px; height: 50px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            z-index: 200;
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.5em;
+            color: rgba(255,255,255,0.4);
+        }
+        #weaponBtns {
+            position: absolute;
+            top: 10px; right: 10px;
+            display: flex; gap: 5px;
+            z-index: 200;
+            pointer-events: auto;
+        }
+        .weapon-btn {
+            width: 32px; height: 32px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.4);
+            font-size: 0.65em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #joystickIndicator {
+            position: absolute;
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.15);
+            display: none;
+            pointer-events: none;
+            z-index: 150;
+        }
+        #joystickKnob {
+            position: absolute;
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.25);
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
         }
 
         /* Victory overlay */
@@ -221,6 +317,13 @@
             color: #000;
             box-shadow: 0 0 30px rgba(255,102,0,0.3);
         }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 1.4em; letter-spacing: 3px; }
+            .tagline { font-size: 0.8em; }
+            .mobile-note { display: block; }
+            #playBtn { padding: 14px 40px; font-size: 1em; }
+        }
     </style>
 </head>
 <body>
@@ -229,6 +332,7 @@
         <h1>INSTITUTO ALFONSO X, MURCIA</h1>
         <div class="line"></div>
         <p class="tagline">Los alien&iacute;genas han invadido el instituto.<br>Recorre sus pasillos, clases y el sal&oacute;n de actos.<br>Eres la &uacute;ltima esperanza.</p>
+        <p class="mobile-note">Mejor experiencia en ordenador.<br>En m&oacute;vil: controles t&aacute;ctiles disponibles.</p>
         <button id="playBtn" onclick="startGame()">JUGAR</button>
         <div id="statusText"></div>
         <div class="progress-bar" id="progressBar"><div class="fill" id="progressFill"></div></div>
@@ -267,6 +371,22 @@
         <a hidden id="exportFile"></a>
     </div>
 
+    <!-- Touch controls (mobile only) -->
+    <div id="touchControls">
+        <div id="moveZone" class="touch-zone"></div>
+        <div id="lookZone" class="touch-zone"></div>
+        <div id="fireBtn">FIRE</div>
+        <div id="jumpBtn">JUMP</div>
+        <div id="weaponBtns">
+            <div class="weapon-btn" data-key="2">2</div>
+            <div class="weapon-btn" data-key="3">3</div>
+            <div class="weapon-btn" data-key="4">4</div>
+            <div class="weapon-btn" data-key="5">5</div>
+            <div class="weapon-btn" data-key="7">7</div>
+        </div>
+        <div id="joystickIndicator"><div id="joystickKnob"></div></div>
+    </div>
+
     <script>
     function setStatus(msg) {
         document.getElementById('statusText').textContent = msg;
@@ -281,6 +401,7 @@
 
     var CDN = 'https://q2-assets.enicolas-riquelme.workers.dev/';
     var TOTAL_SIZE_MB = 187;
+    var isMobile = /Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent) || ('ontouchstart' in window && window.innerWidth < 1024);
 
     async function fetchWithProgress(url) {
         var response = await fetch(url);
@@ -319,6 +440,11 @@
             document.getElementById('landing').style.display = 'none';
             document.getElementById('gameView').style.display = 'block';
 
+            if (isMobile) {
+                document.getElementById('touchControls').style.display = 'block';
+                document.getElementById('touchControls').classList.add('active');
+            }
+
             setProgress(95);
             initEngine();
 
@@ -328,6 +454,138 @@
             btn.textContent = 'REINTENTAR';
             setProgress(0);
         }
+    }
+
+    /* ---- Touch controls ---- */
+    function sendKey(code, down) {
+        var type = down ? 'keydown' : 'keyup';
+        var canvas = document.getElementById('canvas');
+        canvas.dispatchEvent(new KeyboardEvent(type, { key: code, code: code, keyCode: keyMap[code] || 0, bubbles: true }));
+    }
+
+    var keyMap = {
+        'KeyW': 87, 'KeyA': 65, 'KeyS': 83, 'KeyD': 68,
+        'Space': 32, 'Digit2': 50, 'Digit3': 51, 'Digit4': 52, 'Digit5': 53, 'Digit7': 55
+    };
+    var moveKeys = { up: false, down: false, left: false, right: false };
+
+    function updateMoveKeys(dx, dy) {
+        var threshold = 20;
+        var newKeys = {
+            up: dy < -threshold,
+            down: dy > threshold,
+            left: dx < -threshold,
+            right: dx > threshold
+        };
+        if (newKeys.up !== moveKeys.up) sendKey('KeyW', newKeys.up);
+        if (newKeys.down !== moveKeys.down) sendKey('KeyS', newKeys.down);
+        if (newKeys.left !== moveKeys.left) sendKey('KeyA', newKeys.left);
+        if (newKeys.right !== moveKeys.right) sendKey('KeyD', newKeys.right);
+        moveKeys = newKeys;
+    }
+
+    function sendMouseMove(dx, dy) {
+        var canvas = document.getElementById('canvas');
+        canvas.dispatchEvent(new MouseEvent('mousemove', {
+            movementX: dx, movementY: dy, bubbles: true
+        }));
+    }
+
+    function sendMouseButton(down) {
+        var canvas = document.getElementById('canvas');
+        var type = down ? 'mousedown' : 'mouseup';
+        canvas.dispatchEvent(new MouseEvent(type, { button: 0, bubbles: true }));
+    }
+
+    if (isMobile) {
+        // Move joystick
+        var moveOrigin = null;
+        var joystick = null;
+        var knob = null;
+
+        document.getElementById('moveZone').addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            var t = e.touches[0];
+            moveOrigin = { x: t.clientX, y: t.clientY };
+            joystick = document.getElementById('joystickIndicator');
+            knob = document.getElementById('joystickKnob');
+            joystick.style.display = 'block';
+            joystick.style.left = (t.clientX - 40) + 'px';
+            joystick.style.top = (t.clientY - 40) + 'px';
+        });
+
+        document.getElementById('moveZone').addEventListener('touchmove', function(e) {
+            e.preventDefault();
+            if (!moveOrigin) return;
+            var t = e.touches[0];
+            var dx = t.clientX - moveOrigin.x;
+            var dy = t.clientY - moveOrigin.y;
+            var max = 35;
+            var clampDx = Math.max(-max, Math.min(max, dx));
+            var clampDy = Math.max(-max, Math.min(max, dy));
+            if (knob) {
+                knob.style.left = (50 + (clampDx / max) * 35) + '%';
+                knob.style.top = (50 + (clampDy / max) * 35) + '%';
+            }
+            updateMoveKeys(dx, dy);
+        });
+
+        document.getElementById('moveZone').addEventListener('touchend', function(e) {
+            e.preventDefault();
+            moveOrigin = null;
+            updateMoveKeys(0, 0);
+            if (joystick) joystick.style.display = 'none';
+            if (knob) { knob.style.left = '50%'; knob.style.top = '50%'; }
+        });
+
+        // Look zone
+        var lookOrigin = null;
+        document.getElementById('lookZone').addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            var t = e.changedTouches[0];
+            lookOrigin = { x: t.clientX, y: t.clientY };
+        });
+
+        document.getElementById('lookZone').addEventListener('touchmove', function(e) {
+            e.preventDefault();
+            if (!lookOrigin) return;
+            var t = e.changedTouches[0];
+            var dx = (t.clientX - lookOrigin.x) * 2;
+            var dy = (t.clientY - lookOrigin.y) * 2;
+            lookOrigin = { x: t.clientX, y: t.clientY };
+            sendMouseMove(dx, dy);
+        });
+
+        document.getElementById('lookZone').addEventListener('touchend', function(e) {
+            e.preventDefault();
+            lookOrigin = null;
+        });
+
+        // Fire button
+        document.getElementById('fireBtn').addEventListener('touchstart', function(e) {
+            e.preventDefault(); sendMouseButton(true);
+        });
+        document.getElementById('fireBtn').addEventListener('touchend', function(e) {
+            e.preventDefault(); sendMouseButton(false);
+        });
+
+        // Jump button
+        document.getElementById('jumpBtn').addEventListener('touchstart', function(e) {
+            e.preventDefault(); sendKey('Space', true);
+        });
+        document.getElementById('jumpBtn').addEventListener('touchend', function(e) {
+            e.preventDefault(); sendKey('Space', false);
+        });
+
+        // Weapon buttons
+        document.querySelectorAll('.weapon-btn').forEach(function(btn) {
+            btn.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                var key = 'Digit' + this.getAttribute('data-key');
+                sendKey(key, true);
+                setTimeout(function() { sendKey(key, false); }, 100);
+            });
+        });
     }
 
     function initEngine() {
@@ -366,6 +624,7 @@
                 canvasElement.style.display = 'none';
                 outputElement.style.display = 'none';
                 document.getElementById('gameView').style.display = 'none';
+                document.getElementById('touchControls').style.display = 'none';
                 document.getElementById('landing').style.display = 'none';
                 document.getElementById('endScreen').style.display = 'flex';
             },
@@ -404,12 +663,14 @@
                 canvasElement.style.filter = gamma < 0 ? null : 'brightness(' + (2 * gamma) + ')';
             },
             captureMouse: function() {
+                if (isMobile) return;
                 if (Module._canLockPointer && !Module._attemptPointerLock()) {
                     Module._canLockPointer = false;
                     document.addEventListener('keydown', Module._lockPointerOnKey);
                 }
             },
             _attemptPointerLock: function() {
+                if (isMobile) return true;
                 if (document.pointerLockElement === null) canvasElement.requestPointerLock();
                 return document.pointerLockElement !== null;
             },
