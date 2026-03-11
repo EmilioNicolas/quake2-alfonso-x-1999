@@ -429,6 +429,10 @@
                     setStatus('Reconectando...');
                 }
                 var response = await fetch(url, { headers: headers });
+                // 416 = Range not satisfiable = file already complete
+                if (response.status === 416) {
+                    return new Uint8Array(await new Blob(chunks).arrayBuffer());
+                }
                 // If server ignores Range (200 instead of 206), restart
                 if (response.status === 200 && fileBytes > 0) {
                     chunks = [];
