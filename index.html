@@ -436,6 +436,26 @@
     var engineLoaded = false;
     var startupTimer = null;
 
+    function downloadedSize() {
+        if (_downloaded < 1024) return _downloaded + ' B';
+        if (_downloaded < 1048576) return (_downloaded / 1024).toFixed(1) + ' KB';
+        return (_downloaded / 1048576).toFixed(1) + ' MB';
+    }
+
+    function showDownloadProgress() {
+        setProgress(Math.min(85, (_downloaded / (TOTAL_SIZE_MB * 1048576)) * 85));
+        setStatus(downloadedSize() + ' / ' + TOTAL_SIZE_MB + ' MB');
+    }
+
+    function cancelDownload(stream) {
+        // Cancellation itself can stall or reject; it must not block a retry.
+        try {
+            if (stream && typeof stream.cancel === 'function') {
+                Promise.resolve(stream.cancel()).catch(function() {});
+            }
+        } catch (e) {}
+    }
+
     function releasePointerLock() {
         if (document.pointerLockElement === document.getElementById('canvas') && document.exitPointerLock) {
             document.exitPointerLock();
@@ -477,14 +497,32 @@
     });
 
     async function downloadOne(url, retries) {
-        for (var attempt = 0; attempt <= retries; attempt++) {
-            var thisBytes = 0;
-            var controller = new AbortController();
-            var timeout;
-            var retryable = true;
-            function resetTimeout() {
+        for (let attempt = 0; attempt <= retries; attempt++) {
+            // Keep each attempt's state separate from any late network results.
+            let thisBytes = 0;
+            let controller = typeof AbortController === 'function' ? new AbortController() : null;
+            let timeout;
+            let timedOut = false;
+            let retryable = true;
+            let reader;
+            let resp;
+            let parts = [];
+            let rejectPending;
+            let timeoutError = new Error('Tiempo de espera agotado');
+            function resetTimeout(delay) {
                 clearTimeout(timeout);
-                timeout = setTimeout(function() { controller.abort(); }, 30000);
+                timeout = setTimeout(function() {
+                    timedOut = true;
+                    if (rejectPending) rejectPending(timeoutError);
+                }, delay || 30000);
+            }
+            function waitFor(promise) {
+                // Only retain the current wait. Racing every read against one pending
+                // deadline promise would retain a reaction (and read result) per chunk.
+                return new Promise(function(resolve, reject) {
+                    rejectPending = reject;
+                    Promise.resolve(promise).then(resolve, reject);
+                });
             }
             try {
                 if (attempt > 0) {
@@ -492,33 +530,70 @@
                     await new Promise(function(r) { setTimeout(r, 2000 * attempt); });
                 }
                 resetTimeout();
-                var resp = await fetch(url, { signal: controller.signal });
+                resp = await waitFor(
+                    fetch(url, controller ? { signal: controller.signal } : {}).then(function(response) {
+                        if (timedOut) {
+                            cancelDownload(response.body);
+                            throw timeoutError;
+                        }
+                        return response;
+                    })
+                );
                 if (!resp.ok) {
                     retryable = resp.status === 408 || resp.status === 429 || resp.status >= 500;
                     throw new Error('HTTP ' + resp.status);
                 }
-                var reader = resp.body.getReader();
-                var parts = [];
+                // Older/embedded browsers may expose Fetch without a readable body.
+                if (!resp.body || typeof resp.body.getReader !== 'function') {
+                    setStatus('Recibiendo ' + url.split('/').pop() + '... (' + downloadedSize() + ' / ' + TOTAL_SIZE_MB + ' MB)');
+                    // Buffered reads expose no activity; give the entire body two minutes.
+                    resetTimeout(120000);
+                    var buffer = await waitFor(resp.arrayBuffer());
+                    var data = new Uint8Array(buffer);
+                    if (!data.length) throw new Error('Archivo vacio');
+                    thisBytes = data.length;
+                    _downloaded += thisBytes;
+                    showDownloadProgress();
+                    return data;
+                }
+                reader = resp.body.getReader();
+                resetTimeout();
                 while (true) {
-                    var r = await reader.read();
+                    var r = await waitFor(reader.read());
                     if (r.done) break;
+                    if (!r.value.length) continue;
                     resetTimeout();
                     parts.push(r.value);
                     thisBytes += r.value.length;
                     _downloaded += r.value.length;
-                    setProgress(Math.min(85, Math.round((_downloaded / (TOTAL_SIZE_MB * 1048576)) * 85)));
-                    setStatus(Math.round(_downloaded / 1048576) + ' / ' + TOTAL_SIZE_MB + ' MB');
+                    showDownloadProgress();
                 }
                 if (!thisBytes) throw new Error('Archivo vacio');
-                return new Uint8Array(await new Blob(parts).arrayBuffer());
+                if (parts.length === 1) return parts[0];
+                // Avoid the extra Blob snapshot and Blob.arrayBuffer copies.
+                var data = new Uint8Array(thisBytes);
+                var offset = 0;
+                for (var i = 0; i < parts.length; i++) {
+                    data.set(parts[i], offset);
+                    offset += parts[i].length;
+                    parts[i] = null;
+                }
+                return data;
             } catch (e) {
                 _downloaded -= thisBytes;
-                controller.abort();
+                showDownloadProgress();
+                if (controller) controller.abort();
+                cancelDownload(reader || (resp && resp.body));
                 if (!retryable || attempt >= retries) {
-                    throw new Error(url.split('/').pop() + ': ' + (e.name === 'AbortError' ? 'Tiempo de espera agotado' : e.message));
+                    throw new Error(url.split('/').pop() + ': ' + (timedOut || e.name === 'AbortError' ? 'Tiempo de espera agotado' : e.message));
                 }
             } finally {
                 clearTimeout(timeout);
+                rejectPending = null;
+                parts.length = 0;
+                if (reader && typeof reader.releaseLock === 'function') {
+                    try { reader.releaseLock(); } catch (e) {}
+                }
             }
         }
     }
@@ -942,7 +1017,9 @@
                         try {
                             var fd = FS.open(p.name, 'w');
                             try {
-                                if (FS.write(fd, p.data, 0, p.data.length, 0) !== p.data.length) {
+                                // The bundled MEMFS accepts ownership of this final buffer.
+                                // Never mutate it after this write or transfer partial appends.
+                                if (FS.write(fd, p.data, 0, p.data.length, 0, true) !== p.data.length) {
                                     throw new Error('Escritura incompleta');
                                 }
                             } finally {
