@@ -169,114 +169,77 @@
             padding: 10px;
         }
 
-        /* Touch controls */
+        /* A safe-area HUD above the thumb controls. Values come from game API v3. */
+        #mobileHud {
+            display: none; position: fixed; z-index: 110; pointer-events: none;
+            top: calc(var(--safe-top) + 8px); left: calc(var(--safe-left) + 8px);
+            width: min(348px, calc(100% - var(--safe-left) - var(--safe-right) - 72px));
+            grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px;
+            background: #46515b; border: 1px solid #7a8993; border-radius: 8px; overflow: hidden;
+            font-family: system-ui, sans-serif;
+        }
+        .hud-stat { background: rgba(8, 15, 20, .94); padding: 5px 8px; }
+        .hud-stat span { display: block; font-size: 10px; line-height: 14px; color: #cbd5dd; }
+        .hud-stat strong { display: block; color: #fff; font-size: 26px; line-height: 29px; font-variant-numeric: tabular-nums; }
+        #mobileHud.low-health #hudHealth { color: #ff8d7b; }
+        #mobileCrosshair {
+            display: none; position: absolute; left: 50%; top: 50%; width: 20px; height: 20px;
+            transform: translate(-50%, -50%); pointer-events: none; z-index: 10;
+            filter: drop-shadow(0 1px 1px #000) drop-shadow(0 -1px 1px #000);
+            background: linear-gradient(#fff,#fff) center top / 2px 6px no-repeat,
+                linear-gradient(#fff,#fff) center bottom / 2px 6px no-repeat,
+                linear-gradient(#fff,#fff) left center / 6px 2px no-repeat,
+                linear-gradient(#fff,#fff) right center / 6px 2px no-repeat;
+        }
+        #gameSurface { position: relative; width: 100%; height: 100%; }
         #touchControls {
-            display: none;
-            position: fixed;
+            display: none; position: fixed;
             top: var(--safe-top); left: var(--safe-left); right: var(--safe-right); bottom: var(--safe-bottom);
-            z-index: 100;
-            pointer-events: none;
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-touch-callout: none;
-            touch-action: none;
+            z-index: 100; pointer-events: none; user-select: none; -webkit-user-select: none;
+            -webkit-touch-callout: none; touch-action: none;
         }
-        #touchControls.active { pointer-events: auto; }
-        .touch-zone {
-            position: absolute;
-            pointer-events: auto;
+        .touch-zone { position: absolute; pointer-events: auto; top: 72px; bottom: 0; width: 50%; }
+        #moveZone { left: 0; }
+        #lookZone { right: 0; }
+        #touchControls button {
+            position: absolute; pointer-events: auto; touch-action: none; z-index: 200;
+            display: flex; align-items: center; justify-content: center;
+            min-width: 44px; height: 44px; padding: 0 6px;
+            font: 11px system-ui, sans-serif; color: #eef3f6;
+            border: 1px solid rgba(230,240,255,.45); border-radius: 8px;
+            background: rgba(12,20,27,.62); -webkit-tap-highlight-color: transparent;
         }
-        #moveZone {
-            left: 0; bottom: 0;
-            width: 50%; height: 100%;
+        #touchControls #fireBtnLeft, #touchControls #fireBtnRight {
+            border: 2px solid #f39751; background: rgba(75,32,8,.72);
+            color: #fff2e6; font-size: 13px; font-weight: 700;
         }
-        #lookZone {
-            right: 0; bottom: 0;
-            width: 50%; height: 100%;
+        #touchControls #fireBtnLeft { left: 8px; top: 80px; width: 56px; height: 64px; }
+        #touchControls #fireBtnRight { right: 18px; bottom: 24px; width: 76px; height: 76px; border-radius: 50%; }
+        #touchControls #jumpBtn { right: 24px; bottom: 112px; width: 56px; height: 48px; border-radius: 24px; }
+        #touchControls #pauseBtn { right: 8px; top: 8px; }
+        #secondaryActions { position: absolute; top: 76px; right: 8px; display: flex; gap: 6px; }
+        #touchControls #secondaryActions button { position: relative; }
+        #touchControls .pressed { background: #b95317; border-color: #fff; }
+        #touchControls button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+        #joystickHome, #joystickIndicator {
+            position: absolute; width: 100px; height: 100px; border-radius: 50%;
+            border: 2px solid rgba(230,240,255,.4); background: rgba(8,15,20,.18);
+            pointer-events: none; z-index: 150;
         }
-        #fireBtnLeft {
-            position: absolute;
-            left: 10px; top: 50%;
-            transform: translateY(-50%);
-            width: 50px; height: 80px;
-            border-radius: 8px;
-            background: rgba(255,102,0,0.2);
-            border: 2px solid rgba(255,102,0,0.4);
-            z-index: 200;
-            pointer-events: auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7em;
-            color: #ff9955;
-        }
-        #fireBtnRight {
-            position: absolute;
-            right: 20px; bottom: 30px;
-            width: 70px; height: 70px;
-            border-radius: 50%;
-            background: rgba(255,102,0,0.3);
-            border: 2px solid rgba(255,102,0,0.5);
-            z-index: 200;
-            pointer-events: auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75em;
-            color: #ff9955;
-        }
-        #jumpBtn {
-            position: absolute;
-            right: 20px; bottom: 116px;
-            width: 56px; height: 56px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            z-index: 200;
-            pointer-events: auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.65em;
-            color: #ccc;
-        }
-        #weaponBtns {
-            position: absolute;
-            top: 10px; left: 50%; transform: translateX(-50%);
-            display: flex; gap: 8px;
-            z-index: 200;
-            pointer-events: auto;
-        }
-        .weapon-btn {
-            width: 44px; height: 44px;
-            border-radius: 4px;
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.15);
-            color: #ccc;
-            font-size: 0.75em;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        #touchControls .pressed { background: rgba(255,102,0,0.5); border-color: #ff9955; }
-        #joystickIndicator {
-            position: absolute;
-            width: 100px; height: 100px;
-            border-radius: 50%;
-            border: 2px solid rgba(255,255,255,0.15);
-            display: none;
-            pointer-events: none;
-            z-index: 150;
-        }
+        #joystickHome { left: 24px; bottom: 24px; }
+        #joystickHome::after { content: ''; position: absolute; inset: 29px; border-radius: 50%; background: rgba(230,240,255,.25); }
+        #joystickIndicator { display: none; }
         #joystickKnob {
-            position: absolute;
-            width: 40px; height: 40px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.25);
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            pointer-events: none;
+            position: absolute; width: 36px; height: 36px; border-radius: 50%; background: rgba(240,248,255,.65);
+            top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none;
         }
+        #mobilePause {
+            display: none; position: fixed; inset: 0; z-index: 300;
+            padding: max(16px, var(--safe-top)) max(16px, var(--safe-right)) max(16px, var(--safe-bottom)) max(16px, var(--safe-left));
+            background: rgba(0,0,0,.86); align-items: center; justify-content: center; text-align: center;
+        }
+        #mobilePause p { line-height: 1.6; font-size: 14px; margin-bottom: 16px; }
+        #resumeBtn { min-height: 48px; padding: 12px 24px; border: 1px solid #f39751; background: #542808; color: #fff; font: inherit; }
 
         /* Victory overlay */
         #victoryOverlay {
@@ -440,26 +403,36 @@
 
     <div id="gameView">
         <textarea id="output" readonly></textarea>
-        <canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
+        <div id="gameSurface"><canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas><div id="mobileCrosshair" aria-hidden="true"></div></div>
         <a hidden id="exportFile"></a>
     </div>
 
-    <!-- Touch controls (mobile only) -->
-    <div id="touchControls">
-        <div id="moveZone" class="touch-zone"></div>
-        <div id="lookZone" class="touch-zone"></div>
-        <div id="fireBtnLeft">FIRE</div>
-        <div id="fireBtnRight">FIRE</div>
-        <div id="jumpBtn">JUMP</div>
-        <div id="weaponBtns">
-            <div class="weapon-btn" data-key="2">2</div>
-            <div class="weapon-btn" data-key="3">3</div>
-            <div class="weapon-btn" data-key="4">4</div>
-            <div class="weapon-btn" data-key="5">5</div>
-            <div class="weapon-btn" data-key="7">7</div>
-        </div>
-        <div id="joystickIndicator"><div id="joystickKnob"></div></div>
+    <div id="mobileHud" role="group" aria-label="Estado del jugador">
+        <div class="hud-stat"><span>SALUD</span><strong id="hudHealth">—</strong></div>
+        <div class="hud-stat"><span>MUNICIÓN</span><strong id="hudAmmo">—</strong></div>
+        <div class="hud-stat"><span>ARMADURA</span><strong id="hudArmor">—</strong></div>
     </div>
+    <div id="touchControls" aria-label="Controles táctiles">
+        <div id="moveZone" class="touch-zone" aria-label="Arrastra para moverte"></div>
+        <div id="lookZone" class="touch-zone" aria-label="Arrastra para mirar"></div>
+        <div id="joystickHome" aria-hidden="true"></div>
+        <div id="joystickIndicator" aria-hidden="true"><div id="joystickKnob"></div></div>
+        <button type="button" id="fireBtnLeft" aria-label="Mantener para disparar, izquierda">FIRE</button>
+        <button type="button" id="fireBtnRight" aria-label="Mantener para disparar, derecha">FIRE</button>
+        <button type="button" id="jumpBtn" aria-label="Saltar">JUMP</button>
+        <div id="secondaryActions">
+            <button type="button" id="weaponPrev" aria-label="Arma anterior">◀</button>
+            <button type="button" id="weaponNext" aria-label="Arma siguiente">▶</button>
+            <button type="button" id="crouchBtn" aria-label="Mantener para agacharse">BAJAR</button>
+            <button type="button" id="useBtn" aria-label="Usar objeto">USAR</button>
+        </div>
+        <button type="button" id="pauseBtn" aria-label="Pausa y controles" onclick="setMobilePaused(true)">Ⅱ</button>
+    </div>
+    <div id="mobilePause" role="dialog" aria-modal="true" aria-label="Juego en pausa">
+        <div><p>PAUSA<br>Izquierda: mover · Derecha: mirar<br>Mantén FIRE para disparar · JUMP para saltar<br>◀ ▶ Armas · BAJAR Agacharse · USAR Objeto</p>
+        <button type="button" id="resumeBtn" onclick="setMobilePaused(false)">CONTINUAR</button></div>
+    </div>
+    <script src="mobile-runtime.js"></script>
 
     <script>
     function setStatus(msg) {
@@ -536,6 +509,7 @@
         if (gameState === 'failed') return;
         gameState = 'failed';
         clearTimeout(startupTimer);
+        clearTimeout(mobileResizeTimer);
         console.error(err);
         if (window.Module) {
             Module.noInitialRun = true;
@@ -544,6 +518,8 @@
             document.removeEventListener('keydown', Module._lockPointerOnKey);
         }
         resetTouchControls();
+        hideMobileHud();
+        document.getElementById('mobilePause').style.display = 'none';
         releasePointerLock();
         delete window._pakFiles;
         document.getElementById('gameView').style.display = 'none';
@@ -761,7 +737,7 @@
 
     var keyMap = {
         'KeyW': 87, 'KeyA': 65, 'KeyS': 83, 'KeyD': 68,
-        'Space': 32, 'Digit2': 50, 'Digit3': 51, 'Digit4': 52, 'Digit5': 53, 'Digit7': 55
+        'Space': 32, 'ShiftLeft': 16, 'KeyE': 69, 'KeyR': 82, 'KeyF': 70
     };
     var moveKeys = { up: false, down: false, left: false, right: false };
 
@@ -783,7 +759,7 @@
     function sendMouseMove(dx, dy) {
         var canvas = document.getElementById('canvas');
         canvas.dispatchEvent(new MouseEvent('mousemove', {
-            movementX: dx, movementY: dy, bubbles: true
+            movementX: dx, movementY: dy, buttons: fireSources && fireSources.size ? 1 : 0, bubbles: true
         }));
     }
 
@@ -794,6 +770,158 @@
     }
 
     var resetTouchControls = function() {};
+    var mobilePaused = false;
+    var mobileHudActive = false;
+    var mobileResizeTimer = null;
+
+    function touchInputEnabled() {
+        return gameState === 'running' && !mobilePaused && !document.hidden &&
+            document.getElementById('touchControls').style.display === 'block';
+    }
+
+    function mobileViewport() {
+        var view = document.getElementById('gameView');
+        var style = typeof getComputedStyle === 'function' ? getComputedStyle(view) : {};
+        // Follow the actual 100dvh surface when browser chrome changes its height.
+        // Before startup the surface is hidden, so use the window as a fallback.
+        var width = Math.max(1, (view.clientWidth || innerWidth) - (parseFloat(style.paddingLeft) || 0) - (parseFloat(style.paddingRight) || 0));
+        var height = Math.max(1, (view.clientHeight || innerHeight) - (parseFloat(style.paddingTop) || 0) - (parseFloat(style.paddingBottom) || 0));
+        // The renderer requires at least 320 x 240; preserve aspect on smaller safe rectangles.
+        var scale = Math.max(1, 320 / width, 240 / height);
+        return { width: Math.round(width * scale), height: Math.round(height * scale) };
+    }
+
+    function hideMobileHud() {
+        document.getElementById('mobileHud').style.display = 'none';
+        document.getElementById('mobileCrosshair').style.display = 'none';
+        ['hudHealth', 'hudAmmo', 'hudArmor'].forEach(function(id) {
+            document.getElementById(id).textContent = '—';
+        });
+        document.getElementById('hudAmmo').removeAttribute('aria-label');
+        document.getElementById('mobileHud').classList.remove('low-health');
+    }
+
+    function setMobilePaused(paused) {
+        if (!isMobile || gameState !== 'running' || mobilePaused === paused) return;
+        resetTouchControls();
+        try {
+            var bridge = window.Module && Module.mobileBridge;
+            if (!bridge || typeof bridge.command !== 'function') throw new Error('Mobile command bridge unavailable');
+            if (bridge.command('set paused ' + (paused ? '1' : '0') + '\n') === false) throw new Error('Pause command rejected');
+        } catch (error) {
+            console.error('Could not change pause state:', error);
+            return false;
+        }
+        // The synchronous bridge must accept the command before the UI changes.
+        mobilePaused = paused;
+        document.getElementById('mobilePause').style.display = paused ? 'flex' : 'none';
+        document.getElementById('touchControls').style.display = paused ? 'none' : 'block';
+        if (paused) {
+            hideMobileHud();
+            document.getElementById('resumeBtn').focus();
+        } else document.getElementById('canvas').focus();
+        return true;
+    }
+
+    function resizeMobileGame() {
+        clearTimeout(mobileResizeTimer);
+        if (!isMobile || !window.Module || !Module.mobileBridge || gameState !== 'running') return;
+        mobileResizeTimer = setTimeout(function() {
+            mobileResizeTimer = null;
+            if (gameState !== 'running') return;
+            var size = mobileViewport();
+            var canvas = document.getElementById('canvas');
+            if (canvas.width === size.width && canvas.height === size.height) return;
+            // Qwasm2's SDL backend doesn't rebuild its drawing buffer on window resize.
+            // Restart only the renderer, through the engine command queue; the map/player survive.
+            Module.mobileBridge.command('set r_customwidth ' + size.width + '\nset r_customheight ' + size.height + '\nset r_mode -1\nvid_restart\n');
+        }, 250);
+    }
+
+    function attachMobileGameAPI(imports, exports) {
+        try {
+            Module.mobileBridge = createQuakeMobileBridge(function() { return HEAPU8.buffer; }, imports, exports,
+                function(index, text) {
+                    var saved = stackSave();
+                    try { getWasmTableEntry(index)(stringToUTF8OnStack(text)); }
+                    finally { stackRestore(saved); }
+                });
+        } catch (error) {
+            // Retain the native HUD if a replacement engine has an incompatible ABI.
+            console.error('Mobile HUD unavailable:', error);
+            return;
+        }
+        // Retain the command transport even if the current stats bridge disappears.
+        var nativeCommand = Module.mobileBridge.command.bind(Module.mobileBridge);
+        function restoreNativeHud() {
+            clearTimeout(mobileResizeTimer);
+            mobileResizeTimer = null;
+            hideMobileHud();
+            if (!mobileHudActive) return;
+            try {
+                if (nativeCommand('set r_hudscale -1\nset crosshair 1\n') === false) throw new Error('Native HUD command rejected');
+                mobileHudActive = false;
+            } catch (error) {
+                // A broken command transport cannot guarantee native indicators.
+                // Use the existing recoverable error screen instead of blind play.
+                showGameError(new Error('No se pudo restaurar el HUD del motor. Recarga la pagina.'));
+                console.error('Native HUD restore failed:', error);
+            }
+        }
+        var lastUpdate = -100;
+        function update(time) {
+            if (gameState === 'failed' || gameState === 'ended') { hideMobileHud(); return; }
+            requestAnimationFrame(update);
+            if (time - lastUpdate < 100) return;
+            lastUpdate = time;
+            var stats;
+            try {
+                var bridge = Module.mobileBridge;
+                stats = bridge && bridge.readStats();
+                if (!stats || !Number.isInteger(stats.health) || !Number.isInteger(stats.armor) ||
+                    (stats.ammo !== null && !Number.isInteger(stats.ammo))) {
+                    restoreNativeHud();
+                    return;
+                }
+            } catch (error) {
+                if (mobileHudActive) console.error('Mobile HUD stats unavailable:', error);
+                restoreNativeHud();
+                return;
+            }
+            if (!touchInputEnabled()) { hideMobileHud(); return; }
+            if (!mobileHudActive) {
+                // Disable duplicate native indicators only after the live bridge is verified.
+                // Track even a partially accepted command so failure restores both.
+                mobileHudActive = true;
+                try {
+                    if (nativeCommand('set r_hudscale 0\nset crosshair 0\nset viewsize 100\n') === false) throw new Error('Mobile HUD command rejected');
+                } catch (error) {
+                    console.error('Mobile HUD activation failed:', error);
+                    restoreNativeHud();
+                    return;
+                }
+                resizeMobileGame();
+            }
+            var hud = document.getElementById('mobileHud');
+            document.getElementById('hudHealth').textContent = String(Math.max(0, stats.health));
+            document.getElementById('hudAmmo').textContent = stats.ammo === null ? '∞' : String(stats.ammo);
+            document.getElementById('hudAmmo').setAttribute('aria-label', stats.ammo === null ? 'Munición ilimitada' : 'Munición ' + stats.ammo);
+            document.getElementById('hudArmor').textContent = String(stats.armor);
+            if (stats.health <= 25) hud.classList.add('low-health');
+            else hud.classList.remove('low-health');
+            hud.style.display = 'grid';
+            document.getElementById('mobileCrosshair').style.display = stats.health > 0 ? 'block' : 'none';
+        }
+        requestAnimationFrame(update);
+    }
+
+    window.addEventListener('resize', resizeMobileGame);
+    window.addEventListener('orientationchange', resizeMobileGame);
+    document.addEventListener('fullscreenchange', resizeMobileGame);
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', resizeMobileGame);
+    if (isMobile && typeof ResizeObserver === 'function') {
+        new ResizeObserver(function() { resetTouchControls(); resizeMobileGame(); }).observe(document.getElementById('gameView'));
+    }
 
     if (isMobile) {
         function changedTouch(e, identifier) {
@@ -811,7 +939,7 @@
                 e.preventDefault();
                 var wasDown = touches.size > 0;
                 for (var i = 0; i < e.changedTouches.length; i++) {
-                    if (e.type === 'touchstart') touches.add(e.changedTouches[i].identifier);
+                    if (e.type === 'touchstart' && touchInputEnabled()) touches.add(e.changedTouches[i].identifier);
                     else touches.delete(e.changedTouches[i].identifier);
                 }
                 if (wasDown !== (touches.size > 0)) {
@@ -833,7 +961,6 @@
         }
 
         var fireSources = new Set();
-        var tapFireTimer = null;
         function setTouchFire(source, down) {
             var wasDown = fireSources.size > 0;
             if (down) fireSources.add(source);
@@ -849,14 +976,15 @@
 
         document.getElementById('moveZone').addEventListener('touchstart', function(e) {
             e.preventDefault();
-            if (moveTouchId !== null) return;
+            if (!touchInputEnabled() || moveTouchId !== null) return;
             var t = e.changedTouches[0];
             moveTouchId = t.identifier;
             moveOrigin = { x: t.clientX, y: t.clientY };
             var bounds = document.getElementById('touchControls').getBoundingClientRect();
+            document.getElementById('joystickHome').style.display = 'none';
             joystick.style.display = 'block';
-            joystick.style.left = (t.clientX - bounds.left - 50) + 'px';
-            joystick.style.top = (t.clientY - bounds.top - 50) + 'px';
+            joystick.style.left = Math.max(0, Math.min(bounds.width / 2 - 100, t.clientX - bounds.left - 50)) + 'px';
+            joystick.style.top = Math.max(72, Math.min(bounds.height - 100, t.clientY - bounds.top - 50)) + 'px';
         }, { passive: false });
 
         document.getElementById('moveZone').addEventListener('touchmove', function(e) {
@@ -865,11 +993,11 @@
             if (!t || !moveOrigin) return;
             var dx = t.clientX - moveOrigin.x;
             var dy = t.clientY - moveOrigin.y;
-            var max = 40;
-            var clampDx = Math.max(-max, Math.min(max, dx));
-            var clampDy = Math.max(-max, Math.min(max, dy));
-            knob.style.left = (50 + (clampDx / max) * 40) + '%';
-            knob.style.top = (50 + (clampDy / max) * 40) + '%';
+            // Keep the whole knob inside its ring, including diagonal edge gestures.
+            var distance = Math.hypot(dx, dy);
+            var feedbackScale = distance > 40 ? 40 / distance : 1;
+            knob.style.left = (50 + dx * feedbackScale * 0.75) + '%';
+            knob.style.top = (50 + dy * feedbackScale * 0.75) + '%';
             updateMoveKeys(dx, dy);
         }, { passive: false });
 
@@ -878,6 +1006,7 @@
             moveOrigin = null;
             updateMoveKeys(0, 0);
             joystick.style.display = 'none';
+            document.getElementById('joystickHome').style.display = 'block';
             knob.style.left = '50%';
             knob.style.top = '50%';
         }
@@ -888,60 +1017,35 @@
             }, { passive: false });
         });
 
-        // Look zone - right half: drag to look, tap to shoot
-        // Track by touch identifier to avoid multitouch conflicts
+        // Looking never fires, including a tap, jitter or a long hold.
         var lookTouchId = null;
         var lookLast = null;
-        var lookOrigin = null;
-        var lookMaxDistanceSquared = 0;
-        var lookStartedAt = 0;
-
-        function trackLookDistance(t) {
-            var dx = t.clientX - lookOrigin.x;
-            var dy = t.clientY - lookOrigin.y;
-            lookMaxDistanceSquared = Math.max(lookMaxDistanceSquared, dx * dx + dy * dy);
-        }
-
         document.getElementById('lookZone').addEventListener('touchstart', function(e) {
             e.preventDefault();
-            if (lookTouchId !== null) return; // already tracking a look touch
+            if (!touchInputEnabled() || lookTouchId !== null) return;
             var t = e.changedTouches[0];
             lookTouchId = t.identifier;
             lookLast = { x: t.clientX, y: t.clientY };
-            lookOrigin = lookLast;
-            lookMaxDistanceSquared = 0;
-            lookStartedAt = Date.now();
+            // SDL otherwise ignores movementX/Y and reads absolute targetX/Y.
+            // Tell only the engine to accept relative touch deltas; no browser lock request.
+            if (window.Module) {
+                Module.touchRelativeMouse = true;
+                document.dispatchEvent(new Event('pointerlockchange'));
+            }
         }, { passive: false });
-
         document.getElementById('lookZone').addEventListener('touchmove', function(e) {
             e.preventDefault();
             var t = changedTouch(e, lookTouchId);
             if (!t || !lookLast) return;
-            var dx = (t.clientX - lookLast.x) * 8;
-            var dy = (t.clientY - lookLast.y) * 8;
+            sendMouseMove((t.clientX - lookLast.x) * 8, (t.clientY - lookLast.y) * 8);
             lookLast = { x: t.clientX, y: t.clientY };
-            trackLookDistance(t);
-            sendMouseMove(dx, dy);
         }, { passive: false });
-
         ['touchend', 'touchcancel'].forEach(function(type) {
             document.getElementById('lookZone').addEventListener(type, function(e) {
                 e.preventDefault();
-                var t = changedTouch(e, lookTouchId);
-                if (!t || !lookOrigin) return;
-                trackLookDistance(t);
-                // Measure a short tap in CSS pixels, independently of aim sensitivity.
-                if (e.type === 'touchend' && lookMaxDistanceSquared <= 100 && Date.now() - lookStartedAt <= 250) {
-                    setTouchFire('tap', true);
-                    clearTimeout(tapFireTimer);
-                    tapFireTimer = setTimeout(function() {
-                        tapFireTimer = null;
-                        setTouchFire('tap', false);
-                    }, 100);
-                }
+                if (!changedTouch(e, lookTouchId)) return;
                 lookTouchId = null;
                 lookLast = null;
-                lookOrigin = null;
             }, { passive: false });
         });
 
@@ -957,31 +1061,25 @@
             sendKey('Space', down);
         });
 
-        // Weapon buttons
-        document.querySelectorAll('.weapon-btn').forEach(function(btn) {
-            var key = 'Digit' + btn.getAttribute('data-key');
-            bindTouchButton(btn, function(down) {
-                sendKey(key, down);
-            });
+        // Discreet controls cover every owned weapon, crouch and inventory use.
+        [['weaponPrev', 'KeyR'], ['weaponNext', 'KeyF'], ['crouchBtn', 'ShiftLeft'], ['useBtn', 'KeyE']].forEach(function(binding) {
+            bindTouchButton(document.getElementById(binding[0]), function(down) { sendKey(binding[1], down); });
         });
 
         resetTouchControls = function() {
             resetMove();
             lookTouchId = null;
             lookLast = null;
-            lookOrigin = null;
-            clearTimeout(tapFireTimer);
-            tapFireTimer = null;
             buttonResets.forEach(function(reset) { reset(); });
-            setTouchFire('tap', false);
         };
-        window.addEventListener('blur', resetTouchControls);
+        window.addEventListener('blur', function() { resetTouchControls(); setMobilePaused(true); });
+        window.addEventListener('pagehide', resetTouchControls);
         window.addEventListener('resize', resetTouchControls);
         window.addEventListener('orientationchange', resetTouchControls);
         document.addEventListener('fullscreenchange', resetTouchControls);
         if (window.visualViewport) window.visualViewport.addEventListener('resize', resetTouchControls);
         document.addEventListener('visibilitychange', function() {
-            if (document.hidden) resetTouchControls();
+            if (document.hidden) { resetTouchControls(); setMobilePaused(true); }
         });
     }
 
@@ -1002,6 +1100,7 @@
         }, false);
 
         window.Module = {
+            attachGameAPI: isMobile ? attachMobileGameAPI : undefined,
             _canLockPointer: true,
             print: function(text) {
                 if (Module._quitting) return;
@@ -1038,6 +1137,9 @@
                     return;
                 }
                 gameState = 'ended';
+                hideMobileHud();
+                clearTimeout(mobileResizeTimer);
+                document.getElementById('mobilePause').style.display = 'none';
                 clearTimeout(startupTimer);
                 resetTouchControls();
                 releasePointerLock();
@@ -1060,9 +1162,8 @@
                 clearTimeout(startupTimer);
                 document.getElementById('landing').style.display = 'none';
                 document.getElementById('gameView').style.display = 'block';
-                if (isMobile) {
+                if (isMobile && !mobilePaused) {
                     document.getElementById('touchControls').style.display = 'block';
-                    document.getElementById('touchControls').classList.add('active');
                 }
                 outputElement.style.display = 'none';
                 canvasElement.style.display = 'block';
@@ -1073,6 +1174,7 @@
             showConsole: function() {
                 if (Module._quitting) return;
                 resetTouchControls();
+                hideMobileHud();
                 document.getElementById('touchControls').style.display = 'none';
                 canvasElement.style.display = 'none';
                 outputElement.style.display = 'block';
@@ -1168,7 +1270,9 @@
                 '+set', 'freelook', '1',
                 '+set', 'cl_run', '1',
                 '+set', 'sensitivity', '5',
-                '+set', 'r_mode', '-2',
+                '+set', 'r_mode', isMobile ? '-1' : '-2',
+                '+set', 'r_customwidth', String(mobileViewport().width),
+                '+set', 'r_customheight', String(mobileViewport().height),
                 '+map', 'alfonsox'
             ]
         };

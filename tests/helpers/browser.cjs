@@ -58,7 +58,7 @@ function createBrowser({ mobile = false, globals = {} } = {}) {
         getAttribute(name) { return this.attributes[name] ?? null; }
         setAttribute(name, value) { this.attributes[name] = String(value); }
         removeAttribute(name) { delete this.attributes[name]; }
-        getBoundingClientRect() { return this.bounds || { left: 0, top: 0 }; }
+        getBoundingClientRect() { return this.bounds || { left: 0, top: 0, width: 800, height: 400 }; }
         focus() { document.activeElement = this; }
         click() { this.dispatchEvent(new BrowserEvent('click', { bubbles: true })); }
     }
@@ -113,6 +113,7 @@ function createBrowser({ mobile = false, globals = {} } = {}) {
     document.parentNode = windowEvents;
     vm.createContext(context);
     const inlineScript = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(match => match[1]).join('\n');
+    vm.runInContext(fs.readFileSync(path.join(__dirname, '../../mobile-runtime.js'), 'utf8'), context, { filename: 'mobile-runtime.js' });
     vm.runInContext(inlineScript, context, { filename: 'index.html' });
     function runTimer(id) {
         const timer = timers.get(id);

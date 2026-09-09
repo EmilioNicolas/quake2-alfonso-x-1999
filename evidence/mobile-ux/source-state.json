@@ -1,0 +1,19 @@
+{
+  "baseCommit": "d944fa23e201c5cd55912f19dd6cfbfdc3f2c03a",
+  "sourceSha256": {
+    "index.html": "cd4cc52d6692cb5f84490b671130a58fa071694618af49e97698ec44d0f2ea15",
+    "index.js": "16efd1a8015e6cb851b89f2e49956d880f77fda17083731b775c0c0fbd80305f",
+    "mobile-runtime.js": "c9c6636adbc37493aea91620bc26eb57396dd1c6898afbf7fb7343a49c2f3cd0",
+    "index.wasm": "bc27be1b379f9a45650dfa0dd1c1c99df852561a3ed0b842ab369f1547dc644c",
+    "game_baseq2.wasm": "8fdf02778bf426d1b973f456bf91f9e63d88b6f51f734231a728d5ada971ab4c",
+    "ref_gles3.wasm": "00f4087106c1a47509273033606e40f824bf92de7eef3f50cc21d0a5f9e7d345",
+    "tests/mobile-browser.cjs": "6176a5e8148903be8dc45acf4ebc17d212f400c6d5e7db8c5ba216f640325033"
+  },
+  "preserved": [
+    "downloadOne() unchanged from d944fa2",
+    "startGame() unchanged from d944fa2",
+    "index.js differs only in the two documented hooks",
+    "All WASM binaries unchanged"
+  ],
+  "node": "v24.15.0"
+}

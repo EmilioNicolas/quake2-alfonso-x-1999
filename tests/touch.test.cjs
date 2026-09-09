@@ -1,6 +1,13 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { createBrowser, BrowserEvent } = require('./helpers/browser.cjs');
+const { createBrowser: baseBrowser, BrowserEvent } = require('./helpers/browser.cjs');
+
+function createBrowser(options) {
+    const browser = baseBrowser(options);
+    browser.context.gameState = 'running';
+    browser.element('touchControls').style.display = 'block';
+    return browser;
+}
 
 const finger = (identifier, clientX = 100, clientY = 100) => ({ identifier, clientX, clientY });
 function touch(browser, id, type, changedTouches, touches = changedTouches) {
@@ -53,7 +60,7 @@ test('fire remains held until all fingers on both buttons release', () => {
     assert.deepEqual(fire(browser), [['mousedown', 1], ['mouseup', 0]]);
 });
 
-test('a look tap timeout cannot release a held fire button', () => {
+test('a look tap cannot release a held fire button', () => {
     const browser = createBrowser({ mobile: true });
     touch(browser, 'fireBtnLeft', 'touchstart', [finger(1)]);
     touch(browser, 'lookZone', 'touchstart', [finger(2)]);
@@ -64,16 +71,15 @@ test('a look tap timeout cannot release a held fire button', () => {
     assert.deepEqual(fire(browser), [['mousedown', 1], ['mouseup', 0]]);
 });
 
-test('successive look taps extend the pulse without an earlier premature release', () => {
+test('successive look taps never shoot or schedule a fire pulse', () => {
     const browser = createBrowser({ mobile: true });
     for (const id of [1, 2]) {
         touch(browser, 'lookZone', 'touchstart', [finger(id)]);
         touch(browser, 'lookZone', 'touchend', [finger(id)]);
     }
-    assert.equal(browser.timers.size, 1);
-    assert.deepEqual(fire(browser), [['mousedown', 1]]);
+    assert.equal(browser.timers.size, 0);
     browser.runTimers();
-    assert.deepEqual(fire(browser), [['mousedown', 1], ['mouseup', 0]]);
+    assert.deepEqual(fire(browser), []);
 });
 
 test('jump tracks fingers and releases on cancellation', () => {
@@ -104,17 +110,17 @@ test('late events from before a reset cannot release a new gesture', () => {
     assert.deepEqual(fire(browser), [['mousedown', 1], ['mouseup', 0]]);
 });
 
-for (const reason of ['blur', 'hidden', 'engine reset', 'resize', 'orientationchange', 'fullscreenchange']) {
-    test(`${reason} releases every held control and pending tap`, () => {
+for (const reason of ['blur', 'hidden', 'engine reset', 'resize', 'orientationchange', 'fullscreenchange', 'pagehide']) {
+    test(`${reason} releases every held control`, () => {
         const browser = createBrowser({ mobile: true });
         touch(browser, 'moveZone', 'touchstart', [finger(1)]);
         touch(browser, 'moveZone', 'touchmove', [finger(1, 140, 60)]);
         touch(browser, 'fireBtnRight', 'touchstart', [finger(2)]);
         touch(browser, 'jumpBtn', 'touchstart', [finger(3)]);
-        touch(browser, browser.document.querySelectorAll('.weapon-btn')[0], 'touchstart', [finger(4)]);
+        touch(browser, browser.element('weaponNext'), 'touchstart', [finger(4)]);
         touch(browser, 'lookZone', 'touchstart', [finger(5)]);
         touch(browser, 'lookZone', 'touchend', [finger(5)]);
-        if (['blur', 'resize', 'orientationchange'].includes(reason)) browser.window.dispatchEvent(new BrowserEvent(reason));
+        if (['blur', 'resize', 'orientationchange', 'pagehide'].includes(reason)) browser.window.dispatchEvent(new BrowserEvent(reason));
         else if (reason === 'fullscreenchange') browser.document.dispatchEvent(new BrowserEvent(reason));
         else if (reason === 'hidden') {
             browser.document.hidden = true;
@@ -136,7 +142,7 @@ for (const reason of ['blur', 'hidden', 'engine reset', 'resize', 'orientationch
 
 test('movement, look, fire, jump and weapon changes retain independent owners', () => {
     const browser = createBrowser({ mobile: true });
-    const weapon = browser.document.querySelectorAll('.weapon-btn')[0];
+    const weapon = browser.element('weaponNext');
     const fingers = [finger(1), finger(2, 600, 200), finger(3), finger(4), finger(5)];
     for (const [i, target] of ['moveZone', 'lookZone', 'fireBtnRight', 'jumpBtn', weapon].entries()) {
         touch(browser, target, 'touchstart', [fingers[i]], fingers.slice(0, i + 1));
@@ -150,7 +156,7 @@ test('movement, look, fire, jump and weapon changes retain independent owners', 
     assert.equal(browser.element('jumpBtn').classList.contains('pressed'), true);
     assert.equal(weapon.classList.contains('pressed'), false);
     assert.deepEqual(keys(browser), [
-        ['keydown', 'Space'], ['keydown', 'Digit2'], ['keydown', 'KeyW'], ['keydown', 'KeyD'], ['keyup', 'Digit2']
+        ['keydown', 'Space'], ['keydown', 'KeyF'], ['keydown', 'KeyW'], ['keydown', 'KeyD'], ['keyup', 'KeyF']
     ]);
     touch(browser, 'jumpBtn', 'touchend', [fingers[3]], [fingers[0], fingers[2]]);
     touch(browser, 'fireBtnRight', 'touchend', [fingers[2]], [fingers[0]]);
@@ -162,16 +168,16 @@ test('movement, look, fire, jump and weapon changes retain independent owners', 
     assert.equal(browser.element('joystickIndicator').style.display, 'none');
 });
 
-test('a brief tap tolerates finger jitter measured in CSS pixels', () => {
+test('a brief look tap with finger jitter never fires', () => {
     let now = 1000;
     const browser = createBrowser({ mobile: true, globals: { Date: { now: () => now } } });
     touch(browser, 'lookZone', 'touchstart', [finger(1)]);
     touch(browser, 'lookZone', 'touchmove', [finger(1, 106, 105)]);
     now += 200;
     touch(browser, 'lookZone', 'touchend', [finger(1, 106, 105)], []);
-    assert.deepEqual(fire(browser), [['mousedown', 1]]);
+    assert.deepEqual(fire(browser), []);
     browser.runTimers();
-    assert.deepEqual(fire(browser), [['mousedown', 1], ['mouseup', 0]]);
+    assert.deepEqual(fire(browser), []);
 });
 
 for (const gesture of ['long hold', 'out and back', 'distant release']) {
@@ -192,7 +198,7 @@ for (const gesture of ['long hold', 'out and back', 'distant release']) {
 
 test('joystick feedback stays under its finger when controls are inset for a notch', () => {
     const browser = createBrowser({ mobile: true });
-    browser.element('touchControls').bounds = { left: 47, top: 20 };
+    browser.element('touchControls').bounds = { left: 47, top: 20, width: 750, height: 370 };
     touch(browser, 'moveZone', 'touchstart', [finger(1, 150, 200)]);
     assert.equal(browser.element('joystickIndicator').style.left, '53px');
     assert.equal(browser.element('joystickIndicator').style.top, '130px');
@@ -212,4 +218,73 @@ test('visual viewport resize releases controls and clears pressed feedback', () 
     assert.deepEqual(keys(browser), [['keydown', 'Space'], ['keyup', 'Space']]);
     assert.equal(browser.element('fireBtnLeft').classList.contains('pressed'), false);
     assert.equal(browser.element('jumpBtn').classList.contains('pressed'), false);
+});
+
+for (const [id, key] of [['crouchBtn', 'ShiftLeft'], ['useBtn', 'KeyE'], ['weaponPrev', 'KeyR'], ['weaponNext', 'KeyF']]) {
+    test(`${id} owns its hold and releases on cancellation`, () => {
+        const browser = createBrowser({ mobile: true });
+        touch(browser, id, 'touchstart', [finger(1)]);
+        touch(browser, id, 'touchstart', [finger(2)]);
+        touch(browser, id, 'touchend', [finger(1)]);
+        assert.deepEqual(keys(browser), [['keydown', key]]);
+        touch(browser, id, 'touchcancel', [finger(2)]);
+        assert.deepEqual(keys(browser), [['keydown', key], ['keyup', key]]);
+    });
+}
+
+test('pause releases movement, look and fire; stale events cannot act behind the dialog', () => {
+    const browser = createBrowser({ mobile: true });
+    browser.context.Module = { mobileBridge: { command() {} } };
+    touch(browser, 'moveZone', 'touchstart', [finger(1)]);
+    touch(browser, 'moveZone', 'touchmove', [finger(1, 140, 60)]);
+    touch(browser, 'fireBtnRight', 'touchstart', [finger(2)]);
+    touch(browser, 'lookZone', 'touchstart', [finger(3)]);
+    browser.context.setMobilePaused(true);
+    assert.deepEqual(fire(browser), [['mousedown', 1], ['mouseup', 0]]);
+    browser.events.length = 0;
+    touch(browser, 'lookZone', 'touchmove', [finger(3, 150, 150)]);
+    touch(browser, 'fireBtnRight', 'touchstart', [finger(4)]);
+    touch(browser, 'moveZone', 'touchstart', [finger(5)]);
+    touch(browser, 'moveZone', 'touchmove', [finger(5, 140, 60)]);
+    assert.deepEqual(browser.events, []);
+    browser.context.setMobilePaused(false);
+    touch(browser, 'fireBtnRight', 'touchstart', [finger(6)]);
+    touch(browser, 'fireBtnRight', 'touchend', [finger(2), finger(4)]);
+    assert.deepEqual(fire(browser), [['mousedown', 1]]);
+    touch(browser, 'fireBtnRight', 'touchend', [finger(6)]);
+    assert.deepEqual(fire(browser), [['mousedown', 1], ['mouseup', 0]]);
+});
+
+for (const state of ['idle', 'downloading', 'starting', 'ended', 'failed']) {
+    test(`${state} ignores new control presses`, () => {
+        const browser = createBrowser({ mobile: true });
+        browser.context.gameState = state;
+        touch(browser, 'fireBtnRight', 'touchstart', [finger(1)]);
+        touch(browser, 'moveZone', 'touchstart', [finger(2)]);
+        touch(browser, 'moveZone', 'touchmove', [finger(2, 140, 60)]);
+        assert.deepEqual(browser.events, []);
+    });
+}
+
+test('joystick feedback stays inside the safe rectangle near its edges', () => {
+    const browser = createBrowser({ mobile: true });
+    browser.element('touchControls').bounds = { left: 47, top: 20, width: 474, height: 280 };
+    touch(browser, 'moveZone', 'touchstart', [finger(1, 48, 299)]);
+    assert.equal(browser.element('joystickIndicator').style.left, '0px');
+    assert.equal(browser.element('joystickIndicator').style.top, '180px');
+    touch(browser, 'moveZone', 'touchmove', [finger(1, 80, 260)]);
+    assert.deepEqual(keys(browser), [['keydown', 'KeyW'], ['keydown', 'KeyD']]);
+});
+
+test('the entire joystick knob stays within its safe ring on diagonal edge drags', () => {
+    const browser = createBrowser({ mobile: true });
+    touch(browser, 'moveZone', 'touchstart', [finger(1)]);
+    for (const [x, y] of [[-500, -500], [800, 800], [800, -500], [-500, 800]]) {
+        touch(browser, 'moveZone', 'touchmove', [finger(1, x, y)]);
+        const knob = browser.element('joystickKnob');
+        const dx = parseFloat(knob.style.left) - 50;
+        const dy = parseFloat(knob.style.top) - 50;
+        assert(Math.hypot(dx, dy) <= 30.001);
+        assert(Math.abs(dx) + 18 <= 50 && Math.abs(dy) + 18 <= 50);
+    }
 });

@@ -39,7 +39,7 @@ window.layoutTestRun = (async function() {
             'window.fetch = function() { throw new Error("Game network disabled in layout tests"); };' +
             '<\/script>';
         const loaded = new Promise(resolve => frame.onload = resolve);
-        frame.srcdoc = source.replace('<head>', '<head>' + bootstrap);
+        frame.srcdoc = source.replace('<head>', '<head><base href="' + new URL('../', location.href).href + '">' + bootstrap);
         document.body.appendChild(frame);
         try {
             await loaded;
@@ -90,10 +90,20 @@ window.layoutTestRun = (async function() {
             assert(canvas.right <= scenario.width - right + 1 && canvas.bottom <= scenario.height - bottom + 1, 'Canvas must respect bottom/right safe areas');
             assert(win.getComputedStyle(el('canvas')).objectFit === 'contain', 'Canvas must preserve the game aspect ratio');
             if (!scenario.desktop) {
+                el('mobileHud').style.display = 'grid';
+                for (const id of ['hudHealth', 'hudAmmo', 'hudArmor']) el(id).textContent = '999';
+                await paint(win);
                 const controls = rect(el('touchControls'));
-                const buttons = [...doc.querySelectorAll('#fireBtnLeft, #fireBtnRight, #jumpBtn, .weapon-btn')];
+                const hud = rect(el('mobileHud'));
+                assert(hud.left >= left && hud.top >= top && hud.right <= scenario.width - right, 'HUD must respect safe areas');
+                for (const id of ['hudHealth', 'hudAmmo', 'hudArmor']) {
+                    assert(el(id).scrollWidth <= el(id).clientWidth, 'Three-digit HUD values must not clip');
+                    assert(parseFloat(win.getComputedStyle(el(id)).fontSize) >= 24, 'HUD numbers must be legible on phones');
+                }
+                const buttons = [...doc.querySelectorAll('#touchControls button')];
                 for (const button of buttons) {
                     const box = rect(button);
+                    assert(box.right <= hud.left || box.left >= hud.right || box.bottom <= hud.top || box.top >= hud.bottom, 'Actions must not overlap the HUD');
                     assert(box.width >= 44 && box.height >= 44, 'Every action must have a 44px touch target');
                     assert(box.left >= controls.left && box.right <= controls.right && box.top >= controls.top && box.bottom <= controls.bottom, 'Actions must stay inside safe areas');
                     assert(doc.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2) === button, 'Action must receive touches above the look/move zones');
@@ -106,7 +116,8 @@ window.layoutTestRun = (async function() {
                 const move = rect(el('moveZone'));
                 const look = rect(el('lookZone'));
                 assert(Math.abs(move.right - look.left) < 1, 'Movement and look zones must meet without a gap');
-                assert(move.height === controls.height && look.height === controls.height, 'Touch zones must follow available height');
+                assert(move.top >= hud.bottom && look.top >= hud.bottom, 'Touch zones must leave the HUD clear');
+                assert(move.bottom === controls.bottom && look.bottom === controls.bottom, 'Touch zones must reach the bottom safe edge');
                 // Resize this active game, as when rotating or browser chrome changes.
                 frame.style.height = (scenario.height - 40) + 'px';
                 await paint(win);
