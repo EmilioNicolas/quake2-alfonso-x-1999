@@ -57,6 +57,8 @@ function createBrowser({ mobile = false, globals = {} } = {}) {
         }
         getAttribute(name) { return this.attributes[name] ?? null; }
         setAttribute(name, value) { this.attributes[name] = String(value); }
+        removeAttribute(name) { delete this.attributes[name]; }
+        getBoundingClientRect() { return this.bounds || { left: 0, top: 0 }; }
         focus() { document.activeElement = this; }
         click() { this.dispatchEvent(new BrowserEvent('click', { bubbles: true })); }
     }
@@ -86,6 +88,7 @@ function createBrowser({ mobile = false, globals = {} } = {}) {
         document,
         navigator: { userAgent: mobile ? 'Android' : 'Desktop' },
         innerWidth: mobile ? 800 : 1280,
+        innerHeight: mobile ? 400 : 720,
         location: { reload() {}, pathname: '/', href: '/' },
         screen: { orientation: { lock: () => Promise.resolve() } },
         console: { log() {}, warn() {}, error() {} },

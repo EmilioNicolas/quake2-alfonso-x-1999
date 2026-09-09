@@ -2,28 +2,40 @@
 <html lang="es">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Instituto Alfonso X - Quake II (1999)</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-right: env(safe-area-inset-right, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --safe-left: env(safe-area-inset-left, 0px);
+        }
         body {
             background: #000;
             color: #e0e0e0;
             font-family: 'Courier New', monospace;
             overflow: hidden;
             height: 100vh;
+            height: 100dvh;
             touch-action: none;
         }
         #landing {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            height: 100vh;
+            justify-content: flex-start;
+            height: 100%;
+            overflow-y: auto;
+            touch-action: pan-y;
             background: #000;
             text-align: center;
-            padding: 20px;
+            padding: max(20px, var(--safe-top)) max(20px, var(--safe-right)) max(20px, var(--safe-bottom)) max(20px, var(--safe-left));
         }
+        #landing > *, #endScreen > * { flex-shrink: 0; max-width: 100%; }
+        #landing > :first-child, #endScreen > :first-child { margin-top: auto; }
+        #landing > :last-child, #endScreen > :last-child { margin-bottom: auto; }
         .line {
             width: 60px;
             height: 1px;
@@ -57,7 +69,7 @@
         }
         .mobile-note {
             display: none;
-            color: #555;
+            color: #999;
             font-size: 0.75em;
             margin-bottom: 20px;
             line-height: 1.6;
@@ -82,18 +94,27 @@
             box-shadow: 0 0 40px rgba(255,102,0,0.3);
         }
         #playBtn:disabled {
-            border-color: #333;
-            color: #333;
+            border-color: #77401c;
+            color: #ba7545;
             cursor: wait;
             background: transparent;
             box-shadow: none;
         }
         #statusText {
-            color: #555;
+            color: #aaa;
             font-size: 0.8em;
             margin-bottom: 12px;
             min-height: 1.2em;
             letter-spacing: 1px;
+            line-height: 1.5;
+            overflow-wrap: anywhere;
+        }
+        #loadingHint {
+            color: #999;
+            font-size: 0.75em;
+            line-height: 1.5;
+            max-width: 420px;
+            margin-bottom: 12px;
         }
         .progress-bar {
             width: 240px;
@@ -109,6 +130,15 @@
             width: 0%;
             transition: width 0.3s;
         }
+        .progress-bar.indeterminate .fill {
+            width: 25% !important;
+            animation: waiting 1.4s ease-in-out infinite alternate;
+        }
+        @keyframes waiting { from { transform: translateX(0); } to { transform: translateX(300%); } }
+        @media (prefers-reduced-motion: reduce) {
+            .progress-bar.indeterminate .fill { animation: none; }
+            .progress-bar .fill { transition: none; }
+        }
         .credits {
             color: #666;
             font-size: 0.75em;
@@ -120,13 +150,16 @@
         .credits a:hover { color: #ff6600; }
 
         /* Game view */
-        #gameView { display: none; width: 100vw; height: 100vh; position: relative; }
-        canvas { border: 0; outline: none; background: #000; }
+        #gameView {
+            display: none; width: 100%; height: 100%; position: relative;
+            padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
+        }
+        canvas { border: 0; outline: none; background: #000; width: 100%; height: 100%; object-fit: contain; }
         textarea#output {
             font-family: monospace;
             font-size: 14px;
             width: 100%;
-            height: 100vh;
+            height: 100%;
             background: #000;
             color: #999;
             border: none;
@@ -140,9 +173,13 @@
         #touchControls {
             display: none;
             position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
+            top: var(--safe-top); left: var(--safe-left); right: var(--safe-right); bottom: var(--safe-bottom);
             z-index: 100;
             pointer-events: none;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            touch-action: none;
         }
         #touchControls.active { pointer-events: auto; }
         .touch-zone {
@@ -151,11 +188,11 @@
         }
         #moveZone {
             left: 0; bottom: 0;
-            width: 50vw; height: 100vh;
+            width: 50%; height: 100%;
         }
         #lookZone {
             right: 0; bottom: 0;
-            width: 50vw; height: 100vh;
+            width: 50%; height: 100%;
         }
         #fireBtnLeft {
             position: absolute;
@@ -170,8 +207,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.5em;
-            color: rgba(255,102,0,0.6);
+            font-size: 0.7em;
+            color: #ff9955;
         }
         #fireBtnRight {
             position: absolute;
@@ -185,13 +222,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.6em;
-            color: rgba(255,102,0,0.7);
+            font-size: 0.75em;
+            color: #ff9955;
         }
         #jumpBtn {
             position: absolute;
-            right: 20px; top: 40%;
-            width: 50px; height: 50px;
+            right: 20px; bottom: 116px;
+            width: 56px; height: 56px;
             border-radius: 50%;
             background: rgba(255,255,255,0.1);
             border: 1px solid rgba(255,255,255,0.2);
@@ -200,27 +237,28 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.5em;
-            color: rgba(255,255,255,0.4);
+            font-size: 0.65em;
+            color: #ccc;
         }
         #weaponBtns {
             position: absolute;
             top: 10px; left: 50%; transform: translateX(-50%);
-            display: flex; gap: 5px;
+            display: flex; gap: 8px;
             z-index: 200;
             pointer-events: auto;
         }
         .weapon-btn {
-            width: 32px; height: 32px;
+            width: 44px; height: 44px;
             border-radius: 4px;
             background: rgba(255,255,255,0.08);
             border: 1px solid rgba(255,255,255,0.15);
-            color: rgba(255,255,255,0.4);
-            font-size: 0.65em;
+            color: #ccc;
+            font-size: 0.75em;
             display: flex;
             align-items: center;
             justify-content: center;
         }
+        #touchControls .pressed { background: rgba(255,102,0,0.5); border-color: #ff9955; }
         #joystickIndicator {
             position: absolute;
             width: 100px; height: 100px;
@@ -279,11 +317,13 @@
             display: none;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            height: 100vh;
+            justify-content: flex-start;
+            height: 100%;
+            overflow-y: auto;
+            touch-action: pan-y;
             background: #000;
             text-align: center;
-            padding: 20px;
+            padding: max(20px, var(--safe-top)) max(20px, var(--safe-right)) max(20px, var(--safe-bottom)) max(20px, var(--safe-left));
         }
         #endScreen h2 {
             font-size: 1.6em;
@@ -334,22 +374,26 @@
             box-shadow: 0 0 30px rgba(255,102,0,0.3);
         }
 
+        .touch-device .mobile-note { display: block; }
+        #endActions { display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; }
         @media (max-width: 768px) {
             h1 { font-size: 1.4em; letter-spacing: 3px; }
             .tagline { font-size: 0.8em; }
-            .mobile-note { display: block; }
             #playBtn { padding: 14px 40px; font-size: 1em; }
             .credits { margin-top: 20px; }
             .year { margin-bottom: 15px; }
             .line { margin: 0 auto 20px; }
         }
-        @media (max-width: 768px) and (orientation: landscape) {
-            h1 { font-size: 1.2em; margin-bottom: 6px; }
+        @media (max-height: 500px) and (orientation: landscape) {
+            #landing { padding-top: max(12px, var(--safe-top)); padding-bottom: max(12px, var(--safe-bottom)); }
+            h1 { font-size: 1.2em; letter-spacing: 3px; margin-bottom: 6px; }
             .tagline { font-size: 0.7em; margin-bottom: 4px; line-height: 1.4; }
             .year { margin-bottom: 8px; font-size: 0.65em; }
             .line { margin: 0 auto 10px; }
-            .mobile-note { font-size: 0.6em; margin-bottom: 8px; }
-            #playBtn { padding: 10px 30px; font-size: 0.9em; }
+            .mobile-note { font-size: 0.7em; margin-bottom: 8px; }
+            #playBtn { padding: 10px 30px; font-size: 0.9em; min-height: 44px; margin-bottom: 8px; }
+            #statusText, #loadingHint { margin-bottom: 6px; letter-spacing: 0; }
+            .progress-bar { margin-bottom: 8px; }
             .credits { margin-top: 10px; font-size: 0.6em; }
         }
     </style>
@@ -362,8 +406,9 @@
         <p class="tagline">Los alien&iacute;genas han invadido el instituto.<br>C&aacute;rgatelos a todos y escapa del Alfonso&nbsp;X.<br>Eres la &uacute;ltima esperanza.</p>
         <button id="playBtn" onclick="startGame()">JUGAR</button>
         <div id="statusText" role="status" aria-live="polite"></div>
-        <div class="progress-bar" id="progressBar"><div class="fill" id="progressFill"></div></div>
-        <p class="mobile-note">Mejor experiencia en ordenador. En m&oacute;vil: controles t&aacute;ctiles disponibles.</p>
+        <div class="progress-bar" id="progressBar" role="progressbar" aria-label="Descarga de recursos" aria-valuemin="0" aria-valuemax="100"><div class="fill" id="progressFill"></div></div>
+        <p id="loadingHint">Descarga inicial: aprox. 188 MB. Puede tardar varios minutos.</p>
+        <p class="mobile-note">En m&oacute;vil, mejor en horizontal.<br>Izquierda: mover &middot; Derecha: mirar<br>Mant&eacute;n FIRE para disparar &middot; JUMP para saltar.</p>
         <div class="credits">
             <a href="https://x.com/emailnicolas" target="_blank">@emailnicolas</a> &amp; <a href="https://x.com/javilop" target="_blank">@javilop</a><br>
             <a href="https://github.com/GMH-Code/Qwasm2" target="_blank">Qwasm2</a> / id Software<br>
@@ -387,7 +432,7 @@
             Motor: Quake II (id Software) / <a href="https://github.com/GMH-Code/Qwasm2" target="_blank">Qwasm2</a><br>
             <a href="https://github.com/EmilioNicolas/quake2-alfonso-x-1999" target="_blank">GitHub</a>
         </div>
-        <div style="display:flex; gap:20px;">
+        <div id="endActions">
             <button id="replayBtn" onclick="location.reload()">JUGAR DE NUEVO</button>
             <button id="replayBtn" onclick="location.href=location.pathname;" style="border-color:#555; color:#555;">VOLVER</button>
         </div>
@@ -424,14 +469,28 @@
     function setProgress(pct) {
         var bar = document.getElementById('progressBar');
         var fill = document.getElementById('progressFill');
+        if (pct === null) {
+            bar.style.display = 'block';
+            bar.classList.add('indeterminate');
+            bar.removeAttribute('aria-valuenow');
+            return;
+        }
+        bar.classList.remove('indeterminate');
         bar.style.display = pct > 0 ? 'block' : 'none';
         fill.style.width = pct + '%';
+        bar.setAttribute('aria-valuenow', Math.round(pct));
     }
 
     var CDN = 'https://q2-assets.enicolas-riquelme.workers.dev/';
-    var TOTAL_SIZE_MB = 187;
-    var isMobile = /Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent) || ('ontouchstart' in window && window.innerWidth < 1024);
+    var TOTAL_SIZE_MB = 188;
+    var isMobile = /Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) ||
+        (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) ||
+        ('ontouchstart' in window && window.innerWidth < 1024);
+    if (isMobile) document.documentElement.classList.add('touch-device');
     var _downloaded = 0;
+    var _downloadLabel = '';
+    var retryNotBefore = 0;
     var gameState = 'idle';
     var engineLoaded = false;
     var startupTimer = null;
@@ -443,8 +502,19 @@
     }
 
     function showDownloadProgress() {
-        setProgress(Math.min(85, (_downloaded / (TOTAL_SIZE_MB * 1048576)) * 85));
-        setStatus(downloadedSize() + ' / ' + TOTAL_SIZE_MB + ' MB');
+        setProgress(_downloaded ? Math.min(99, (_downloaded / (TOTAL_SIZE_MB * 1048576)) * 100) : null);
+        setStatus('Descargando: ' + downloadedSize() + ' / ~' + TOTAL_SIZE_MB + ' MB' + _downloadLabel);
+    }
+
+    function retryAfterMilliseconds(response) {
+        var value = response.headers && response.headers.get('Retry-After');
+        if (!value) return 0;
+        value = value.trim();
+        if (/^\d+$/.test(value)) return Number(value) * 1000;
+        // Only parse HTTP dates; Date.parse also accepts malformed delays like "1.5".
+        if (!/GMT$/i.test(value)) return 0;
+        var date = Date.parse(value);
+        return Number.isFinite(date) ? Math.max(0, date - Date.now()) : 0;
     }
 
     function cancelDownload(stream) {
@@ -526,9 +596,12 @@
             }
             try {
                 if (attempt > 0) {
-                    setStatus('Reconectando (' + attempt + '/' + retries + ')...');
-                    await new Promise(function(r) { setTimeout(r, 2000 * attempt); });
+                    var delay = Math.max(2000 * attempt, retryNotBefore - Date.now());
+                    setStatus('Reintentando en ' + Math.ceil(delay / 1000) + ' s (' + attempt + '/' + retries + ')...' + _downloadLabel);
+                    await new Promise(function(r) { setTimeout(r, delay); });
                 }
+                setStatus('Conectando...' + _downloadLabel);
+                if (!_downloaded) setProgress(null);
                 resetTimeout();
                 resp = await waitFor(
                     fetch(url, controller ? { signal: controller.signal } : {}).then(function(response) {
@@ -541,11 +614,21 @@
                 );
                 if (!resp.ok) {
                     retryable = resp.status === 408 || resp.status === 429 || resp.status >= 500;
+                    if (retryable) {
+                        var retryAfter = retryAfterMilliseconds(resp);
+                        retryNotBefore = Math.max(retryNotBefore, Date.now() + retryAfter);
+                        // Never shorten a server cooldown. Long waits require a later
+                        // manual attempt instead of keeping automatic retries pending.
+                        if (retryAfter > 120000) {
+                            retryable = false;
+                            throw new Error('HTTP ' + resp.status + ': servidor ocupado. Reintenta en ' + Math.ceil(retryAfter / 1000) + ' s.');
+                        }
+                    }
                     throw new Error('HTTP ' + resp.status);
                 }
                 // Older/embedded browsers may expose Fetch without a readable body.
                 if (!resp.body || typeof resp.body.getReader !== 'function') {
-                    setStatus('Recibiendo ' + url.split('/').pop() + '... (' + downloadedSize() + ' / ' + TOTAL_SIZE_MB + ' MB)');
+                    setStatus('Recibiendo ' + url.split('/').pop() + '... (' + downloadedSize() + ' / ~' + TOTAL_SIZE_MB + ' MB). El progreso se actualiza al completar el archivo.');
                     // Buffered reads expose no activity; give the entire body two minutes.
                     resetTimeout(120000);
                     var buffer = await waitFor(resp.arrayBuffer());
@@ -556,6 +639,7 @@
                     showDownloadProgress();
                     return data;
                 }
+                setStatus('Esperando datos... (' + downloadedSize() + ' / ~' + TOTAL_SIZE_MB + ' MB)' + _downloadLabel);
                 reader = resp.body.getReader();
                 resetTimeout();
                 while (true) {
@@ -605,12 +689,16 @@
             location.reload();
             return;
         }
+        if (Date.now() < retryNotBefore) {
+            setStatus('Servidor ocupado. Espera ' + Math.ceil((retryNotBefore - Date.now()) / 1000) + ' s antes de reintentar.');
+            return;
+        }
         gameState = 'downloading';
         var btn = document.getElementById('playBtn');
         btn.disabled = true;
         btn.textContent = 'CARGANDO...';
         setStatus('Conectando...');
-        setProgress(0);
+        setProgress(null);
         if (isMobile && document.documentElement.requestFullscreen) {
             try {
                 Promise.resolve(document.documentElement.requestFullscreen()).then(function() {
@@ -626,6 +714,7 @@
             var files = ['pak0_chunk_aa', 'pak0_chunk_ab', 'pak0_chunk_ac', 'pak0_chunk_ad', 'pak1.pak'];
             var results = [];
             for (var i = 0; i < files.length; i++) {
+                _downloadLabel = ' · Archivo ' + (i + 1) + '/' + files.length;
                 results.push(await downloadOne(CDN + files[i], 2));
             }
 
@@ -647,8 +736,9 @@
             pak0 = null;
             results = null;
 
-            setStatus('Iniciando...');
-            setProgress(90);
+            setStatus('Descarga completa. Iniciando motor...');
+            setProgress(null);
+            document.getElementById('progressBar').setAttribute('aria-label', 'Inicio del motor');
 
             gameState = 'starting';
             engineLoaded = true;
@@ -724,7 +814,11 @@
                     if (e.type === 'touchstart') touches.add(e.changedTouches[i].identifier);
                     else touches.delete(e.changedTouches[i].identifier);
                 }
-                if (wasDown !== (touches.size > 0)) onChange(touches.size > 0);
+                if (wasDown !== (touches.size > 0)) {
+                    if (touches.size) button.classList.add('pressed');
+                    else button.classList.remove('pressed');
+                    onChange(touches.size > 0);
+                }
             }
             ['touchstart', 'touchend', 'touchcancel'].forEach(function(type) {
                 button.addEventListener(type, update, { passive: false });
@@ -732,6 +826,7 @@
             buttonResets.push(function() {
                 if (touches.size) {
                     touches.clear();
+                    button.classList.remove('pressed');
                     onChange(false);
                 }
             });
@@ -758,9 +853,10 @@
             var t = e.changedTouches[0];
             moveTouchId = t.identifier;
             moveOrigin = { x: t.clientX, y: t.clientY };
+            var bounds = document.getElementById('touchControls').getBoundingClientRect();
             joystick.style.display = 'block';
-            joystick.style.left = (t.clientX - 50) + 'px';
-            joystick.style.top = (t.clientY - 50) + 'px';
+            joystick.style.left = (t.clientX - bounds.left - 50) + 'px';
+            joystick.style.top = (t.clientY - bounds.top - 50) + 'px';
         }, { passive: false });
 
         document.getElementById('moveZone').addEventListener('touchmove', function(e) {
@@ -796,7 +892,15 @@
         // Track by touch identifier to avoid multitouch conflicts
         var lookTouchId = null;
         var lookLast = null;
-        var lookTotalDist = 0;
+        var lookOrigin = null;
+        var lookMaxDistanceSquared = 0;
+        var lookStartedAt = 0;
+
+        function trackLookDistance(t) {
+            var dx = t.clientX - lookOrigin.x;
+            var dy = t.clientY - lookOrigin.y;
+            lookMaxDistanceSquared = Math.max(lookMaxDistanceSquared, dx * dx + dy * dy);
+        }
 
         document.getElementById('lookZone').addEventListener('touchstart', function(e) {
             e.preventDefault();
@@ -804,7 +908,9 @@
             var t = e.changedTouches[0];
             lookTouchId = t.identifier;
             lookLast = { x: t.clientX, y: t.clientY };
-            lookTotalDist = 0;
+            lookOrigin = lookLast;
+            lookMaxDistanceSquared = 0;
+            lookStartedAt = Date.now();
         }, { passive: false });
 
         document.getElementById('lookZone').addEventListener('touchmove', function(e) {
@@ -814,15 +920,18 @@
             var dx = (t.clientX - lookLast.x) * 8;
             var dy = (t.clientY - lookLast.y) * 8;
             lookLast = { x: t.clientX, y: t.clientY };
-            lookTotalDist += Math.abs(dx) + Math.abs(dy);
+            trackLookDistance(t);
             sendMouseMove(dx, dy);
         }, { passive: false });
 
         ['touchend', 'touchcancel'].forEach(function(type) {
             document.getElementById('lookZone').addEventListener(type, function(e) {
                 e.preventDefault();
-                if (!changedTouch(e, lookTouchId)) return;
-                if (e.type === 'touchend' && lookTotalDist < 30) {
+                var t = changedTouch(e, lookTouchId);
+                if (!t || !lookOrigin) return;
+                trackLookDistance(t);
+                // Measure a short tap in CSS pixels, independently of aim sensitivity.
+                if (e.type === 'touchend' && lookMaxDistanceSquared <= 100 && Date.now() - lookStartedAt <= 250) {
                     setTouchFire('tap', true);
                     clearTimeout(tapFireTimer);
                     tapFireTimer = setTimeout(function() {
@@ -832,6 +941,7 @@
                 }
                 lookTouchId = null;
                 lookLast = null;
+                lookOrigin = null;
             }, { passive: false });
         });
 
@@ -859,12 +969,17 @@
             resetMove();
             lookTouchId = null;
             lookLast = null;
+            lookOrigin = null;
             clearTimeout(tapFireTimer);
             tapFireTimer = null;
             buttonResets.forEach(function(reset) { reset(); });
             setTouchFire('tap', false);
         };
         window.addEventListener('blur', resetTouchControls);
+        window.addEventListener('resize', resetTouchControls);
+        window.addEventListener('orientationchange', resetTouchControls);
+        document.addEventListener('fullscreenchange', resetTouchControls);
+        if (window.visualViewport) window.visualViewport.addEventListener('resize', resetTouchControls);
         document.addEventListener('visibilitychange', function() {
             if (document.hidden) resetTouchControls();
         });
@@ -911,7 +1026,7 @@
             },
             canvas: canvasElement,
             setStatus: function(text) {
-                if (gameState === 'starting' && text) setStatus('Iniciando motor...');
+                if (gameState === 'starting' && text) setStatus('Descarga completa. Iniciando motor...');
             },
             onAbort: function(reason) {
                 showGameError(new Error('No se pudo ejecutar el motor: ' + reason));
@@ -951,8 +1066,8 @@
                 }
                 outputElement.style.display = 'none';
                 canvasElement.style.display = 'block';
-                canvasElement.style.width = '100vw';
-                canvasElement.style.height = '100vh';
+                canvasElement.style.width = '100%';
+                canvasElement.style.height = '100%';
                 canvasElement.focus();
             },
             showConsole: function() {
@@ -976,7 +1091,11 @@
                     URL.revokeObjectURL(url);
                 } catch (e) { console.error('Export error:', e); }
             },
-            winResized: function() {},
+            winResized: function() {
+                // The runtime owns the drawing buffer; CSS fits it inside safe areas.
+                canvasElement.style.width = '100%';
+                canvasElement.style.height = '100%';
+            },
             setGamma: function(gamma) {
                 gamma = Number(Number(gamma).toFixed(2));
                 canvasElement.style.filter = gamma < 0 ? null : 'brightness(' + (2 * gamma) + ')';
@@ -1041,8 +1160,10 @@
                 '+set', 'gl_texturemode', 'GL_LINEAR_MIPMAP_LINEAR',
                 '+set', 'gl_modulate', '2',
                 '+set', 'gl_shadows', '1',
-                '+set', 'gl_anisotropic', '16',
-                '+set', 'gl_msaa_samples', '16',
+                // Avoid requesting 16x filtering and multisampled buffers on phones.
+                // Keep the original textures, lighting and desktop settings.
+                '+set', 'gl_anisotropic', isMobile ? '4' : '16',
+                '+set', 'gl_msaa_samples', isMobile ? '0' : '16',
                 '+set', 'crosshair', '1',
                 '+set', 'freelook', '1',
                 '+set', 'cl_run', '1',

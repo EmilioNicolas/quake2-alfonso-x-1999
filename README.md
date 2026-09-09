@@ -23,17 +23,27 @@ Salva al Instituto Alfonso X de la invasion alienigena. Recorre sus pasillos, cl
 
 Haz click en el juego para capturar el raton; Escape lo libera. Si no se captura al iniciar, vuelve a hacer click.
 
-En movil, arrastra la mitad izquierda para moverte y la derecha para mirar. Puedes combinar movimiento, mirada, disparo y salto con varios dedos. Los botones FIRE mantienen el disparo mientras los pulsas; un toque breve en la zona derecha tambien dispara.
+En movil, mejor en horizontal: arrastra la mitad izquierda para moverte y la derecha para mirar. Puedes combinar movimiento, mirada, disparo, salto y cambio de arma con varios dedos. Los botones FIRE mantienen el disparo mientras los pulsas; un toque breve en la zona derecha tambien dispara. Mantener el dedo quieto o arrastrar para mirar no dispara al soltar. JUMP queda encima del FIRE derecho y los botones de arma tienen un area de 44 x 44 px. Los botones se iluminan mientras estan pulsados.
+
+La pagina pide pantalla completa y orientacion horizontal cuando el navegador lo permite; tambien funciona sin esas APIs. El juego y los controles respetan las zonas seguras de la pantalla. La portada permite desplazarse en pantallas bajas. Al girar, cambiar el tamano de la ventana o pasar a otra app se sueltan los controles para evitar acciones atascadas.
+
+En dispositivos tactiles se solicitan 0 muestras MSAA y filtrado anisotropico 4x, frente a 16 y 16x en escritorio, para reducir el coste de los buffers y del filtrado. Se conservan texturas, iluminacion, sombras y sensibilidad. Es una reduccion de trabajo solicitado al renderer, no una mejora de FPS medida en un telefono.
 
 ## Comprobar cambios
 
-Sirve la carpeta con `python3 -m http.server 8000` y abre `http://localhost:8000`. El juego descarga unos 187 MB de recursos desde el CDN al pulsar JUGAR.
+Sirve la carpeta con `python3 -m http.server 8000` y abre `http://localhost:8000`. El juego descarga aproximadamente 188 MB de archivos PAK desde el CDN al pulsar JUGAR, ademas del motor servido con la pagina. La portada avisa de que puede tardar varios minutos. Muestra conexion, espera de datos, bytes recibidos y archivo actual; al terminar la descarga distingue el inicio del motor, sin asignarle un porcentaje ficticio. El indicador de espera respeta la preferencia de movimiento reducido. La cifra en MB usa unidades de 1024 x 1024 bytes, redondeadas.
 
 Ejecuta `node --test tests/*.test.cjs` con Node.js 18 o posterior. Las pruebas usan eventos y descargas simulados para comprobar carga, errores y controles; no ejecutan WebAssembly ni sustituyen las pruebas de juego en navegador. No necesitan dependencias ni red.
 
 La descarga reintenta tras 30 segundos sin recibir cabeceras o nuevos bytes, incluso si una lectura no responde a la cancelacion. Si el navegador no expone un cuerpo legible por streaming, usa `arrayBuffer()` con un limite de 120 segundos por archivo; en ese modo solo puede contar los bytes al terminar el archivo. El progreso muestra bytes o KB antes de llegar al primer MB.
 
+Se mantienen hasta dos reintentos por archivo. Si una respuesta de error recuperable expone `Retry-After`, se respeta tanto en segundos como en fecha HTTP. Las esperas automaticas llegan hasta 120 segundos; si el servidor pide mas tiempo, se informa del plazo y se bloquea un nuevo intento en esa pagina hasta que termine, sin acortarlo. Sin una cabecera valida y accesible por CORS, se conserva la espera de 2 y 4 segundos. No se realizan sondeos adicionales al CDN.
+
 Las regresiones de carga cubren lecturas bloqueadas, respuestas tardias, reintentos y navegadores sin streaming. Las pruebas de memoria comprueban las copias de los archivos y ejecutan las funciones FS/MEMFS incluidas en `index.js` para verificar que el sistema de archivos adopta los buffers finales sin duplicarlos. Estas pruebas no miden la memoria de un dispositivo fisico.
+
+Las pruebas de controles incluyen cinco dedos simultaneos, cancelacion, giros, cambio de viewport, desplazamiento del joystick por zonas seguras y distincion entre toque y gesto de mirada. Las pruebas de adaptacion incluyen iPad con user-agent de escritorio, pantallas anchas y fallos de las APIs de pantalla completa/orientacion. Para ver cada caso con Node.js 24 se puede usar `node --test --test-isolation=none --test-reporter=spec tests/*.test.cjs`.
+
+Abre `http://localhost:8000/tests/responsive.html` para comprobar geometria real en ocho tamanos de ventana, de 320 x 568 a 1440 x 900. Este ejecutor comprueba contenido alcanzable, ausencia de solapamientos, objetivos tactiles, proporcion del canvas y cambios de altura; simula las zonas seguras y bloquea la descarga del juego y la ejecucion del motor. La automatizacion por CDP puede esperar `window.layoutTestRun` y leer `window.layoutTestResults`. No sustituye una prueba de WebGL, gestos reales ni areas seguras de iOS. Antes de publicar, revisar la portada y jugar en horizontal y vertical en un navegador real, incluyendo movimiento + mirada + FIRE + JUMP, giro durante un gesto y vuelta desde otra app.
 
 ## Creditos
 

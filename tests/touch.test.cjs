@@ -104,7 +104,7 @@ test('late events from before a reset cannot release a new gesture', () => {
     assert.deepEqual(fire(browser), [['mousedown', 1], ['mouseup', 0]]);
 });
 
-for (const reason of ['blur', 'hidden', 'engine reset']) {
+for (const reason of ['blur', 'hidden', 'engine reset', 'resize', 'orientationchange', 'fullscreenchange']) {
     test(`${reason} releases every held control and pending tap`, () => {
         const browser = createBrowser({ mobile: true });
         touch(browser, 'moveZone', 'touchstart', [finger(1)]);
@@ -114,7 +114,8 @@ for (const reason of ['blur', 'hidden', 'engine reset']) {
         touch(browser, browser.document.querySelectorAll('.weapon-btn')[0], 'touchstart', [finger(4)]);
         touch(browser, 'lookZone', 'touchstart', [finger(5)]);
         touch(browser, 'lookZone', 'touchend', [finger(5)]);
-        if (reason === 'blur') browser.window.dispatchEvent(new BrowserEvent('blur'));
+        if (['blur', 'resize', 'orientationchange'].includes(reason)) browser.window.dispatchEvent(new BrowserEvent(reason));
+        else if (reason === 'fullscreenchange') browser.document.dispatchEvent(new BrowserEvent(reason));
         else if (reason === 'hidden') {
             browser.document.hidden = true;
             browser.document.dispatchEvent(new BrowserEvent('visibilitychange'));
@@ -132,3 +133,83 @@ for (const reason of ['blur', 'hidden', 'engine reset']) {
         assert.deepEqual(fire(browser), [['mousedown', 1], ['mouseup', 0]]);
     });
 }
+
+test('movement, look, fire, jump and weapon changes retain independent owners', () => {
+    const browser = createBrowser({ mobile: true });
+    const weapon = browser.document.querySelectorAll('.weapon-btn')[0];
+    const fingers = [finger(1), finger(2, 600, 200), finger(3), finger(4), finger(5)];
+    for (const [i, target] of ['moveZone', 'lookZone', 'fireBtnRight', 'jumpBtn', weapon].entries()) {
+        touch(browser, target, 'touchstart', [fingers[i]], fingers.slice(0, i + 1));
+    }
+    touch(browser, 'moveZone', 'touchmove', [finger(1, 140, 60)], fingers);
+    touch(browser, 'lookZone', 'touchmove', [finger(2, 620, 205)], fingers);
+    touch(browser, weapon, 'touchend', [fingers[4]], fingers.slice(0, 4));
+    touch(browser, 'lookZone', 'touchcancel', [fingers[1]], [fingers[0], fingers[2], fingers[3]]);
+    assert.deepEqual(fire(browser), [['mousedown', 1]]);
+    assert.equal(browser.element('fireBtnRight').classList.contains('pressed'), true);
+    assert.equal(browser.element('jumpBtn').classList.contains('pressed'), true);
+    assert.equal(weapon.classList.contains('pressed'), false);
+    assert.deepEqual(keys(browser), [
+        ['keydown', 'Space'], ['keydown', 'Digit2'], ['keydown', 'KeyW'], ['keydown', 'KeyD'], ['keyup', 'Digit2']
+    ]);
+    touch(browser, 'jumpBtn', 'touchend', [fingers[3]], [fingers[0], fingers[2]]);
+    touch(browser, 'fireBtnRight', 'touchend', [fingers[2]], [fingers[0]]);
+    assert.equal(browser.element('joystickIndicator').style.display, 'block');
+    touch(browser, 'moveZone', 'touchend', [fingers[0]], []);
+    assert.deepEqual(fire(browser), [['mousedown', 1], ['mouseup', 0]]);
+    assert.equal(browser.element('fireBtnRight').classList.contains('pressed'), false);
+    assert.equal(browser.element('jumpBtn').classList.contains('pressed'), false);
+    assert.equal(browser.element('joystickIndicator').style.display, 'none');
+});
+
+test('a brief tap tolerates finger jitter measured in CSS pixels', () => {
+    let now = 1000;
+    const browser = createBrowser({ mobile: true, globals: { Date: { now: () => now } } });
+    touch(browser, 'lookZone', 'touchstart', [finger(1)]);
+    touch(browser, 'lookZone', 'touchmove', [finger(1, 106, 105)]);
+    now += 200;
+    touch(browser, 'lookZone', 'touchend', [finger(1, 106, 105)], []);
+    assert.deepEqual(fire(browser), [['mousedown', 1]]);
+    browser.runTimers();
+    assert.deepEqual(fire(browser), [['mousedown', 1], ['mouseup', 0]]);
+});
+
+for (const gesture of ['long hold', 'out and back', 'distant release']) {
+    test(`${gesture} in the look zone does not fire`, () => {
+        let now = 1000;
+        const browser = createBrowser({ mobile: true, globals: { Date: { now: () => now } } });
+        touch(browser, 'lookZone', 'touchstart', [finger(1)]);
+        if (gesture === 'long hold') now += 500;
+        if (gesture === 'out and back') {
+            touch(browser, 'lookZone', 'touchmove', [finger(1, 120, 100)]);
+            touch(browser, 'lookZone', 'touchmove', [finger(1)]);
+        }
+        touch(browser, 'lookZone', 'touchend', [finger(1, gesture === 'distant release' ? 120 : 100, 100)], []);
+        assert.deepEqual(fire(browser), []);
+        assert.equal(browser.timers.size, 0);
+    });
+}
+
+test('joystick feedback stays under its finger when controls are inset for a notch', () => {
+    const browser = createBrowser({ mobile: true });
+    browser.element('touchControls').bounds = { left: 47, top: 20 };
+    touch(browser, 'moveZone', 'touchstart', [finger(1, 150, 200)]);
+    assert.equal(browser.element('joystickIndicator').style.left, '53px');
+    assert.equal(browser.element('joystickIndicator').style.top, '130px');
+    touch(browser, 'moveZone', 'touchmove', [finger(1, 150, 170)]);
+    assert.deepEqual(keys(browser), [['keydown', 'KeyW']]);
+});
+
+test('visual viewport resize releases controls and clears pressed feedback', () => {
+    let resize;
+    const browser = createBrowser({ mobile: true, globals: {
+        visualViewport: { addEventListener: (type, callback) => { if (type === 'resize') resize = callback; } }
+    } });
+    touch(browser, 'fireBtnLeft', 'touchstart', [finger(1)]);
+    touch(browser, 'jumpBtn', 'touchstart', [finger(2)]);
+    resize();
+    assert.deepEqual(fire(browser), [['mousedown', 1], ['mouseup', 0]]);
+    assert.deepEqual(keys(browser), [['keydown', 'Space'], ['keyup', 'Space']]);
+    assert.equal(browser.element('fireBtnLeft').classList.contains('pressed'), false);
+    assert.equal(browser.element('jumpBtn').classList.contains('pressed'), false);
+});

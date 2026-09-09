@@ -35,7 +35,9 @@ test('starting immediately shows connection status and ignores duplicate starts'
         return new Promise(resolve => { finishFetch = resolve; });
     } });
     const first = browser.context.startGame();
-    assert.equal(browser.element('statusText').textContent, 'Conectando...');
+    assert.equal(browser.element('statusText').textContent, 'Conectando... · Archivo 1/5');
+    assert.equal(browser.element('progressBar').style.display, 'block');
+    assert.equal(browser.element('progressBar').getAttribute('aria-valuenow'), null);
     assert.equal(browser.element('playBtn').disabled, true);
     await browser.context.startGame();
     assert.equal(requests, 1);

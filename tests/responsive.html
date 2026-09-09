@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Mobile layout regressions</title>
+<style>
+    body { font: 16px monospace; }
+    iframe { display: block; border: 0; margin-top: 20px; }
+    .fail { color: #b00; }
+</style>
+<h1>Mobile layout regressions</h1>
+<p>Checks actual browser layout in isolated frames. Game downloads and engine execution are blocked. Safe-area values are simulated.</p>
+<p id="status">Running…</p>
+<ol id="results"></ol>
+<script>
+// Serve the repository, then open /tests/responsive.html in Chromium or Safari.
+// CDP automation may await window.layoutTestRun and inspect window.layoutTestResults.
+window.layoutTestResults = { done: false, passed: 0, failed: 0, cases: [] };
+window.layoutTestRun = (async function() {
+    const report = window.layoutTestResults;
+    const source = await (await fetch('../index.html')).text();
+    const cases = [
+        { name: 'small portrait', width: 320, height: 568, safe: [0, 0, 0, 0] },
+        { name: 'portrait with browser chrome and notch', width: 390, height: 664, safe: [47, 0, 34, 0] },
+        { name: 'short landscape', width: 568, height: 320, safe: [0, 0, 0, 0] },
+        { name: 'landscape wider than 768px', width: 844, height: 390, safe: [0, 47, 21, 47] },
+        { name: 'large phone landscape', width: 932, height: 430, safe: [0, 59, 21, 59] },
+        { name: 'tablet portrait', width: 768, height: 1024, safe: [24, 0, 20, 0] },
+        { name: 'tablet landscape', width: 1024, height: 768, safe: [24, 0, 20, 0] },
+        { name: 'desktop', width: 1440, height: 900, safe: [0, 0, 0, 0], desktop: true }
+    ];
+    function assert(value, message) { if (!value) throw new Error(message); }
+    const paint = win => new Promise(resolve => win.requestAnimationFrame(() => win.requestAnimationFrame(resolve)));
+    for (const scenario of cases) {
+        const frame = document.createElement('iframe');
+        frame.style.width = scenario.width + 'px';
+        frame.style.height = scenario.height + 'px';
+        const bootstrap = '<script>' +
+            'Object.defineProperty(navigator, "userAgent", {value: ' + JSON.stringify(scenario.desktop ? 'Desktop fixture' : 'iPhone fixture') + '});' +
+            'window.fetch = function() { throw new Error("Game network disabled in layout tests"); };' +
+            '<\/script>';
+        const loaded = new Promise(resolve => frame.onload = resolve);
+        frame.srcdoc = source.replace('<head>', '<head>' + bootstrap);
+        document.body.appendChild(frame);
+        try {
+            await loaded;
+            const win = frame.contentWindow;
+            const doc = win.document;
+            const el = id => doc.getElementById(id);
+            const rect = node => node.getBoundingClientRect();
+            const [top, right, bottom, left] = scenario.safe;
+            for (const [i, edge] of ['top', 'right', 'bottom', 'left'].entries()) {
+                doc.documentElement.style.setProperty('--safe-' + edge, scenario.safe[i] + 'px');
+            }
+            await paint(win);
+            assert(Math.abs(rect(doc.body).height - scenario.height) <= 1, 'Body must follow the frame viewport');
+            assert(doc.documentElement.scrollWidth <= scenario.width, 'Page must not overflow horizontally');
+            const landing = el('landing');
+            function checkLanding() {
+                landing.scrollTop = 0;
+                assert(rect(landing.firstElementChild).top >= top, 'First text must remain reachable at scroll top');
+                assert(rect(el('playBtn')).bottom <= scenario.height - bottom, 'Play button must be visible without scrolling');
+                assert(landing.scrollWidth <= landing.clientWidth, 'Landing must not overflow horizontally');
+                assert(rect(el('statusText')).bottom <= scenario.height - bottom, 'Loading status must be visible');
+                landing.scrollTop = landing.scrollHeight;
+                assert(rect(landing.lastElementChild).bottom <= scenario.height - bottom + 1, 'Credits must be reachable by scrolling');
+                landing.scrollTop = 0;
+            }
+            checkLanding();
+            win.setStatus('Conectando... · Archivo 1/5');
+            win.setProgress(null);
+            await paint(win);
+            checkLanding();
+            assert(rect(el('progressBar')).height > 0, 'Waiting indicator must be visible before any bytes');
+            assert(!el('progressBar').hasAttribute('aria-valuenow'), 'Waiting must not claim a percentage');
+            if (!scenario.desktop && scenario.width > scenario.height && scenario.height <= 500) {
+                assert(parseFloat(win.getComputedStyle(doc.querySelector('h1')).fontSize) <= 20, 'Wide, short landscape must use compact typography');
+            }
+            // Exercise the real UI callbacks without loading index.js or WebAssembly.
+            const append = doc.body.appendChild;
+            doc.body.appendChild = function(node) {
+                if (node.tagName === 'SCRIPT') return node;
+                return append.call(this, node);
+            };
+            win.initEngine();
+            doc.body.appendChild = append;
+            win.Module.hideConsole();
+            await paint(win);
+            const canvas = rect(el('canvas'));
+            assert(canvas.left >= left && canvas.top >= top, 'Canvas must respect top/left safe areas');
+            assert(canvas.right <= scenario.width - right + 1 && canvas.bottom <= scenario.height - bottom + 1, 'Canvas must respect bottom/right safe areas');
+            assert(win.getComputedStyle(el('canvas')).objectFit === 'contain', 'Canvas must preserve the game aspect ratio');
+            if (!scenario.desktop) {
+                const controls = rect(el('touchControls'));
+                const buttons = [...doc.querySelectorAll('#fireBtnLeft, #fireBtnRight, #jumpBtn, .weapon-btn')];
+                for (const button of buttons) {
+                    const box = rect(button);
+                    assert(box.width >= 44 && box.height >= 44, 'Every action must have a 44px touch target');
+                    assert(box.left >= controls.left && box.right <= controls.right && box.top >= controls.top && box.bottom <= controls.bottom, 'Actions must stay inside safe areas');
+                    assert(doc.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2) === button, 'Action must receive touches above the look/move zones');
+                    for (const other of buttons) {
+                        if (button === other) continue;
+                        const b = rect(other);
+                        assert(box.right <= b.left || b.right <= box.left || box.bottom <= b.top || b.bottom <= box.top, 'Action targets must not overlap');
+                    }
+                }
+                const move = rect(el('moveZone'));
+                const look = rect(el('lookZone'));
+                assert(Math.abs(move.right - look.left) < 1, 'Movement and look zones must meet without a gap');
+                assert(move.height === controls.height && look.height === controls.height, 'Touch zones must follow available height');
+                // Resize this active game, as when rotating or browser chrome changes.
+                frame.style.height = (scenario.height - 40) + 'px';
+                await paint(win);
+                assert(Math.abs(rect(el('touchControls')).height - (scenario.height - 40 - top - bottom)) <= 1, 'Controls must resize with the viewport');
+                assert(rect(el('canvas')).bottom <= scenario.height - 40 - bottom + 1, 'Canvas must resize with the viewport');
+            } else {
+                assert(win.getComputedStyle(el('touchControls')).display === 'none', 'Desktop must keep touch controls hidden');
+            }
+            report.passed++;
+            report.cases.push({ name: scenario.name, passed: true });
+        } catch (error) {
+            report.failed++;
+            report.cases.push({ name: scenario.name, passed: false, error: error.message });
+        } finally {
+            const result = report.cases[report.cases.length - 1];
+            const item = document.createElement('li');
+            item.textContent = scenario.name + ': ' + (result.passed ? 'PASS' : result.error);
+            if (!result.passed) item.className = 'fail';
+            document.getElementById('results').appendChild(item);
+            frame.remove();
+        }
+    }
+    report.done = true;
+    document.getElementById('status').textContent = report.passed + ' passed; ' + report.failed + ' failed';
+    return report;
+})().catch(error => {
+    window.layoutTestResults.done = true;
+    window.layoutTestResults.failed++;
+    document.getElementById('status').textContent = error.message;
+    throw error;
+});
+</script>
+</html>

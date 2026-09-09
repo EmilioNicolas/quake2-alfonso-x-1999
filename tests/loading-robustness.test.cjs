@@ -267,7 +267,7 @@ for (const bytes of [1, 64 * 1024]) {
         assert.equal(browser.context._downloaded, bytes);
         assert.ok(Number.parseFloat(fill) > 0, `Progress fill must be positive for ${bytes} bytes, got ${fill}`);
         assert.equal(browser.element('progressBar').style.display, 'block');
-        assert.doesNotMatch(status, /^0(?:[.,]0+)?\s*\/\s*187\s*MB$/);
+        assert.doesNotMatch(status, /^0(?:[.,]0+)?\s*\/\s*~?188\s*MB$/);
         assert.match(status, bytes === 1 ? /\b1\s*(?:B|bytes?)/i : /(?:\b64(?:[.,]0+)?\s*(?:K|k)|0[.,]0*[1-9]\d*\s*MB)/);
     });
 }
