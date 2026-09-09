@@ -361,7 +361,7 @@
         <div class="line"></div>
         <p class="tagline">Los alien&iacute;genas han invadido el instituto.<br>C&aacute;rgatelos a todos y escapa del Alfonso&nbsp;X.<br>Eres la &uacute;ltima esperanza.</p>
         <button id="playBtn" onclick="startGame()">JUGAR</button>
-        <div id="statusText"></div>
+        <div id="statusText" role="status" aria-live="polite"></div>
         <div class="progress-bar" id="progressBar"><div class="fill" id="progressFill"></div></div>
         <p class="mobile-note">Mejor experiencia en ordenador. En m&oacute;vil: controles t&aacute;ctiles disponibles.</p>
         <div class="credits">
@@ -432,47 +432,126 @@
     var TOTAL_SIZE_MB = 187;
     var isMobile = /Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent) || ('ontouchstart' in window && window.innerWidth < 1024);
     var _downloaded = 0;
+    var gameState = 'idle';
+    var engineLoaded = false;
+    var startupTimer = null;
+
+    function releasePointerLock() {
+        if (document.pointerLockElement === document.getElementById('canvas') && document.exitPointerLock) {
+            document.exitPointerLock();
+        }
+    }
+
+    function showGameError(err) {
+        if (gameState === 'failed') return;
+        gameState = 'failed';
+        clearTimeout(startupTimer);
+        console.error(err);
+        if (window.Module) {
+            Module.noInitialRun = true;
+            Module._quitting = true;
+            if (typeof Module.pauseMainLoop === 'function') Module.pauseMainLoop();
+            document.removeEventListener('keydown', Module._lockPointerOnKey);
+        }
+        resetTouchControls();
+        releasePointerLock();
+        delete window._pakFiles;
+        document.getElementById('gameView').style.display = 'none';
+        document.getElementById('touchControls').style.display = 'none';
+        document.getElementById('victoryOverlay').style.display = 'none';
+        document.getElementById('endScreen').style.display = 'none';
+        document.getElementById('landing').style.display = 'flex';
+        setStatus('Error: ' + (err && err.message ? err.message : String(err)));
+        setProgress(0);
+        var btn = document.getElementById('playBtn');
+        btn.disabled = false;
+        btn.textContent = engineLoaded ? 'RECARGAR' : 'REINTENTAR';
+    }
+
+    // The generated data loader rejects asynchronously without calling onAbort.
+    window.addEventListener('unhandledrejection', function(e) {
+        if (gameState === 'starting') showGameError(e.reason);
+    });
+    window.addEventListener('error', function(e) {
+        if (gameState === 'starting') showGameError(e.error || e.message);
+    });
 
     async function downloadOne(url, retries) {
         for (var attempt = 0; attempt <= retries; attempt++) {
             var thisBytes = 0;
+            var controller = new AbortController();
+            var timeout;
+            var retryable = true;
+            function resetTimeout() {
+                clearTimeout(timeout);
+                timeout = setTimeout(function() { controller.abort(); }, 30000);
+            }
             try {
                 if (attempt > 0) {
                     setStatus('Reconectando (' + attempt + '/' + retries + ')...');
                     await new Promise(function(r) { setTimeout(r, 2000 * attempt); });
                 }
-                var resp = await fetch(url);
-                if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                resetTimeout();
+                var resp = await fetch(url, { signal: controller.signal });
+                if (!resp.ok) {
+                    retryable = resp.status === 408 || resp.status === 429 || resp.status >= 500;
+                    throw new Error('HTTP ' + resp.status);
+                }
                 var reader = resp.body.getReader();
                 var parts = [];
                 while (true) {
                     var r = await reader.read();
                     if (r.done) break;
+                    resetTimeout();
                     parts.push(r.value);
                     thisBytes += r.value.length;
                     _downloaded += r.value.length;
                     setProgress(Math.min(85, Math.round((_downloaded / (TOTAL_SIZE_MB * 1048576)) * 85)));
                     setStatus(Math.round(_downloaded / 1048576) + ' / ' + TOTAL_SIZE_MB + ' MB');
                 }
+                if (!thisBytes) throw new Error('Archivo vacio');
                 return new Uint8Array(await new Blob(parts).arrayBuffer());
             } catch (e) {
                 _downloaded -= thisBytes;
-                if (attempt >= retries) throw new Error('Descarga fallida');
+                controller.abort();
+                if (!retryable || attempt >= retries) {
+                    throw new Error(url.split('/').pop() + ': ' + (e.name === 'AbortError' ? 'Tiempo de espera agotado' : e.message));
+                }
+            } finally {
+                clearTimeout(timeout);
             }
         }
     }
 
     async function startGame() {
+        if (gameState === 'downloading' || gameState === 'starting' || gameState === 'running') return;
+        // Emscripten installs global runtime state; a failed runtime needs a fresh page.
+        if (engineLoaded) {
+            location.reload();
+            return;
+        }
+        gameState = 'downloading';
         var btn = document.getElementById('playBtn');
         btn.disabled = true;
         btn.textContent = 'CARGANDO...';
+        setStatus('Conectando...');
+        setProgress(0);
+        if (isMobile && document.documentElement.requestFullscreen) {
+            try {
+                Promise.resolve(document.documentElement.requestFullscreen()).then(function() {
+                    if (screen.orientation && screen.orientation.lock) {
+                        return screen.orientation.lock('landscape');
+                    }
+                }).catch(function() {});
+            } catch (e) {}
+        }
 
         try {
             _downloaded = 0;
             var files = ['pak0_chunk_aa', 'pak0_chunk_ab', 'pak0_chunk_ac', 'pak0_chunk_ad', 'pak1.pak'];
             var results = [];
             for (var i = 0; i < files.length; i++) {
-                results.push(await downloadOne(CDN + files[i], 8));
+                results.push(await downloadOne(CDN + files[i], 2));
             }
 
             // Merge pak0 chunks
@@ -496,27 +575,15 @@
             setStatus('Iniciando...');
             setProgress(90);
 
-            document.getElementById('landing').style.display = 'none';
-            document.getElementById('gameView').style.display = 'block';
-
-            if (isMobile) {
-                document.getElementById('touchControls').style.display = 'block';
-                document.getElementById('touchControls').classList.add('active');
-                try {
-                    document.documentElement.requestFullscreen().then(function() {
-                        screen.orientation.lock('landscape').catch(function(){});
-                    }).catch(function(){});
-                } catch(e) {}
-            }
-
-            setProgress(95);
+            gameState = 'starting';
+            engineLoaded = true;
+            startupTimer = setTimeout(function() {
+                showGameError(new Error('El motor no ha terminado de iniciar. Recarga la pagina.'));
+            }, 120000);
             initEngine();
 
         } catch (err) {
-            setStatus('Error: ' + err.message);
-            btn.disabled = false;
-            btn.textContent = 'REINTENTAR';
-            setProgress(0);
+            showGameError(err);
         }
     }
 
@@ -558,28 +625,73 @@
     function sendMouseButton(down) {
         var canvas = document.getElementById('canvas');
         var type = down ? 'mousedown' : 'mouseup';
-        canvas.dispatchEvent(new MouseEvent(type, { button: 0, bubbles: true }));
+        canvas.dispatchEvent(new MouseEvent(type, { button: 0, buttons: down ? 1 : 0, bubbles: true }));
     }
 
+    var resetTouchControls = function() {};
+
     if (isMobile) {
+        function changedTouch(e, identifier) {
+            for (var i = 0; i < e.changedTouches.length; i++) {
+                if (e.changedTouches[i].identifier === identifier) return e.changedTouches[i];
+            }
+            return null;
+        }
+
+        // Each button owns its touches; ending another finger must not release it.
+        var buttonResets = [];
+        function bindTouchButton(button, onChange) {
+            var touches = new Set();
+            function update(e) {
+                e.preventDefault();
+                var wasDown = touches.size > 0;
+                for (var i = 0; i < e.changedTouches.length; i++) {
+                    if (e.type === 'touchstart') touches.add(e.changedTouches[i].identifier);
+                    else touches.delete(e.changedTouches[i].identifier);
+                }
+                if (wasDown !== (touches.size > 0)) onChange(touches.size > 0);
+            }
+            ['touchstart', 'touchend', 'touchcancel'].forEach(function(type) {
+                button.addEventListener(type, update, { passive: false });
+            });
+            buttonResets.push(function() {
+                if (touches.size) {
+                    touches.clear();
+                    onChange(false);
+                }
+            });
+        }
+
+        var fireSources = new Set();
+        var tapFireTimer = null;
+        function setTouchFire(source, down) {
+            var wasDown = fireSources.size > 0;
+            if (down) fireSources.add(source);
+            else fireSources.delete(source);
+            if (wasDown !== (fireSources.size > 0)) sendMouseButton(fireSources.size > 0);
+        }
+
         // Move joystick - left half of screen
+        var moveTouchId = null;
         var moveOrigin = null;
         var joystick = document.getElementById('joystickIndicator');
         var knob = document.getElementById('joystickKnob');
 
         document.getElementById('moveZone').addEventListener('touchstart', function(e) {
             e.preventDefault();
-            var t = e.touches[0];
+            if (moveTouchId !== null) return;
+            var t = e.changedTouches[0];
+            moveTouchId = t.identifier;
             moveOrigin = { x: t.clientX, y: t.clientY };
             joystick.style.display = 'block';
             joystick.style.left = (t.clientX - 50) + 'px';
             joystick.style.top = (t.clientY - 50) + 'px';
-        });
+        }, { passive: false });
 
         document.getElementById('moveZone').addEventListener('touchmove', function(e) {
             e.preventDefault();
-            if (!moveOrigin) return;
-            var t = e.touches[0];
+            var t = changedTouch(e, moveTouchId);
+            if (!t || !moveOrigin) return;
             var dx = t.clientX - moveOrigin.x;
             var dy = t.clientY - moveOrigin.y;
             var max = 40;
@@ -588,15 +700,21 @@
             knob.style.left = (50 + (clampDx / max) * 40) + '%';
             knob.style.top = (50 + (clampDy / max) * 40) + '%';
             updateMoveKeys(dx, dy);
-        });
+        }, { passive: false });
 
-        document.getElementById('moveZone').addEventListener('touchend', function(e) {
-            e.preventDefault();
+        function resetMove() {
+            moveTouchId = null;
             moveOrigin = null;
             updateMoveKeys(0, 0);
             joystick.style.display = 'none';
             knob.style.left = '50%';
             knob.style.top = '50%';
+        }
+        ['touchend', 'touchcancel'].forEach(function(type) {
+            document.getElementById('moveZone').addEventListener(type, function(e) {
+                e.preventDefault();
+                if (changedTouch(e, moveTouchId)) resetMove();
+            }, { passive: false });
         });
 
         // Look zone - right half: drag to look, tap to shoot
@@ -612,64 +730,68 @@
             lookTouchId = t.identifier;
             lookLast = { x: t.clientX, y: t.clientY };
             lookTotalDist = 0;
-        });
+        }, { passive: false });
 
         document.getElementById('lookZone').addEventListener('touchmove', function(e) {
             e.preventDefault();
-            var t = null;
-            for (var i = 0; i < e.changedTouches.length; i++) {
-                if (e.changedTouches[i].identifier === lookTouchId) { t = e.changedTouches[i]; break; }
-            }
+            var t = changedTouch(e, lookTouchId);
             if (!t || !lookLast) return;
             var dx = (t.clientX - lookLast.x) * 8;
             var dy = (t.clientY - lookLast.y) * 8;
             lookLast = { x: t.clientX, y: t.clientY };
             lookTotalDist += Math.abs(dx) + Math.abs(dy);
             sendMouseMove(dx, dy);
-        });
+        }, { passive: false });
 
-        document.getElementById('lookZone').addEventListener('touchend', function(e) {
-            e.preventDefault();
-            for (var i = 0; i < e.changedTouches.length; i++) {
-                if (e.changedTouches[i].identifier === lookTouchId) {
-                    // Tap = shoot (less than 30px total movement)
-                    if (lookTotalDist < 30) {
-                        sendMouseButton(true);
-                        setTimeout(function() { sendMouseButton(false); }, 100);
-                    }
-                    lookTouchId = null;
-                    lookLast = null;
-                    break;
+        ['touchend', 'touchcancel'].forEach(function(type) {
+            document.getElementById('lookZone').addEventListener(type, function(e) {
+                e.preventDefault();
+                if (!changedTouch(e, lookTouchId)) return;
+                if (e.type === 'touchend' && lookTotalDist < 30) {
+                    setTouchFire('tap', true);
+                    clearTimeout(tapFireTimer);
+                    tapFireTimer = setTimeout(function() {
+                        tapFireTimer = null;
+                        setTouchFire('tap', false);
+                    }, 100);
                 }
-            }
+                lookTouchId = null;
+                lookLast = null;
+            }, { passive: false });
         });
 
         // Fire buttons (both sides)
         ['fireBtnLeft', 'fireBtnRight'].forEach(function(id) {
-            document.getElementById(id).addEventListener('touchstart', function(e) {
-                e.preventDefault(); sendMouseButton(true);
-            });
-            document.getElementById(id).addEventListener('touchend', function(e) {
-                e.preventDefault(); sendMouseButton(false);
+            bindTouchButton(document.getElementById(id), function(down) {
+                setTouchFire(id, down);
             });
         });
 
         // Jump button
-        document.getElementById('jumpBtn').addEventListener('touchstart', function(e) {
-            e.preventDefault(); sendKey('Space', true);
-        });
-        document.getElementById('jumpBtn').addEventListener('touchend', function(e) {
-            e.preventDefault(); sendKey('Space', false);
+        bindTouchButton(document.getElementById('jumpBtn'), function(down) {
+            sendKey('Space', down);
         });
 
         // Weapon buttons
         document.querySelectorAll('.weapon-btn').forEach(function(btn) {
-            btn.addEventListener('touchstart', function(e) {
-                e.preventDefault();
-                var key = 'Digit' + this.getAttribute('data-key');
-                sendKey(key, true);
-                setTimeout(function() { sendKey(key, false); }, 100);
+            var key = 'Digit' + btn.getAttribute('data-key');
+            bindTouchButton(btn, function(down) {
+                sendKey(key, down);
             });
+        });
+
+        resetTouchControls = function() {
+            resetMove();
+            lookTouchId = null;
+            lookLast = null;
+            clearTimeout(tapFireTimer);
+            tapFireTimer = null;
+            buttonResets.forEach(function(reset) { reset(); });
+            setTouchFire('tap', false);
+        };
+        window.addEventListener('blur', resetTouchControls);
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) resetTouchControls();
         });
     }
 
@@ -678,9 +800,15 @@
         var outputElement = document.getElementById('output');
         var exportElement = document.getElementById('exportFile');
 
+        canvasElement.addEventListener('click', function(e) {
+            if (isMobile || gameState !== 'running') return;
+            canvasElement.focus();
+            Module._lockPointerOnKey(e);
+        });
+
         canvasElement.addEventListener('webglcontextlost', function(e) {
-            alert('WebGL context lost. Reload the page.');
             e.preventDefault();
+            showGameError(new Error('Se ha perdido el contexto WebGL. Recarga la pagina.'));
         }, false);
 
         window.Module = {
@@ -695,7 +823,11 @@
                 if (!Module._victoryShown && text && text.match(/^Map: final$/)) {
                     Module._victoryShown = true;
                     setTimeout(function() {
-                        document.getElementById('victoryOverlay').style.display = 'flex';
+                        if (gameState === 'running' && !Module._quitting) {
+                            resetTouchControls();
+                            releasePointerLock();
+                            document.getElementById('victoryOverlay').style.display = 'flex';
+                        }
                     }, 5000);
                 }
                 console.log(text);
@@ -703,20 +835,45 @@
                 outputElement.scrollTop = outputElement.scrollHeight;
             },
             canvas: canvasElement,
-            setStatus: function(text) {},
-            onExit: function() {
+            setStatus: function(text) {
+                if (gameState === 'starting' && text) setStatus('Iniciando motor...');
+            },
+            onAbort: function(reason) {
+                showGameError(new Error('No se pudo ejecutar el motor: ' + reason));
+            },
+            onExit: function(code) {
+                if (gameState === 'failed') return;
+                if (gameState === 'starting' || code) {
+                    showGameError(new Error('El motor se ha cerrado inesperadamente' + (code ? ' (' + code + ')' : '') + '.'));
+                    return;
+                }
+                gameState = 'ended';
+                clearTimeout(startupTimer);
+                resetTouchControls();
+                releasePointerLock();
+                document.removeEventListener('keydown', Module._lockPointerOnKey);
                 Module._quitting = true;
                 canvasElement.style.display = 'none';
                 outputElement.style.display = 'none';
                 document.getElementById('gameView').style.display = 'none';
                 document.getElementById('touchControls').style.display = 'none';
+                document.getElementById('victoryOverlay').style.display = 'none';
                 document.getElementById('landing').style.display = 'none';
                 document.getElementById('endScreen').style.display = 'flex';
             },
             quit: function(code, toThrow) {
-                Module.onExit();
+                Module.onExit(code);
             },
             hideConsole: function() {
+                if (Module._quitting) return;
+                gameState = 'running';
+                clearTimeout(startupTimer);
+                document.getElementById('landing').style.display = 'none';
+                document.getElementById('gameView').style.display = 'block';
+                if (isMobile) {
+                    document.getElementById('touchControls').style.display = 'block';
+                    document.getElementById('touchControls').classList.add('active');
+                }
                 outputElement.style.display = 'none';
                 canvasElement.style.display = 'block';
                 canvasElement.style.width = '100vw';
@@ -725,6 +882,8 @@
             },
             showConsole: function() {
                 if (Module._quitting) return;
+                resetTouchControls();
+                document.getElementById('touchControls').style.display = 'none';
                 canvasElement.style.display = 'none';
                 outputElement.style.display = 'block';
                 outputElement.scrollTop = outputElement.scrollHeight;
@@ -756,8 +915,14 @@
             },
             _attemptPointerLock: function() {
                 if (isMobile) return true;
-                if (document.pointerLockElement === null) canvasElement.requestPointerLock();
-                return document.pointerLockElement !== null;
+                if (document.pointerLockElement === canvasElement) return true;
+                if (typeof canvasElement.requestPointerLock !== 'function' || document.pointerLockElement) return false;
+                try {
+                    var request = canvasElement.requestPointerLock();
+                    // Permission and user-gesture failures must not become engine errors.
+                    if (request && typeof request.catch === 'function') request.catch(function() {});
+                } catch (e) {}
+                return document.pointerLockElement === canvasElement;
             },
             _lockPointerOnKey: function(e) {
                 if (e.key === 'Escape' || Module._attemptPointerLock()) {
@@ -770,16 +935,23 @@
                 this.totalDependencies = Math.max(this.totalDependencies, left);
             },
             onRuntimeInitialized: function() {
+                if (gameState === 'failed') return;
                 if (window._pakFiles) {
                     for (var i = 0; i < window._pakFiles.length; i++) {
                         var p = window._pakFiles[i];
                         try {
                             var fd = FS.open(p.name, 'w');
-                            FS.write(fd, p.data, 0, p.data.length, 0);
-                            FS.close(fd);
+                            try {
+                                if (FS.write(fd, p.data, 0, p.data.length, 0) !== p.data.length) {
+                                    throw new Error('Escritura incompleta');
+                                }
+                            } finally {
+                                FS.close(fd);
+                            }
                             console.log(p.name + ' written: ' + p.data.length + ' bytes');
                         } catch (e) {
-                            console.error('Error writing ' + p.name + ':', e);
+                            showGameError(new Error('No se pudo cargar ' + p.name + ': ' + e.message));
+                            throw e;
                         }
                         window._pakFiles[i].data = null;
                     }
@@ -806,6 +978,9 @@
         var script = document.createElement('script');
         script.src = 'index.js';
         script.async = true;
+        script.onerror = function() {
+            showGameError(new Error('No se pudo cargar index.js. Recarga la pagina.'));
+        };
         document.body.appendChild(script);
     }
     </script>

@@ -21,6 +21,16 @@ Salva al Instituto Alfonso X de la invasion alienigena. Recorre sus pasillos, cl
 | E | Usar item |
 | Scroll | Cambiar arma |
 
+Haz click en el juego para capturar el raton; Escape lo libera. Si no se captura al iniciar, vuelve a hacer click.
+
+En movil, arrastra la mitad izquierda para moverte y la derecha para mirar. Puedes combinar movimiento, mirada, disparo y salto con varios dedos. Los botones FIRE mantienen el disparo mientras los pulsas; un toque breve en la zona derecha tambien dispara.
+
+## Comprobar cambios
+
+Sirve la carpeta con `python3 -m http.server 8000` y abre `http://localhost:8000`. El juego descarga unos 187 MB de recursos desde el CDN al pulsar JUGAR.
+
+Ejecuta `node --test tests/*.test.cjs` con Node.js 18 o posterior. Las pruebas usan eventos y descargas simulados para comprobar carga, errores y controles; no ejecutan WebAssembly ni sustituyen las pruebas de juego en navegador. No necesitan dependencias ni red.
+
 ## Creditos
 
 - **Mapas y texturas:** [Emilio](https://x.com/emailnicolas) y [Javi](https://x.com/javilop), 1999
