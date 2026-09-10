@@ -35,8 +35,10 @@ function game() {
 function assertCleared(g) {
     assert.equal(g.element('mobileHud').style.display, 'none');
     assert.equal(g.element('mobileCrosshair').style.display, 'none');
-    for (const id of ['hudHealth', 'hudAmmo', 'hudArmor']) assert.equal(g.element(id).textContent, '—');
-    assert.equal(g.element('hudAmmo').getAttribute('aria-label'), null);
+    for (const id of ['hudHealth', 'hudAmmo', 'hudArmor']) {
+        assert.equal(g.element(id).textContent, '—');
+        assert.equal(g.element(id).getAttribute('aria-label'), null);
+    }
     assert.equal(g.element('mobileHud').classList.contains('low-health'), false);
 }
 
@@ -48,6 +50,24 @@ const failures = {
     'missing stat field': g => { g.state.read = () => ({ health: 20, ammo: 12 }); },
     'non-finite stat': g => { g.state.read = () => ({ health: NaN, ammo: 12, armor: 25 }); }
 };
+
+test('HUD values and accessible names follow live health, ammo and armor, including zero and infinity', () => {
+    const g = game();
+    for (const [health, ammo, armor] of [[100, null, 0], [18, 199, 200], [0, 0, 0], [-12, null, 5]]) {
+        g.state.read = () => ({ health, ammo, armor });
+        g.tick();
+        for (const [id, value, label] of [
+            ['hudHealth', String(Math.max(0, health)), 'Salud ' + Math.max(0, health)],
+            ['hudAmmo', ammo === null ? '∞' : String(ammo), ammo === null ? 'Munición ilimitada' : 'Munición ' + ammo],
+            ['hudArmor', String(armor), 'Armadura ' + armor]
+        ]) {
+            assert.equal(g.element(id).textContent, value);
+            assert.equal(g.element(id).getAttribute('aria-label'), label);
+        }
+        assert.equal(g.element('mobileHud').classList.contains('low-health'), health <= 25);
+        assert.equal(g.element('mobileCrosshair').style.display, health > 0 ? 'block' : 'none');
+    }
+});
 
 for (const [name, invalidate] of Object.entries(failures)) {
     test(`${name} restores native indicators and clears stale HUD after activation`, () => {
@@ -117,7 +137,9 @@ for (const mode of ['missing bridge', 'missing command', 'throw', 'reject']) {
         const g = game();
         g.tick();
         const dialog = g.element('mobilePause').style.display;
-        g.element('fireBtnRight').dispatchEvent(new BrowserEvent('touchstart', { changedTouches: [{ identifier: 1 }] }));
+        g.element('fireBtnRight').dispatchEvent(new BrowserEvent('touchstart', {
+            changedTouches: [{ identifier: 1, target: g.element('fireBtnRight') }]
+        }));
         if (mode === 'missing bridge') delete g.context.Module.mobileBridge;
         if (mode === 'missing command') g.context.Module.mobileBridge = {};
         if (mode === 'throw') g.state.command = () => { throw new Error('Command failed'); };

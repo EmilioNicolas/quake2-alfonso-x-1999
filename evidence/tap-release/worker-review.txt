@@ -1,0 +1,14 @@
+Review complete: existing uncommitted tap-to-fire / SVG HUD changes against e59ac3d.
+
+Fixed two issues in index.html, preserving the existing implementation:
+
+1. P2 — Touch Events fallback accepted every changedTouches entry without checking its original target. A batched update spanning move/look/fire/jump could assign the wrong look owner and retain unrelated fingers on held buttons. The fallback now filters by Touch.target before delivering contacts. Added a four-contact regression and supplied realistic targets in existing test fixtures. This ownership gap was also present in the base Touch Events handlers. Touch.target retains the contact's starting element: [Touch Events](https://w3c.github.io/touch-events/#dom-touch-target).
+
+2. P2 — Tap duration used performance.now() at handler execution. Queued start/end events after a stall could turn a long hold into a shot, or reject a short tap. The adapter now preserves event.timeStamp and the recognizer compares those timestamps, retaining the inclusive 220 ms / 8 CSS px limits. Ten new pointer/fallback cases cover delayed delivery, zero-origin timestamps, exact limits and reversed timestamps. [DOM event timestamps](https://dom.spec.whatwg.org/#dom-event-timestamp).
+
+Reviewed ownership, extra fingers, capture failure/loss, cancellation, lifecycle resets, coalesced excursions, release coordinates, rapid taps, tap/held-fire overlap, compatibility mouse suppression, desktop mouse/pointer lock, SVG layout rules, live HUD names and native-HUD recovery. No further actionable issue found by code review or unit testing. Native browser hit testing, timing, engine ammo consumption, visual fit and accessibility-tree behavior remain the director's browser checks; no browser was launched here.
+
+Validation (Node v24.15.0): baseline 221/221 passed; all 11 new regressions failed before the fixes; focused suite 163/163 passed; final full suite 232/232 passed, zero skipped. Command: node --test --test-isolation=none --test-reporter=spec tests/*.test.cjs
+Logs alongside this review: worker-baseline-tests.txt, worker-regressions-before.txt, worker-focused-tests.txt, worker-unit-tests.txt. git diff --check and syntax checks for mobile-browser.cjs, tap-fire.test.cjs and helpers/browser.cjs passed.
+
+Worker edits: index.html, tests/tap-fire.test.cjs, tests/touch.test.cjs, tests/mobile-fallback.test.cjs, and these worker evidence files. Existing documentation/evidence and browser-runner changes were preserved. The earlier 221-test documentation describes the prior worker run; this review records the updated 232-test result. No commit, push, other-repository edit, global configuration change or model-setting change was made.

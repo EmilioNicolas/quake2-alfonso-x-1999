@@ -1,0 +1,557 @@
+{
+  "events": [
+    {
+      "type": "pointerdown",
+      "target": "lookZone",
+      "trusted": true,
+      "timeStamp": 18155.200000286102,
+      "arrived": 18368.200000286102,
+      "frame": 22,
+      "pointerId": 2,
+      "pointerType": "touch",
+      "x": 520,
+      "y": 190,
+      "buttons": 1,
+      "dx": 0,
+      "dy": 0,
+      "stats": {
+        "health": 100,
+        "ammo": 200,
+        "armor": 200
+      },
+      "moveTouchId": null,
+      "moveKeys": {
+        "up": false,
+        "down": false,
+        "left": false,
+        "right": false
+      },
+      "pointerLock": null,
+      "coalesced": []
+    },
+    {
+      "type": "touchstart",
+      "target": "lookZone",
+      "trusted": true,
+      "timeStamp": 18155.200000286102,
+      "arrived": 18369,
+      "frame": 22,
+      "contacts": 1,
+      "stats": {
+        "health": 100,
+        "ammo": 200,
+        "armor": 200
+      },
+      "moveTouchId": null,
+      "moveKeys": {
+        "up": false,
+        "down": false,
+        "left": false,
+        "right": false
+      },
+      "pointerLock": null
+    },
+    {
+      "type": "gotpointercapture",
+      "target": "lookZone",
+      "trusted": true,
+      "timeStamp": 18235.200000286102,
+      "arrived": 18370.300000190735,
+      "frame": 22,
+      "pointerId": 2,
+      "pointerType": "touch",
+      "x": 520,
+      "y": 190,
+      "buttons": 0,
+      "dx": 0,
+      "dy": 0,
+      "stats": {
+        "health": 100,
+        "ammo": 200,
+        "armor": 200
+      },
+      "moveTouchId": null,
+      "moveKeys": {
+        "up": false,
+        "down": false,
+        "left": false,
+        "right": false
+      },
+      "pointerLock": null,
+      "coalesced": []
+    },
+    {
+      "type": "pointerup",
+      "target": "lookZone",
+      "trusted": true,
+      "timeStamp": 18235.200000286102,
+      "arrived": 18370.400000095367,
+      "frame": 22,
+      "pointerId": 2,
+      "pointerType": "touch",
+      "x": 520,
+      "y": 190,
+      "buttons": 0,
+      "dx": 0,
+      "dy": 0,
+      "stats": {
+        "health": 100,
+        "ammo": 200,
+        "armor": 200
+      },
+      "moveTouchId": null,
+      "moveKeys": {
+        "up": false,
+        "down": false,
+        "left": false,
+        "right": false
+      },
+      "pointerLock": null,
+      "coalesced": []
+    },
+    {
+      "type": "mousedown",
+      "target": "canvas",
+      "trusted": false,
+      "timeStamp": 18370.800000190735,
+      "arrived": 18370.800000190735,
+      "frame": 22,
+      "x": 0,
+      "y": 0,
+      "buttons": 1,
+      "dx": 0,
+      "dy": 0,
+      "stats": {
+        "health": 100,
+        "ammo": 200,
+        "armor": 200
+      },
+      "moveTouchId": null,
+      "moveKeys": {
+        "up": false,
+        "down": false,
+        "left": false,
+        "right": false
+      },
+      "pointerLock": null
+    },
+    {
+      "type": "lostpointercapture",
+      "target": "lookZone",
+      "trusted": true,
+      "timeStamp": 18235.200000286102,
+      "arrived": 18373.200000286102,
+      "frame": 22,
+      "pointerId": 2,
+      "pointerType": "touch",
+      "x": 520,
+      "y": 190,
+      "buttons": 0,
+      "dx": 0,
+      "dy": 0,
+      "stats": {
+        "health": 100,
+        "ammo": 200,
+        "armor": 200
+      },
+      "moveTouchId": null,
+      "moveKeys": {
+        "up": false,
+        "down": false,
+        "left": false,
+        "right": false
+      },
+      "pointerLock": null,
+      "coalesced": []
+    },
+    {
+      "type": "touchend",
+      "target": "lookZone",
+      "trusted": true,
+      "timeStamp": 18235.200000286102,
+      "arrived": 18373.300000190735,
+      "frame": 22,
+      "contacts": 0,
+      "stats": {
+        "health": 100,
+        "ammo": 200,
+        "armor": 200
+      },
+      "moveTouchId": null,
+      "moveKeys": {
+        "up": false,
+        "down": false,
+        "left": false,
+        "right": false
+      },
+      "pointerLock": null
+    },
+    {
+      "type": "mouseup",
+      "target": "canvas",
+      "trusted": false,
+      "timeStamp": 18425.5,
+      "arrived": 18425.599999904633,
+      "frame": 22,
+      "x": 0,
+      "y": 0,
+      "buttons": 0,
+      "dx": 0,
+      "dy": 0,
+      "stats": {
+        "health": 100,
+        "ammo": 200,
+        "armor": 200
+      },
+      "moveTouchId": null,
+      "moveKeys": {
+        "up": false,
+        "down": false,
+        "left": false,
+        "right": false
+      },
+      "pointerLock": "canvas"
+    },
+    {
+      "type": "mousedown",
+      "target": "lookZone",
+      "trusted": false,
+      "timeStamp": 20150.400000095367,
+      "arrived": 20150.400000095367,
+      "frame": 34,
+      "x": 0,
+      "y": 0,
+      "buttons": 0,
+      "dx": 0,
+      "dy": 0,
+      "stats": {
+        "health": 100,
+        "ammo": 199,
+        "armor": 200
+      },
+      "moveTouchId": null,
+      "moveKeys": {
+        "up": false,
+        "down": false,
+        "left": false,
+        "right": false
+      },
+      "pointerLock": "canvas"
+    },
+    {
+      "type": "mouseup",
+      "target": "lookZone",
+      "trusted": false,
+      "timeStamp": 20150.5,
+      "arrived": 20150.599999904633,
+      "frame": 34,
+      "x": 0,
+      "y": 0,
+      "buttons": 0,
+      "dx": 0,
+      "dy": 0,
+      "stats": {
+        "health": 100,
+        "ammo": 199,
+        "armor": 200
+      },
+      "moveTouchId": null,
+      "moveKeys": {
+        "up": false,
+        "down": false,
+        "left": false,
+        "right": false
+      },
+      "pointerLock": "canvas"
+    }
+  ],
+  "samples": [
+    {
+      "arrived": 18114.099999904633,
+      "frame": 20,
+      "stats": {
+        "health": 100,
+        "ammo": 200,
+        "armor": 200
+      }
+    },
+    {
+      "arrived": 18245,
+      "frame": 21,
+      "stats": {
+        "health": 100,
+        "ammo": 200,
+        "armor": 200
+      }
+    },
+    {
+      "arrived": 18364.099999904633,
+      "frame": 22,
+      "stats": {
+        "health": 100,
+        "ammo": 200,
+        "armor": 200
+      }
+    },
+    {
+      "arrived": 18489.400000095367,
+      "frame": 23,
+      "stats": {
+        "health": 100,
+        "ammo": 200,
+        "armor": 200
+      }
+    },
+    {
+      "arrived": 18629.5,
+      "frame": 24,
+      "stats": {
+        "health": 100,
+        "ammo": 199,
+        "armor": 200
+      }
+    },
+    {
+      "arrived": 18775.700000286102,
+      "frame": 25,
+      "stats": {
+        "health": 100,
+        "ammo": 199,
+        "armor": 200
+      }
+    },
+    {
+      "arrived": 18940.800000190735,
+      "frame": 26,
+      "stats": {
+        "health": 100,
+        "ammo": 199,
+        "armor": 200
+      }
+    },
+    {
+      "arrived": 19141.400000095367,
+      "frame": 27,
+      "stats": {
+        "health": 100,
+        "ammo": 199,
+        "armor": 200
+      }
+    },
+    {
+      "arrived": 19275.400000095367,
+      "frame": 28,
+      "stats": {
+        "health": 100,
+        "ammo": 199,
+        "armor": 200
+      }
+    },
+    {
+      "arrived": 19407.599999904633,
+      "frame": 29,
+      "stats": {
+        "health": 100,
+        "ammo": 199,
+        "armor": 200
+      }
+    },
+    {
+      "arrived": 19552.400000095367,
+      "frame": 30,
+      "stats": {
+        "health": 100,
+        "ammo": 199,
+        "armor": 200
+      }
+    },
+    {
+      "arrived": 19687.700000286102,
+      "frame": 31,
+      "stats": {
+        "health": 100,
+        "ammo": 199,
+        "armor": 200
+      }
+    },
+    {
+      "arrived": 19838.5,
+      "frame": 32,
+      "stats": {
+        "health": 100,
+        "ammo": 199,
+        "armor": 200
+      }
+    },
+    {
+      "arrived": 20004.400000095367,
+      "frame": 33,
+      "stats": {
+        "health": 100,
+        "ammo": 199,
+        "armor": 200
+      }
+    },
+    {
+      "arrived": 20141.400000095367,
+      "frame": 34,
+      "stats": {
+        "health": 100,
+        "ammo": 199,
+        "armor": 200
+      }
+    },
+    {
+      "arrived": 20281.900000095367,
+      "frame": 35,
+      "stats": {
+        "health": 100,
+        "ammo": 199,
+        "armor": 200
+      }
+    },
+    {
+      "arrived": 20438.599999904633,
+      "frame": 36,
+      "stats": {
+        "health": 100,
+        "ammo": 199,
+        "armor": 200
+      }
+    },
+    {
+      "arrived": 20574.099999904633,
+      "frame": 37,
+      "stats": {
+        "health": 100,
+        "ammo": 199,
+        "armor": 200
+      }
+    },
+    {
+      "arrived": 20727.099999904633,
+      "frame": 38,
+      "stats": {
+        "health": 100,
+        "ammo": 199,
+        "armor": 200
+      }
+    },
+    {
+      "arrived": 21002.5,
+      "frame": 39,
+      "stats": {
+        "health": 100,
+        "ammo": 199,
+        "armor": 200
+      }
+    },
+    {
+      "arrived": 21024.300000190735,
+      "frame": 40,
+      "stats": {
+        "health": 100,
+        "ammo": 199,
+        "armor": 200
+      }
+    },
+    {
+      "arrived": 21144,
+      "frame": 41,
+      "stats": {
+        "health": 100,
+        "ammo": 199,
+        "armor": 200
+      }
+    },
+    {
+      "arrived": 21302.099999904633,
+      "frame": 42,
+      "stats": {
+        "health": 100,
+        "ammo": 199,
+        "armor": 200
+      }
+    },
+    {
+      "arrived": 21458,
+      "frame": 43,
+      "stats": {
+        "health": 100,
+        "ammo": 199,
+        "armor": 200
+      }
+    },
+    {
+      "arrived": 21590.800000190735,
+      "frame": 44,
+      "stats": {
+        "health": 100,
+        "ammo": 199,
+        "armor": 200
+      }
+    },
+    {
+      "arrived": 21716.5,
+      "frame": 45,
+      "stats": {
+        "health": 100,
+        "ammo": 199,
+        "armor": 200
+      }
+    },
+    {
+      "arrived": 21874.599999904633,
+      "frame": 46,
+      "stats": {
+        "health": 100,
+        "ammo": 199,
+        "armor": 200
+      }
+    }
+  ],
+  "outputTail": " EXT_polygon_offset_clamp EXT_texture_compression_bptc EXT_texture_compression_rgtc EXT_texture_filter_anisotropic NV_shader_noperspective_interpolation OES_texture_float_linear WEBGL_clip_cull_distance WEBGL_compressed_texture_astc WEBGL_compressed_texture_etc WEBGL_compressed_texture_etc1 WEBGL_compressed_texture_s3tc WEBGL_compressed_texture_s3tc_srgb WEBGL_debug_renderer_info WEBGL_debug_shaders WEBGL_lose_context WEBGL_multi_draw WEBGL_polygon_mode GL_EXT_clip_control GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_conservative_depth GL_EXT_depth_clamp GL_EXT_disjoint_timer_query_webgl2 GL_EXT_float_blend GL_EXT_polygon_offset_clamp GL_EXT_texture_compression_bptc GL_EXT_texture_compression_rgtc GL_EXT_texture_filter_anisotropic GL_NV_shader_noperspective_interpolation GL_OES_texture_float_linear GL_WEBGL_clip_cull_distance GL_WEBGL_compressed_texture_astc GL_WEBGL_compressed_texture_etc GL_WEBGL_compressed_texture_etc1 GL_WEBGL_compressed_texture_s3tc GL_WEBGL_compressed_texture_s3tc_srgb GL_WEBGL_debug_renderer_info GL_WEBGL_debug_shaders GL_WEBGL_lose_context GL_WEBGL_multi_draw GL_WEBGL_polygon_mode\n\n\nProbing for OpenGL extensions:\n - Anisotropic Filtering: Max level: 16x\n - OpenGL Debug Output: Not Supported\nLoading shaders succeeded.\n\nSuccessfully loaded ref_gles3.wasm as rendering backend.\n------------------------------------\n\n------- input initialization -------\n0 joysticks were found.\n------------------------------------\n\n==== Yamagi Quake II Initialized ====\n\n*************************************\n\n-------- game initialization -------\nLoading library: game_baseq2.wasm\nGame is starting up.\nGame is baseq2 built on Mar  9 2026.\n------------------------------------\n\n------- server initialization ------\n0 entities inhibited.\n0 teams with 0 entities.\nmonster_infantry in solid at (-316 136 184)\ndroptofloor: item_health startsolid at (-519 -568 101)\ndroptofloor: item_health startsolid at (-469 -568 101)\ndroptofloor: ammo_cells startsolid at (-852 -113 107)\ndroptofloor: ammo_cells startsolid at (-892 -113 107)\ndroptofloor: ammo_cells startsolid at (-1552 -513 107)\ndroptofloor: ammo_bullets startsolid at (-1528 -236 106)\n------------------------------------\n\n[0.0.0.0]:0: client_connect\n\n\n-===================================-\n\n\u0002alfonsox\nDownloading textures/None.wal\nServer does not have this file.\nDownloading textures/None.wal\nServer does not have this file.\nMap: alfonsox\nMod_LoadTexinfo: Couldn't load None\nMod_LoadTexinfo: Couldn't load None\nMod_LoadTexinfo: Couldn't load None\n                                     \npics\n                                     \nmaps/alfonsox.bsp\n                                     \nmodels/weapons/v_blast/tris.md2\n                                     \nmodels/objects/gibs/sm_meat/tris.md2\n                                     \nmodels/objects/gibs/arm/tris.md2\n                                     \nmodels/objects/gibs/bone/tris.md2\n                                     \nmodels/objects/gibs/bone2/tris.md2\n                                     \nmodels/objects/gibs/chest/tris.md2\n                                     \nmodels/objects/gibs/skull/tris.md2\n                                     \nmodels/objects/gibs/head2/tris.md2\n                                     \nmodels/objects/debris1/tris.md2\n                                     \nmodels/objects/debris2/tris.md2\n                                     \nmodels/weapons/g_shotg2/tris.md2\n                                     \nmodels/weapons/v_shotg2/tris.md2\n                                     \nmodels/items/ammo/shells/medium/tris.\n                                     \nmodels/items/ammo/grenades/medium/tri\n                                     \nmodels/weapons/v_handgr/tris.md2\n                                     \nmodels/monsters/medic/tris.md2\n                                     \nmodels/items/healing/medium/tris.md2\n                                     \nmodels/monsters/infantry/tris.md2\n                                     \nmodels/items/ammo/cells/medium/tris.m\n                                     \nmodels/monsters/gladiatr/tris.md2\n                                     \nmodels/items/healing/large/tris.md2\n                                     \nmodels/monsters/brain/tris.md2\n                                     \nmodels/items/mega_h/tris.md2\n                                     \nmodels/items/ammo/bullets/medium/tris\n                                     \nmodels/weapons/g_chain/tris.md2\n                                     \nmodels/weapons/v_chain/tris.md2\n                                     \nmodels/monsters/parasite/tris.md2\n                                     \nmodels/monsters/berserk/tris.md2\n                                     \nmodels/monsters/soldier/tris.md2\n                                     \nmodels/objects/laser/tris.md2\n                                     \nmodels/monsters/bitch/tris.md2\n                                     \nmodels/monsters/gunner/tris.md2\n                                     \nmodels/items/ammo/slugs/medium/tris.m\n                                     \nmodels/weapons/g_launch/tris.md2\n                                     \nmodels/weapons/v_launch/tris.md2\n                                     \nmodels/objects/grenade/tris.md2\n                                     \nmodels/monsters/float/tris.md2\n                                     \nmodels/monsters/flyer/tris.md2\n                                     \nmodels/weapons/g_hyperb/tris.md2\n                                     \nmodels/weapons/v_hyperb/tris.md2\n                                     \nmodels/monsters/mutant/tris.md2\n                                     \nmodels/monsters/tank/tris.md2\n                                     \nmodels/items/armor/combat/tris.md2\n                                     \nmodels/items/armor/body/tris.md2\n                                     \nimages\n                                     \nclient 0\n                                     \nsky\n                                     \nposition: -1184 -299 129, angles: 0 90 0\n",
+  "state": {
+    "stats": {
+      "health": 100,
+      "ammo": 199,
+      "armor": 200
+    },
+    "gameState": "running",
+    "mobilePaused": false,
+    "pointerLock": "canvas",
+    "moveTouchId": null,
+    "lookTouchId": null,
+    "moveKeys": {
+      "up": false,
+      "down": false,
+      "left": false,
+      "right": false
+    },
+    "touchFireDown": false,
+    "fireSources": [],
+    "pressed": []
+  },
+  "dispatches": [
+    {
+      "type": "touchStart",
+      "touchPoints": [
+        {
+          "id": 2,
+          "x": 520,
+          "y": 190
+        }
+      ],
+      "timestamp": 1789037395.991,
+      "sentAt": 1789037395991,
+      "completedAt": 1789037396205
+    },
+    {
+      "type": "touchEnd",
+      "touchPoints": [],
+      "timestamp": 1789037396.0709999,
+      "sentAt": 1789037395991,
+      "completedAt": 1789037396209
+    }
+  ]
+}

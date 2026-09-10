@@ -13,8 +13,12 @@ function createBrowser(options) {
 
 const finger = (identifier, clientX = 100, clientY = 100) => ({ identifier, clientX, clientY });
 function touch(browser, id, type, changedTouches, touches = changedTouches) {
-    const event = new BrowserEvent(type, { changedTouches, touches });
-    (typeof id === 'string' ? browser.element(id) : id).dispatchEvent(event);
+    const target = typeof id === 'string' ? browser.element(id) : id;
+    const event = new BrowserEvent(type, {
+        changedTouches: changedTouches.map(t => ({ ...t, target: t.target || target })),
+        touches, timeStamp: browser.context.performance.now()
+    });
+    target.dispatchEvent(event);
     assert.equal(event.defaultPrevented, true);
 }
 function keys(browser) { return browser.events.filter(event => event.type.startsWith('key')).map(event => [event.type, event.code]); }
@@ -118,15 +122,17 @@ test('relative look reports held fire until the last right-button finger release
     assert.deepEqual(fire(browser), [['mousedown', 1], ['mouseup', 0]]);
 });
 
-test('successive look taps never shoot or schedule a fire pulse', () => {
+test('successive look taps each send one bounded fire pulse', () => {
     const browser = createBrowser({ mobile: true });
     for (const id of [1, 2]) {
         touch(browser, 'lookZone', 'touchstart', [finger(id)]);
         touch(browser, 'lookZone', 'touchend', [finger(id)]);
+        assert.equal(browser.timers.size, 1);
+        browser.runTimers();
     }
     assert.equal(browser.timers.size, 0);
     browser.runTimers();
-    assert.deepEqual(fire(browser), []);
+    assert.deepEqual(fire(browser), [['mousedown', 1], ['mouseup', 0], ['mousedown', 1], ['mouseup', 0]]);
 });
 
 test('jump tracks fingers and releases on cancellation', () => {
@@ -215,22 +221,23 @@ test('movement, look, fire, jump and weapon changes retain independent owners', 
     assert.equal(browser.element('joystickIndicator').style.display, 'none');
 });
 
-test('a brief look tap with finger jitter never fires', () => {
+test('a brief look tap tolerates sub-threshold finger jitter and retains relative aiming', () => {
     let now = 1000;
-    const browser = createBrowser({ mobile: true, globals: { Date: { now: () => now } } });
+    const browser = createBrowser({ mobile: true, globals: { performance: { now: () => now } } });
     touch(browser, 'lookZone', 'touchstart', [finger(1)]);
     touch(browser, 'lookZone', 'touchmove', [finger(1, 106, 105)]);
     now += 200;
     touch(browser, 'lookZone', 'touchend', [finger(1, 106, 105)], []);
-    assert.deepEqual(fire(browser), []);
+    assert.deepEqual(fire(browser), [['mousedown', 1]]);
+    assert.deepEqual(browser.events.filter(e => e.type === 'mousemove').map(e => [e.movementX, e.movementY]), [[48, 40]]);
     browser.runTimers();
-    assert.deepEqual(fire(browser), []);
+    assert.deepEqual(fire(browser), [['mousedown', 1], ['mouseup', 0]]);
 });
 
 for (const gesture of ['long hold', 'out and back', 'distant release']) {
     test(`${gesture} in the look zone does not fire`, () => {
         let now = 1000;
-        const browser = createBrowser({ mobile: true, globals: { Date: { now: () => now } } });
+        const browser = createBrowser({ mobile: true, globals: { performance: { now: () => now } } });
         touch(browser, 'lookZone', 'touchstart', [finger(1)]);
         if (gesture === 'long hold') now += 500;
         if (gesture === 'out and back') {

@@ -397,7 +397,7 @@
         <div id="statusText" role="status" aria-live="polite"></div>
         <div class="progress-bar" id="progressBar" role="progressbar" aria-label="Descarga de recursos" aria-valuemin="0" aria-valuemax="100"><div class="fill" id="progressFill"></div></div>
         <p id="loadingHint">Descarga inicial: aprox. 188 MB. Puede tardar varios minutos.</p>
-        <p class="mobile-note">En m&oacute;vil, mejor en horizontal.<br>Izquierda: mover &middot; Derecha: mirar<br>Mant&eacute;n DISPARAR &middot; SALTAR para saltar.</p>
+        <p class="mobile-note">En m&oacute;vil, mejor en horizontal.<br>Izquierda: mover &middot; Arrastra la derecha: mirar<br>Toque breve a la derecha: disparar.<br>Mant&eacute;n DISPARAR &middot; SALTAR para saltar.</p>
         <div class="credits">
             <a href="https://x.com/emailnicolas" target="_blank">@emailnicolas</a> &amp; <a href="https://x.com/javilop" target="_blank">@javilop</a><br>
             <a href="https://github.com/GMH-Code/Qwasm2" target="_blank">Qwasm2</a> / id Software<br>
@@ -440,7 +440,7 @@
     </div>
     <div id="touchControls" aria-label="Controles táctiles">
         <div id="moveZone" class="touch-zone" aria-label="Arrastra para moverte"></div>
-        <div id="lookZone" class="touch-zone" aria-label="Arrastra para mirar"></div>
+        <div id="lookZone" class="touch-zone" aria-label="Arrastra para mirar; toque breve para disparar"></div>
         <div id="joystickHome" aria-hidden="true"></div>
         <div id="joystickIndicator" aria-hidden="true"><div id="joystickKnob"></div></div>
         <button type="button" id="fireBtnRight" aria-label="Mantener para disparar">
@@ -460,7 +460,7 @@
         <button type="button" id="pauseBtn" aria-label="Pausa y controles" onclick="setMobilePaused(true)">Ⅱ</button>
     </div>
     <div id="mobilePause" role="dialog" aria-modal="true" aria-label="Juego en pausa">
-        <div><h2>PAUSA</h2><p>Izquierda: mover · Derecha: mirar<br>Mantén DISPARAR para abrir fuego.<br>SALTAR · Mantén AGACHAR para agacharte.<br>ARMAS: anterior / siguiente · USAR: objeto</p>
+        <div><h2>PAUSA</h2><p>Izquierda: mover · Arrastra la derecha: mirar<br>Toque breve a la derecha: disparar.<br>Mantén DISPARAR para fuego continuo.<br>SALTAR · Mantén AGACHAR para agacharte.<br>ARMAS: anterior / siguiente · USAR: objeto</p>
         <button type="button" id="resumeBtn" onclick="setMobilePaused(false)">CONTINUAR</button></div>
     </div>
     <script src="mobile-runtime.js"></script>
@@ -831,7 +831,6 @@
             document.getElementById(id).textContent = '—';
             document.getElementById(id).removeAttribute('aria-label');
         });
-        document.getElementById('hudAmmo').removeAttribute('aria-label');
         document.getElementById('mobileHud').classList.remove('low-health');
     }
 
@@ -960,6 +959,98 @@
     }
 
     if (isMobile) {
+        // Inclusive limits in CSS pixels / monotonic milliseconds. See docs/tap-hud.md.
+        var LOOK_TAP_MS = 220, LOOK_TAP_PX = 8, TAP_FIRE_MS = 50;
+        var fireSources = new Set();
+        var tapFireTimer = null;
+        function setFireSource(source, down) {
+            if (down) fireSources.add(source);
+            else fireSources.delete(source);
+            if (touchFireDown !== (fireSources.size > 0)) sendMouseButton(fireSources.size > 0);
+        }
+        function cancelTapFire() {
+            clearTimeout(tapFireTimer);
+            tapFireTimer = null;
+            setFireSource('tap', false);
+        }
+        function fireLookTap() {
+            // A tap during continuous fire must neither interrupt nor extend that hold.
+            if (!touchInputEnabled() || fireSources.has('button')) return;
+            cancelTapFire();
+            setFireSource('tap', true);
+            tapFireTimer = setTimeout(cancelTapFire, TAP_FIRE_MS);
+        }
+
+        // Use one contact stream, never both PointerEvents and their TouchEvent companions.
+        // Capture retains the initial zone/button owner when a finger crosses other UI.
+        var contactResets = [];
+        function bindTouches(element, handlers) {
+            var types = { start: 'touchstart', move: 'touchmove', end: 'touchend', cancel: 'touchcancel' };
+            function deliver(kind, e, contacts) {
+                e.preventDefault();
+                if (handlers[kind]) handlers[kind]({ type: types[kind], changedTouches: contacts,
+                    // Queued input must retain its duration even when the game stalls.
+                    timeStamp: Number.isFinite(e.timeStamp) ? e.timeStamp : performance.now() });
+            }
+            if (typeof PointerEvent === 'function') {
+                var contacts = new Set();
+                function release(id) {
+                    try { if (element.hasPointerCapture(id)) element.releasePointerCapture(id); }
+                    catch (_) { /* The browser may already have revoked capture. */ }
+                }
+                function forward(kind, e) {
+                    deliver(kind, e, [{ identifier: e.pointerId, clientX: e.clientX, clientY: e.clientY }]);
+                }
+                element.addEventListener('pointerdown', function(e) {
+                    if (e.pointerType !== 'touch' || e.target !== element || !touchInputEnabled()) return;
+                    e.preventDefault();
+                    if (contacts.has(e.pointerId)) return;
+                    // If capture cannot be obtained, do not begin an unowned gesture.
+                    try { element.setPointerCapture(e.pointerId); } catch (_) { return; }
+                    contacts.add(e.pointerId);
+                    forward('start', e);
+                });
+                element.addEventListener('pointermove', function(e) {
+                    if (!contacts.has(e.pointerId)) return;
+                    // A coalesced out-and-back excursion is still a drag.
+                    if (typeof e.getCoalescedEvents === 'function') {
+                        e.getCoalescedEvents().forEach(function(sample) { forward('move', sample); });
+                    }
+                    forward('move', e);
+                });
+                ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(function(type) {
+                    element.addEventListener(type, function(e) {
+                        if (!contacts.delete(e.pointerId)) return;
+                        forward(type === 'pointerup' ? 'end' : 'cancel', e);
+                        // Remove ownership before release: normal lost capture is not a cancellation.
+                        release(e.pointerId);
+                    });
+                });
+                contactResets.push(function() {
+                    var ids = Array.from(contacts);
+                    contacts.clear();
+                    ids.forEach(release);
+                });
+                // Prevent browser compatibility mouse input; these events never drive gameplay.
+                Object.values(types).forEach(function(type) {
+                    element.addEventListener(type, function(e) { e.preventDefault(); }, { passive: false });
+                });
+            } else {
+                Object.keys(types).forEach(function(kind) {
+                    element.addEventListener(types[kind], function(e) {
+                        e.preventDefault();
+                        if (kind === 'start' && (e.target !== element || !touchInputEnabled())) return;
+                        // A batched update may include fingers that began on other controls.
+                        var owned = Array.from(e.changedTouches).filter(function(t) { return t.target === element; });
+                        if (owned.length) deliver(kind, e, owned);
+                    }, { passive: false });
+                });
+            }
+            ['click', 'mousedown', 'mouseup'].forEach(function(type) {
+                element.addEventListener(type, function(e) { e.preventDefault(); e.stopPropagation(); });
+            });
+        }
+
         function changedTouch(e, identifier) {
             for (var i = 0; i < e.changedTouches.length; i++) {
                 if (e.changedTouches[i].identifier === identifier) return e.changedTouches[i];
@@ -972,7 +1063,6 @@
         function bindTouchButton(button, onChange) {
             var touches = new Set();
             function update(e) {
-                e.preventDefault();
                 var wasDown = touches.size > 0;
                 for (var i = 0; i < e.changedTouches.length; i++) {
                     if (e.type === 'touchstart' && touchInputEnabled()) touches.add(e.changedTouches[i].identifier);
@@ -984,9 +1074,7 @@
                     onChange(touches.size > 0);
                 }
             }
-            ['touchstart', 'touchend', 'touchcancel'].forEach(function(type) {
-                button.addEventListener(type, update, { passive: false });
-            });
+            bindTouches(button, { start: update, end: update, cancel: update });
             buttonResets.push(function() {
                 if (touches.size) {
                     touches.clear();
@@ -1002,8 +1090,7 @@
         var joystick = document.getElementById('joystickIndicator');
         var knob = document.getElementById('joystickKnob');
 
-        document.getElementById('moveZone').addEventListener('touchstart', function(e) {
-            e.preventDefault();
+        bindTouches(document.getElementById('moveZone'), { start: function(e) {
             if (!touchInputEnabled() || moveTouchId !== null) return;
             var t = e.changedTouches[0];
             moveTouchId = t.identifier;
@@ -1013,10 +1100,7 @@
             joystick.style.display = 'block';
             joystick.style.left = Math.max(0, Math.min(bounds.width / 2 - 100, t.clientX - bounds.left - 50)) + 'px';
             joystick.style.top = Math.max(60, Math.min(bounds.height - 100, t.clientY - bounds.top - 50)) + 'px';
-        }, { passive: false });
-
-        document.getElementById('moveZone').addEventListener('touchmove', function(e) {
-            e.preventDefault();
+        }, move: function(e) {
             var t = changedTouch(e, moveTouchId);
             if (!t || !moveOrigin) return;
             var dx = t.clientX - moveOrigin.x;
@@ -1027,7 +1111,11 @@
             knob.style.left = (50 + dx * feedbackScale * 0.75) + '%';
             knob.style.top = (50 + dy * feedbackScale * 0.75) + '%';
             updateMoveKeys(dx, dy);
-        }, { passive: false });
+        }, end: endMove, cancel: endMove });
+
+        function endMove(e) {
+            if (changedTouch(e, moveTouchId)) resetMove();
+        }
 
         function resetMove() {
             moveTouchId = null;
@@ -1038,48 +1126,52 @@
             knob.style.left = '50%';
             knob.style.top = '50%';
         }
-        ['touchend', 'touchcancel'].forEach(function(type) {
-            document.getElementById('moveZone').addEventListener(type, function(e) {
-                e.preventDefault();
-                if (changedTouch(e, moveTouchId)) resetMove();
-            }, { passive: false });
-        });
-
-        // Looking never fires, including a tap, jitter or a long hold.
+        // Only a short, low-excursion release in the look area can request a shot.
         var lookTouchId = null;
         var lookLast = null;
-        document.getElementById('lookZone').addEventListener('touchstart', function(e) {
-            e.preventDefault();
+        var lookStart = null;
+        var lookMaxDistance = 0;
+        function trackLook(t) {
+            lookMaxDistance = Math.max(lookMaxDistance, Math.hypot(t.clientX - lookStart.x, t.clientY - lookStart.y));
+        }
+        function resetLook() {
+            lookTouchId = null;
+            lookLast = lookStart = null;
+            lookMaxDistance = 0;
+        }
+        function endLook(e) {
+            var t = changedTouch(e, lookTouchId);
+            if (!t || !lookStart) return;
+            trackLook(t); // Release coordinates count even without a final move event.
+            var elapsed = e.timeStamp - lookStart.time;
+            var isTap = e.type === 'touchend' && elapsed >= 0 && elapsed <= LOOK_TAP_MS && lookMaxDistance <= LOOK_TAP_PX;
+            resetLook();
+            if (isTap) fireLookTap();
+        }
+        bindTouches(document.getElementById('lookZone'), { start: function(e) {
             if (!touchInputEnabled() || lookTouchId !== null) return;
             var t = e.changedTouches[0];
             lookTouchId = t.identifier;
             lookLast = { x: t.clientX, y: t.clientY };
+            lookStart = { x: t.clientX, y: t.clientY, time: e.timeStamp };
+            lookMaxDistance = 0;
             // SDL otherwise ignores movementX/Y and reads absolute targetX/Y.
             // Tell only the engine to accept relative touch deltas; no browser lock request.
             if (window.Module) {
                 Module.touchRelativeMouse = true;
                 document.dispatchEvent(new Event('pointerlockchange'));
             }
-        }, { passive: false });
-        document.getElementById('lookZone').addEventListener('touchmove', function(e) {
-            e.preventDefault();
+        }, move: function(e) {
             var t = changedTouch(e, lookTouchId);
             if (!t || !lookLast) return;
+            trackLook(t);
             sendMouseMove((t.clientX - lookLast.x) * 8, (t.clientY - lookLast.y) * 8);
             lookLast = { x: t.clientX, y: t.clientY };
-        }, { passive: false });
-        ['touchend', 'touchcancel'].forEach(function(type) {
-            document.getElementById('lookZone').addEventListener(type, function(e) {
-                e.preventDefault();
-                if (!changedTouch(e, lookTouchId)) return;
-                lookTouchId = null;
-                lookLast = null;
-            }, { passive: false });
-        });
+        }, end: endLook, cancel: endLook });
 
         // One right fire target; bindTouchButton retains each finger independently.
         bindTouchButton(document.getElementById('fireBtnRight'), function(down) {
-            sendMouseButton(down);
+            setFireSource('button', down);
         });
 
         // Jump button
@@ -1094,9 +1186,10 @@
 
         resetTouchControls = function() {
             resetMove();
-            lookTouchId = null;
-            lookLast = null;
+            resetLook();
+            cancelTapFire();
             buttonResets.forEach(function(reset) { reset(); });
+            contactResets.forEach(function(reset) { reset(); });
         };
         window.addEventListener('blur', function() { resetTouchControls(); setMobilePaused(true); });
         window.addEventListener('pagehide', resetTouchControls);

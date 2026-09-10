@@ -23,6 +23,7 @@ function createBrowser({ mobile = false, globals = {} } = {}) {
             this.children = [];
             this.attributes = {};
             this.listeners = new Map();
+            this.capturedPointers = new Set();
             const classes = new Set();
             this.classList = {
                 add: (...names) => names.forEach(name => classes.add(name)),
@@ -59,6 +60,11 @@ function createBrowser({ mobile = false, globals = {} } = {}) {
         setAttribute(name, value) { this.attributes[name] = String(value); }
         removeAttribute(name) { delete this.attributes[name]; }
         getBoundingClientRect() { return this.bounds || { left: 0, top: 0, width: 800, height: 400 }; }
+        setPointerCapture(id) { this.capturedPointers.add(id); }
+        hasPointerCapture(id) { return this.capturedPointers.has(id); }
+        releasePointerCapture(id) {
+            if (this.capturedPointers.delete(id)) this.dispatchEvent(new BrowserEvent('lostpointercapture', { pointerId: id, pointerType: 'touch' }));
+        }
         focus() { document.activeElement = this; }
         click() { this.dispatchEvent(new BrowserEvent('click', { bubbles: true })); }
     }
@@ -95,6 +101,7 @@ function createBrowser({ mobile = false, globals = {} } = {}) {
         Event: BrowserEvent,
         KeyboardEvent: BrowserEvent,
         MouseEvent: BrowserEvent,
+        performance: { now: () => 1000 },
         Uint8Array, Blob, URL, Response, AbortController, TextEncoder,
         fetch: async () => { throw new Error('Unexpected network request in test'); },
         alert() {},

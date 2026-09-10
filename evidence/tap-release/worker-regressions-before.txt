@@ -1,0 +1,395 @@
+✖ pointer: event timestamps 0→221 ms survive 0 ms of handler delay (106.16262ms)
+✖ pointer: event timestamps 100→600 ms survive 5 ms of handler delay (6.807765ms)
+✖ pointer: event timestamps 100→180 ms survive 500 ms of handler delay (5.00145ms)
+✖ pointer: event timestamps 0→220 ms survive 500 ms of handler delay (10.424925ms)
+✖ pointer: event timestamps 100→99 ms survive 0 ms of handler delay (4.812063ms)
+✔ pointer: tap boundary 0 ms / (0, 0) px = true (5.292654ms)
+✔ pointer: tap boundary 219.999 ms / (7.999, 0) px = true (4.276227ms)
+✔ pointer: tap boundary 220 ms / (8, 0) px = true (5.045495ms)
+✔ pointer: tap boundary 220.001 ms / (0, 0) px = false (5.848496ms)
+✔ pointer: tap boundary 1000 ms / (0, 0) px = false (4.189867ms)
+✔ pointer: tap boundary 100 ms / (8.001, 0) px = false (3.876632ms)
+✔ pointer: tap boundary 220 ms / (0, -8) px = true (3.621731ms)
+✔ pointer: tap boundary 220 ms / (-4.5, 6) px = true (3.675537ms)
+✔ pointer: tap boundary 100 ms / (6, 6) px = false (4.441469ms)
+✔ pointer: maximum 8 px excursion survives return to origin (4.275074ms)
+✔ pointer: maximum 8.001 px excursion survives return to origin (10.269059ms)
+✔ pointer: maximum 80 px excursion survives return to origin (4.508038ms)
+✔ pointer: a look tap fires while another finger keeps the joystick moving (5.251194ms)
+✔ pointer: extra look fingers cannot fire or end the current owner's gesture (3.923399ms)
+✔ pointer: two rapid taps own two pulses without leaving an old release timer (4.498108ms)
+✔ pointer: holding DISPARAR during a tap pulse survives that pulse's release (4.86512ms)
+✔ pointer: taps during DISPARAR neither release nor extend the independent hold (4.429062ms)
+✔ pointer: cancel discards a tap, preserves held fire and frees a new look (10.468584ms)
+✔ pointer: lost discards a tap, preserves held fire and frees a new look (6.609553ms)
+✔ pointer: pause cancels a candidate, and stale input cannot fire after resume (27.191021ms)
+✔ pointer: blur cancels a candidate, and stale input cannot fire after resume (6.635983ms)
+✔ pointer: hidden cancels a candidate, and stale input cannot fire after resume (9.232882ms)
+✔ pointer: reset cancels a candidate, and stale input cannot fire after resume (7.689726ms)
+✔ pointer: resize cancels a candidate, and stale input cannot fire after resume (6.498683ms)
+✔ pointer: orientationchange cancels a candidate, and stale input cannot fire after resume (10.654086ms)
+✔ pointer: fullscreenchange cancels a candidate, and stale input cannot fire after resume (11.932871ms)
+✔ pointer: pagehide cancels a candidate, and stale input cannot fire after resume (15.596391ms)
+✔ pointer: pause cancels a pulse, and stale input cannot fire after resume (6.961162ms)
+✔ pointer: blur cancels a pulse, and stale input cannot fire after resume (3.750965ms)
+✔ pointer: hidden cancels a pulse, and stale input cannot fire after resume (5.210135ms)
+✔ pointer: reset cancels a pulse, and stale input cannot fire after resume (9.045756ms)
+✔ pointer: resize cancels a pulse, and stale input cannot fire after resume (12.605436ms)
+✔ pointer: orientationchange cancels a pulse, and stale input cannot fire after resume (6.319736ms)
+✔ pointer: fullscreenchange cancels a pulse, and stale input cannot fire after resume (7.96745ms)
+✔ pointer: pagehide cancels a pulse, and stale input cannot fire after resume (9.617458ms)
+✔ pointer: idle rejects look taps (18.40754ms)
+✔ pointer: starting rejects look taps (7.935281ms)
+✔ pointer: downloading rejects look taps (16.596015ms)
+✔ pointer: ended rejects look taps (11.943057ms)
+✔ pointer: failed rejects look taps (20.23099ms)
+✔ pointer: paused rejects look taps (7.137053ms)
+✔ pointer: hidden rejects look taps (15.511854ms)
+✔ pointer: buttons, HUD, menus and canvas are excluded from tap recognition (21.513279ms)
+✔ pointer: compatibility mouse/click events on a look tap produce no duplicate attack (4.069354ms)
+✖ touch fallback: event timestamps 0→221 ms survive 0 ms of handler delay (24.476223ms)
+✖ touch fallback: event timestamps 100→600 ms survive 5 ms of handler delay (7.214116ms)
+✖ touch fallback: event timestamps 100→180 ms survive 500 ms of handler delay (9.557341ms)
+✖ touch fallback: event timestamps 0→220 ms survive 500 ms of handler delay (13.529423ms)
+✖ touch fallback: event timestamps 100→99 ms survive 0 ms of handler delay (25.274482ms)
+✔ touch fallback: tap boundary 0 ms / (0, 0) px = true (9.48122ms)
+✔ touch fallback: tap boundary 219.999 ms / (7.999, 0) px = true (8.316207ms)
+✔ touch fallback: tap boundary 220 ms / (8, 0) px = true (10.392855ms)
+✔ touch fallback: tap boundary 220.001 ms / (0, 0) px = false (8.720577ms)
+✔ touch fallback: tap boundary 1000 ms / (0, 0) px = false (54.118207ms)
+✔ touch fallback: tap boundary 100 ms / (8.001, 0) px = false (13.444209ms)
+✔ touch fallback: tap boundary 220 ms / (0, -8) px = true (6.908035ms)
+✔ touch fallback: tap boundary 220 ms / (-4.5, 6) px = true (23.217269ms)
+✔ touch fallback: tap boundary 100 ms / (6, 6) px = false (10.227241ms)
+✔ touch fallback: maximum 8 px excursion survives return to origin (18.331517ms)
+✔ touch fallback: maximum 8.001 px excursion survives return to origin (4.353405ms)
+✔ touch fallback: maximum 80 px excursion survives return to origin (17.881073ms)
+✔ touch fallback: a look tap fires while another finger keeps the joystick moving (3.657691ms)
+✔ touch fallback: extra look fingers cannot fire or end the current owner's gesture (4.370401ms)
+✔ touch fallback: two rapid taps own two pulses without leaving an old release timer (44.270512ms)
+✔ touch fallback: holding DISPARAR during a tap pulse survives that pulse's release (18.240031ms)
+✔ touch fallback: taps during DISPARAR neither release nor extend the independent hold (12.281302ms)
+✔ touch fallback: cancel discards a tap, preserves held fire and frees a new look (8.067003ms)
+✔ touch fallback: pause cancels a candidate, and stale input cannot fire after resume (19.017819ms)
+✔ touch fallback: blur cancels a candidate, and stale input cannot fire after resume (12.900631ms)
+✔ touch fallback: hidden cancels a candidate, and stale input cannot fire after resume (7.732879ms)
+✔ touch fallback: reset cancels a candidate, and stale input cannot fire after resume (17.610854ms)
+✔ touch fallback: resize cancels a candidate, and stale input cannot fire after resume (13.237724ms)
+✔ touch fallback: orientationchange cancels a candidate, and stale input cannot fire after resume (14.286744ms)
+✔ touch fallback: fullscreenchange cancels a candidate, and stale input cannot fire after resume (14.589009ms)
+✔ touch fallback: pagehide cancels a candidate, and stale input cannot fire after resume (3.480409ms)
+✔ touch fallback: pause cancels a pulse, and stale input cannot fire after resume (11.318264ms)
+✔ touch fallback: blur cancels a pulse, and stale input cannot fire after resume (26.630745ms)
+✔ touch fallback: hidden cancels a pulse, and stale input cannot fire after resume (4.019069ms)
+✔ touch fallback: reset cancels a pulse, and stale input cannot fire after resume (5.679275ms)
+✔ touch fallback: resize cancels a pulse, and stale input cannot fire after resume (3.28782ms)
+✔ touch fallback: orientationchange cancels a pulse, and stale input cannot fire after resume (26.775499ms)
+✔ touch fallback: fullscreenchange cancels a pulse, and stale input cannot fire after resume (3.339899ms)
+✔ touch fallback: pagehide cancels a pulse, and stale input cannot fire after resume (21.910523ms)
+✔ touch fallback: idle rejects look taps (13.616083ms)
+✔ touch fallback: starting rejects look taps (2.955765ms)
+✔ touch fallback: downloading rejects look taps (50.913912ms)
+✔ touch fallback: ended rejects look taps (21.169627ms)
+✔ touch fallback: failed rejects look taps (4.894469ms)
+✔ touch fallback: paused rejects look taps (3.105656ms)
+✔ touch fallback: hidden rejects look taps (10.339885ms)
+✔ touch fallback: buttons, HUD, menus and canvas are excluded from tap recognition (3.589245ms)
+✔ touch fallback: compatibility mouse/click events on a look tap produce no duplicate attack (13.06458ms)
+✖ touch fallback: batched contacts retain their original zone/button target (8.759669ms)
+✔ pointer: coalesced out-and-back movement permanently rejects the tap and preserves relative aim (18.028854ms)
+✔ pointer: companion touch events cannot duplicate or release pointer-owned fire (10.601079ms)
+✔ pointer: cancel on one DISPARAR finger leaves the other finger held (8.7553ms)
+✔ pointer: lost on one DISPARAR finger leaves the other finger held (12.74005ms)
+✔ pointer: capture failure does not start a tap or held action (25.607358ms)
+✔ pointer: five simultaneous contacts retain move/look/fire/jump/weapon ownership (4.217214ms)
+✔ pointer: mouse and pen contacts never synthesize mobile tap fire (21.473796ms)
+✔ desktop: taps install no mobile input; native mouse down/up remain untouched (13.59451ms)
+ℹ tests 106
+ℹ suites 0
+ℹ pass 95
+ℹ fail 11
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1413.28518
+
+✖ failing tests:
+
+test at tests/tap-fire.test.cjs:39:8
+✖ pointer: event timestamps 0→221 ms survive 0 ms of handler delay (106.16262ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   [
+  +     'mousedown',
+  +     1
+  +   ]
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (/home/enicolas_riquelme_gmail_com/work/quake2-tap-hud-20260910/tests/tap-fire.test.cjs:45:16)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.start (node:internal/test_runner/test:1096:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [Array],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/tap-fire.test.cjs:39:8
+✖ pointer: event timestamps 100→600 ms survive 5 ms of handler delay (6.807765ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   [
+  +     'mousedown',
+  +     1
+  +   ]
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (/home/enicolas_riquelme_gmail_com/work/quake2-tap-hud-20260910/tests/tap-fire.test.cjs:45:16)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [Array],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/tap-fire.test.cjs:39:8
+✖ pointer: event timestamps 100→180 ms survive 500 ms of handler delay (5.00145ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 1
+  
+      at b.pulse (/home/enicolas_riquelme_gmail_com/work/quake2-tap-hud-20260910/tests/tap-fire.test.cjs:26:16)
+      at TestContext.<anonymous> (/home/enicolas_riquelme_gmail_com/work/quake2-tap-hud-20260910/tests/tap-fire.test.cjs:44:25)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/tap-fire.test.cjs:39:8
+✖ pointer: event timestamps 0→220 ms survive 500 ms of handler delay (10.424925ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 1
+  
+      at b.pulse (/home/enicolas_riquelme_gmail_com/work/quake2-tap-hud-20260910/tests/tap-fire.test.cjs:26:16)
+      at TestContext.<anonymous> (/home/enicolas_riquelme_gmail_com/work/quake2-tap-hud-20260910/tests/tap-fire.test.cjs:44:25)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/tap-fire.test.cjs:39:8
+✖ pointer: event timestamps 100→99 ms survive 0 ms of handler delay (4.812063ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   [
+  +     'mousedown',
+  +     1
+  +   ]
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (/home/enicolas_riquelme_gmail_com/work/quake2-tap-hud-20260910/tests/tap-fire.test.cjs:45:16)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [Array],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/tap-fire.test.cjs:39:8
+✖ touch fallback: event timestamps 0→221 ms survive 0 ms of handler delay (24.476223ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   [
+  +     'mousedown',
+  +     1
+  +   ]
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (/home/enicolas_riquelme_gmail_com/work/quake2-tap-hud-20260910/tests/tap-fire.test.cjs:45:16)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [Array],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/tap-fire.test.cjs:39:8
+✖ touch fallback: event timestamps 100→600 ms survive 5 ms of handler delay (7.214116ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   [
+  +     'mousedown',
+  +     1
+  +   ]
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (/home/enicolas_riquelme_gmail_com/work/quake2-tap-hud-20260910/tests/tap-fire.test.cjs:45:16)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [Array],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/tap-fire.test.cjs:39:8
+✖ touch fallback: event timestamps 100→180 ms survive 500 ms of handler delay (9.557341ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 1
+  
+      at b.pulse (/home/enicolas_riquelme_gmail_com/work/quake2-tap-hud-20260910/tests/tap-fire.test.cjs:26:16)
+      at TestContext.<anonymous> (/home/enicolas_riquelme_gmail_com/work/quake2-tap-hud-20260910/tests/tap-fire.test.cjs:44:25)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/tap-fire.test.cjs:39:8
+✖ touch fallback: event timestamps 0→220 ms survive 500 ms of handler delay (13.529423ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 1
+  
+      at b.pulse (/home/enicolas_riquelme_gmail_com/work/quake2-tap-hud-20260910/tests/tap-fire.test.cjs:26:16)
+      at TestContext.<anonymous> (/home/enicolas_riquelme_gmail_com/work/quake2-tap-hud-20260910/tests/tap-fire.test.cjs:44:25)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/tap-fire.test.cjs:39:8
+✖ touch fallback: event timestamps 100→99 ms survive 0 ms of handler delay (25.274482ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   [
+  +     'mousedown',
+  +     1
+  +   ]
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (/home/enicolas_riquelme_gmail_com/work/quake2-tap-hud-20260910/tests/tap-fire.test.cjs:45:16)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [Array],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/tap-fire.test.cjs:223:1
+✖ touch fallback: batched contacts retain their original zone/button target (8.759669ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + []
+  - [
+  -   240
+  - ]
+  
+      at TestContext.<anonymous> (/home/enicolas_riquelme_gmail_com/work/quake2-tap-hud-20260910/tests/tap-fire.test.cjs:236:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [],
+    expected: [Array],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
