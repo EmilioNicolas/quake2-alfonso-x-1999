@@ -1,0 +1,27 @@
+Browser setup attempts for the 8397b51 mobile UX refinement.
+These command results are transcribed from the execution tool output.
+All commands ran from /tmp/quake-mobile-20260910-1110.
+
+$ python3 -m http.server 8876 --bind 127.0.0.1
+Exit code: 1
+Socket creation failed in Python's socket.py:
+PermissionError: [Errno 1] Operation not permitted
+
+$ /home/enicolas_riquelme_gmail_com/.cache/ms-playwright/chromium-1234/chrome-linux64/chrome --headless --no-sandbox --disable-dev-shm-usage --remote-debugging-address=127.0.0.1 --remote-debugging-port=9476 --user-data-dir=/tmp/quake-mobile-20260910-1110-browser --use-gl=angle --use-angle=swiftshader --enable-unsafe-swiftshader --no-first-run --no-default-browser-check about:blank
+Exit code: 133
+[2:2:0910/111519.343074:ERROR:third_party/crashpad/crashpad/util/linux/socket.cc:45] setsockopt: Operation not permitted (1)
+
+$ /home/enicolas_riquelme_gmail_com/.cache/ms-playwright/chromium-1234/chrome-linux64/chrome --version
+Exit code: 0
+Google Chrome for Testing 151.0.7922.34
+
+$ CDP_PORT=9476 GAME_URL=http://127.0.0.1:8876/ EVIDENCE_DIR=evidence/mobile-ux-refinement node tests/mobile-browser.cjs
+Exit code: 1
+See browser-tests.txt for the full runner error: connect EPERM 127.0.0.1:9476.
+See results.json: 0 passed checks, 1 browser setup failure.
+
+No game started and no new screenshots were captured. Browser geometry,
+touch hit-testing and native gameplay verification remain unexecuted for
+this refinement. The historical PNGs in evidence/mobile-ux were not changed.
+The environment's managed approval policy forbids elevation; no settings
+were changed and no elevated command was requested.

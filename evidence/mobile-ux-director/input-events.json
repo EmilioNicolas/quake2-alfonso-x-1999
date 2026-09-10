@@ -1,0 +1,144 @@
+[
+  {
+    "type": "keydown",
+    "code": "Space"
+  },
+  {
+    "type": "keyup",
+    "code": "Space"
+  },
+  {
+    "type": "keydown",
+    "code": "ShiftLeft"
+  },
+  {
+    "type": "keyup",
+    "code": "ShiftLeft"
+  },
+  {
+    "type": "keydown",
+    "code": "KeyR"
+  },
+  {
+    "type": "keyup",
+    "code": "KeyR"
+  },
+  {
+    "type": "keydown",
+    "code": "KeyF"
+  },
+  {
+    "type": "keyup",
+    "code": "KeyF"
+  },
+  {
+    "type": "keydown",
+    "code": "KeyD"
+  },
+  {
+    "type": "keyup",
+    "code": "KeyD"
+  },
+  {
+    "type": "mousedown",
+    "dx": 0,
+    "dy": 0,
+    "buttons": 1
+  },
+  {
+    "type": "mouseup",
+    "dx": 0,
+    "dy": 0,
+    "buttons": 0
+  },
+  {
+    "type": "mousemove",
+    "dx": 32,
+    "dy": 16,
+    "buttons": 0
+  },
+  {
+    "type": "mousemove",
+    "dx": 240,
+    "dy": 0,
+    "buttons": 0
+  },
+  {
+    "type": "mousedown",
+    "dx": 0,
+    "dy": 0,
+    "buttons": 1
+  },
+  {
+    "type": "keydown",
+    "code": "KeyD"
+  },
+  {
+    "type": "mousemove",
+    "dx": 160,
+    "dy": 48,
+    "buttons": 1
+  },
+  {
+    "type": "keyup",
+    "code": "KeyD"
+  },
+  {
+    "type": "mouseup",
+    "dx": 0,
+    "dy": 0,
+    "buttons": 0
+  },
+  {
+    "type": "keydown",
+    "code": "KeyD"
+  },
+  {
+    "type": "mousedown",
+    "dx": 0,
+    "dy": 0,
+    "buttons": 1
+  },
+  {
+    "type": "mouseup",
+    "dx": 0,
+    "dy": 0,
+    "buttons": 0
+  },
+  {
+    "type": "keyup",
+    "code": "KeyD"
+  },
+  {
+    "type": "mousedown",
+    "dx": 0,
+    "dy": 0,
+    "buttons": 1
+  },
+  {
+    "type": "mouseup",
+    "dx": 0,
+    "dy": 0,
+    "buttons": 0
+  },
+  {
+    "type": "keydown",
+    "code": "KeyF"
+  },
+  {
+    "type": "keyup",
+    "code": "KeyF"
+  },
+  {
+    "type": "mousedown",
+    "dx": 0,
+    "dy": 0,
+    "buttons": 1
+  },
+  {
+    "type": "mouseup",
+    "dx": 0,
+    "dy": 0,
+    "buttons": 0
+  }
+]

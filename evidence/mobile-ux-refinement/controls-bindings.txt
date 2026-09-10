@@ -1,0 +1,7 @@
+Generated package metadata in index.js: /baseq2/config.cfg, start=0, end=1181
+Extracted from index.data bytes [0, 1181):
+bind SPACE "+moveup"
+bind SHIFT "+movedown"
+bind e "invuse"
+bind r "weapprev"
+bind f "weapnext"

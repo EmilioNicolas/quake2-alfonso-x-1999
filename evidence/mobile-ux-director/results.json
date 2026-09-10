@@ -1,0 +1,1968 @@
+{
+  "engine": "Bundled Quake II WASM + WebGL, Chromium CDP, SwiftShader",
+  "cases": [
+    {
+      "name": "live HUD at fresh spawn",
+      "passed": true,
+      "evidence": {
+        "health": 100,
+        "ammo": null,
+        "armor": 0
+      }
+    },
+    {
+      "name": "native jump, crouch and weapon cycling respond to their touch buttons",
+      "passed": true,
+      "evidence": {
+        "before": "position: -1184 -299 129, angles: 0 90 0",
+        "jumped": "position: -1184 -299 161, angles: 0 90 0",
+        "standing": "position: -1184 -299 129, angles: 0 90 0",
+        "crouched": "position: -1184 -299 105, angles: 0 90 0",
+        "jumpSamples": [
+          "position: -1184 -299 129, angles: 0 90 0",
+          "position: -1184 -299 129, angles: 0 90 0",
+          "position: -1184 -299 145, angles: 0 90 0",
+          "position: -1184 -299 156, angles: 0 90 0",
+          "position: -1184 -299 156, angles: 0 90 0",
+          "position: -1184 -299 161, angles: 0 90 0",
+          "position: -1184 -299 161, angles: 0 90 0",
+          "position: -1184 -299 155, angles: 0 90 0",
+          "position: -1184 -299 155, angles: 0 90 0",
+          "position: -1184 -299 133, angles: 0 90 0",
+          "position: -1184 -299 129, angles: 0 90 0",
+          "position: -1184 -299 129, angles: 0 90 0",
+          "position: -1184 -299 129, angles: 0 90 0",
+          "position: -1184 -299 129, angles: 0 90 0",
+          "position: -1184 -299 129, angles: 0 90 0",
+          "position: -1184 -299 129, angles: 0 90 0",
+          "position: -1184 -299 129, angles: 0 90 0",
+          "position: -1184 -299 129, angles: 0 90 0",
+          "position: -1184 -299 129, angles: 0 90 0",
+          "position: -1184 -299 129, angles: 0 90 0"
+        ],
+        "crouchSamples": [
+          "position: -1184 -299 129, angles: 0 90 0",
+          "position: -1184 -299 129, angles: 0 90 0",
+          "position: -1184 -299 129, angles: 0 90 0",
+          "position: -1184 -299 112, angles: 0 90 0",
+          "position: -1184 -299 105, angles: 0 90 0",
+          "position: -1184 -299 105, angles: 0 90 0",
+          "position: -1184 -299 105, angles: 0 90 0",
+          "position: -1184 -299 105, angles: 0 90 0",
+          "position: -1184 -299 105, angles: 0 90 0",
+          "position: -1184 -299 105, angles: 0 90 0",
+          "position: -1184 -299 105, angles: 0 90 0",
+          "position: -1184 -299 105, angles: 0 90 0",
+          "position: -1184 -299 105, angles: 0 90 0",
+          "position: -1184 -299 105, angles: 0 90 0",
+          "position: -1184 -299 105, angles: 0 90 0",
+          "position: -1184 -299 105, angles: 0 90 0",
+          "position: -1184 -299 105, angles: 0 90 0",
+          "position: -1184 -299 105, angles: 0 90 0",
+          "position: -1184 -299 105, angles: 0 90 0",
+          "position: -1184 -299 105, angles: 0 90 0"
+        ],
+        "weaponCycle": "Machinegun → Super Shotgun (100 shells) → Machinegun (200 bullets)"
+      }
+    },
+    {
+      "name": "former left fire area moves without shooting; right fire padding is active",
+      "passed": true,
+      "evidence": {
+        "before": {
+          "health": 100,
+          "ammo": 200,
+          "armor": 200
+        },
+        "held": {
+          "health": 100,
+          "ammo": 195,
+          "armor": 200
+        },
+        "released": {
+          "health": 100,
+          "ammo": 192,
+          "armor": 200
+        },
+        "posBefore": "position: -1184 -299 129, angles: 0 90 0",
+        "posAfter": "position: -1067 -299 130, angles: 0 90 1"
+      }
+    },
+    {
+      "name": "look taps, jitter and drag never fire; real camera yaw changes",
+      "passed": true,
+      "evidence": {
+        "before": "position: -1023 -299 129, angles: 0 90 0",
+        "after": "position: -1023 -299 129, angles: 1 60 0",
+        "ammo": 192
+      }
+    },
+    {
+      "name": "three real contacts simultaneously move, look and hold fire",
+      "passed": true,
+      "evidence": {
+        "before": {
+          "health": 100,
+          "ammo": 192,
+          "armor": 200
+        },
+        "held": {
+          "health": 100,
+          "ammo": 183,
+          "armor": 200
+        },
+        "afterLookRelease": {
+          "health": 100,
+          "ammo": 173,
+          "armor": 200
+        },
+        "released": {
+          "health": 100,
+          "ammo": 172,
+          "armor": 200
+        },
+        "posBefore": "position: -1023 -299 129, angles: 1 60 0",
+        "posHeld": "position: -894 -330 128, angles: -4 42 0",
+        "trusted": [
+          {
+            "trusted": true,
+            "count": 1
+          },
+          {
+            "trusted": true,
+            "count": 1
+          },
+          {
+            "trusted": true,
+            "count": 1
+          },
+          {
+            "trusted": true,
+            "count": 1
+          },
+          {
+            "trusted": true,
+            "count": 1
+          },
+          {
+            "trusted": true,
+            "count": 1
+          },
+          {
+            "trusted": true,
+            "count": 1
+          },
+          {
+            "trusted": true,
+            "count": 1
+          },
+          {
+            "trusted": true,
+            "count": 1
+          },
+          {
+            "trusted": true,
+            "count": 1
+          },
+          {
+            "trusted": true,
+            "count": 2
+          },
+          {
+            "trusted": true,
+            "count": 3
+          }
+        ]
+      }
+    },
+    {
+      "name": "touchcancel and pause release held controls",
+      "passed": true,
+      "evidence": {
+        "canceledAmmo": 170,
+        "blur": "synthetic browser blur, native engine pause"
+      }
+    },
+    {
+      "name": "live health, armor and finite ammo match native state",
+      "passed": true,
+      "evidence": {
+        "health": 18,
+        "ammo": 170,
+        "armor": 200
+      }
+    },
+    {
+      "name": "real game 320x568 DPR 1 safe 0,0,0,0",
+      "passed": true,
+      "evidence": {
+        "viewport": [
+          320,
+          568
+        ],
+        "buffer": [
+          320,
+          568
+        ],
+        "canvas": {
+          "x": 0,
+          "y": 0,
+          "width": 320,
+          "height": 568,
+          "top": 0,
+          "right": 320,
+          "bottom": 568,
+          "left": 0
+        },
+        "safe": {
+          "x": 0,
+          "y": 0,
+          "width": 320,
+          "height": 568,
+          "top": 0,
+          "right": 320,
+          "bottom": 568,
+          "left": 0
+        },
+        "hud": {
+          "x": 8,
+          "y": 6,
+          "width": 240,
+          "height": 44,
+          "top": 6,
+          "right": 248,
+          "bottom": 50,
+          "left": 8
+        },
+        "numbers": [
+          {
+            "id": "hudHealth",
+            "text": "100",
+            "font": 24,
+            "clipped": false
+          },
+          {
+            "id": "hudAmmo",
+            "text": "170",
+            "font": 24,
+            "clipped": false
+          },
+          {
+            "id": "hudArmor",
+            "text": "200",
+            "font": 24,
+            "clipped": false
+          }
+        ],
+        "crosshair": {
+          "x": 150,
+          "y": 274,
+          "width": 20,
+          "height": 20,
+          "top": 274,
+          "right": 170,
+          "bottom": 294,
+          "left": 150
+        },
+        "weaponGroup": "ARMAS",
+        "buttons": [
+          {
+            "id": "fireBtnRight",
+            "text": "DISPARAR",
+            "label": "Mantener para disparar",
+            "box": {
+              "x": 220,
+              "y": 468,
+              "width": 88,
+              "height": 88,
+              "top": 468,
+              "right": 308,
+              "bottom": 556,
+              "left": 220
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 8,
+            "clipped": false
+          },
+          {
+            "id": "jumpBtn",
+            "text": "SALTAR",
+            "label": "Saltar",
+            "box": {
+              "x": 228,
+              "y": 410,
+              "width": 72,
+              "height": 56,
+              "top": 410,
+              "right": 300,
+              "bottom": 466,
+              "left": 228
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "weaponPrev",
+            "text": "ANT.",
+            "label": "Arma anterior",
+            "box": {
+              "x": 72,
+              "y": 68,
+              "width": 52,
+              "height": 48,
+              "top": 68,
+              "right": 124,
+              "bottom": 116,
+              "left": 72
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "weaponNext",
+            "text": "SIG.",
+            "label": "Arma siguiente",
+            "box": {
+              "x": 124,
+              "y": 68,
+              "width": 52,
+              "height": 48,
+              "top": 68,
+              "right": 176,
+              "bottom": 116,
+              "left": 124
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "crouchBtn",
+            "text": "AGACHAR",
+            "label": "Mantener para agacharse",
+            "box": {
+              "x": 180,
+              "y": 68,
+              "width": 80,
+              "height": 48,
+              "top": 68,
+              "right": 260,
+              "bottom": 116,
+              "left": 180
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "useBtn",
+            "text": "USAR",
+            "label": "Usar objeto",
+            "box": {
+              "x": 264,
+              "y": 68,
+              "width": 52,
+              "height": 48,
+              "top": 68,
+              "right": 316,
+              "bottom": 116,
+              "left": 264
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "pauseBtn",
+            "text": "Ⅱ",
+            "label": "Pausa y controles",
+            "box": {
+              "x": 268,
+              "y": 4,
+              "width": 48,
+              "height": 48,
+              "top": 4,
+              "right": 316,
+              "bottom": 52,
+              "left": 268
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "real game 390x664 DPR 3 safe 47,0,34,0",
+      "passed": true,
+      "evidence": {
+        "viewport": [
+          390,
+          664
+        ],
+        "buffer": [
+          390,
+          583
+        ],
+        "canvas": {
+          "x": 0,
+          "y": 47,
+          "width": 390,
+          "height": 583,
+          "top": 47,
+          "right": 390,
+          "bottom": 630,
+          "left": 0
+        },
+        "safe": {
+          "x": 0,
+          "y": 47,
+          "width": 390,
+          "height": 583,
+          "top": 47,
+          "right": 390,
+          "bottom": 630,
+          "left": 0
+        },
+        "hud": {
+          "x": 8,
+          "y": 53,
+          "width": 240,
+          "height": 44,
+          "top": 53,
+          "right": 248,
+          "bottom": 97,
+          "left": 8
+        },
+        "numbers": [
+          {
+            "id": "hudHealth",
+            "text": "100",
+            "font": 24,
+            "clipped": false
+          },
+          {
+            "id": "hudAmmo",
+            "text": "170",
+            "font": 24,
+            "clipped": false
+          },
+          {
+            "id": "hudArmor",
+            "text": "200",
+            "font": 24,
+            "clipped": false
+          }
+        ],
+        "crosshair": {
+          "x": 185,
+          "y": 328.5,
+          "width": 20,
+          "height": 20,
+          "top": 328.5,
+          "right": 205,
+          "bottom": 348.5,
+          "left": 185
+        },
+        "weaponGroup": "ARMAS",
+        "buttons": [
+          {
+            "id": "fireBtnRight",
+            "text": "DISPARAR",
+            "label": "Mantener para disparar",
+            "box": {
+              "x": 290,
+              "y": 530,
+              "width": 88,
+              "height": 88,
+              "top": 530,
+              "right": 378,
+              "bottom": 618,
+              "left": 290
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 8,
+            "clipped": false
+          },
+          {
+            "id": "jumpBtn",
+            "text": "SALTAR",
+            "label": "Saltar",
+            "box": {
+              "x": 298,
+              "y": 472,
+              "width": 72,
+              "height": 56,
+              "top": 472,
+              "right": 370,
+              "bottom": 528,
+              "left": 298
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "weaponPrev",
+            "text": "ANT.",
+            "label": "Arma anterior",
+            "box": {
+              "x": 142,
+              "y": 115,
+              "width": 52,
+              "height": 48,
+              "top": 115,
+              "right": 194,
+              "bottom": 163,
+              "left": 142
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "weaponNext",
+            "text": "SIG.",
+            "label": "Arma siguiente",
+            "box": {
+              "x": 194,
+              "y": 115,
+              "width": 52,
+              "height": 48,
+              "top": 115,
+              "right": 246,
+              "bottom": 163,
+              "left": 194
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "crouchBtn",
+            "text": "AGACHAR",
+            "label": "Mantener para agacharse",
+            "box": {
+              "x": 250,
+              "y": 115,
+              "width": 80,
+              "height": 48,
+              "top": 115,
+              "right": 330,
+              "bottom": 163,
+              "left": 250
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "useBtn",
+            "text": "USAR",
+            "label": "Usar objeto",
+            "box": {
+              "x": 334,
+              "y": 115,
+              "width": 52,
+              "height": 48,
+              "top": 115,
+              "right": 386,
+              "bottom": 163,
+              "left": 334
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "pauseBtn",
+            "text": "Ⅱ",
+            "label": "Pausa y controles",
+            "box": {
+              "x": 338,
+              "y": 51,
+              "width": 48,
+              "height": 48,
+              "top": 51,
+              "right": 386,
+              "bottom": 99,
+              "left": 338
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "real game 430x932 DPR 1 safe 59,0,34,0",
+      "passed": true,
+      "evidence": {
+        "viewport": [
+          430,
+          932
+        ],
+        "buffer": [
+          430,
+          839
+        ],
+        "canvas": {
+          "x": 0,
+          "y": 59,
+          "width": 430,
+          "height": 839,
+          "top": 59,
+          "right": 430,
+          "bottom": 898,
+          "left": 0
+        },
+        "safe": {
+          "x": 0,
+          "y": 59,
+          "width": 430,
+          "height": 839,
+          "top": 59,
+          "right": 430,
+          "bottom": 898,
+          "left": 0
+        },
+        "hud": {
+          "x": 8,
+          "y": 65,
+          "width": 240,
+          "height": 44,
+          "top": 65,
+          "right": 248,
+          "bottom": 109,
+          "left": 8
+        },
+        "numbers": [
+          {
+            "id": "hudHealth",
+            "text": "100",
+            "font": 24,
+            "clipped": false
+          },
+          {
+            "id": "hudAmmo",
+            "text": "170",
+            "font": 24,
+            "clipped": false
+          },
+          {
+            "id": "hudArmor",
+            "text": "200",
+            "font": 24,
+            "clipped": false
+          }
+        ],
+        "crosshair": {
+          "x": 205,
+          "y": 468.5,
+          "width": 20,
+          "height": 20,
+          "top": 468.5,
+          "right": 225,
+          "bottom": 488.5,
+          "left": 205
+        },
+        "weaponGroup": "ARMAS",
+        "buttons": [
+          {
+            "id": "fireBtnRight",
+            "text": "DISPARAR",
+            "label": "Mantener para disparar",
+            "box": {
+              "x": 330,
+              "y": 798,
+              "width": 88,
+              "height": 88,
+              "top": 798,
+              "right": 418,
+              "bottom": 886,
+              "left": 330
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 8,
+            "clipped": false
+          },
+          {
+            "id": "jumpBtn",
+            "text": "SALTAR",
+            "label": "Saltar",
+            "box": {
+              "x": 338,
+              "y": 740,
+              "width": 72,
+              "height": 56,
+              "top": 740,
+              "right": 410,
+              "bottom": 796,
+              "left": 338
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "weaponPrev",
+            "text": "ANT.",
+            "label": "Arma anterior",
+            "box": {
+              "x": 182,
+              "y": 127,
+              "width": 52,
+              "height": 48,
+              "top": 127,
+              "right": 234,
+              "bottom": 175,
+              "left": 182
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "weaponNext",
+            "text": "SIG.",
+            "label": "Arma siguiente",
+            "box": {
+              "x": 234,
+              "y": 127,
+              "width": 52,
+              "height": 48,
+              "top": 127,
+              "right": 286,
+              "bottom": 175,
+              "left": 234
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "crouchBtn",
+            "text": "AGACHAR",
+            "label": "Mantener para agacharse",
+            "box": {
+              "x": 290,
+              "y": 127,
+              "width": 80,
+              "height": 48,
+              "top": 127,
+              "right": 370,
+              "bottom": 175,
+              "left": 290
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "useBtn",
+            "text": "USAR",
+            "label": "Usar objeto",
+            "box": {
+              "x": 374,
+              "y": 127,
+              "width": 52,
+              "height": 48,
+              "top": 127,
+              "right": 426,
+              "bottom": 175,
+              "left": 374
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "pauseBtn",
+            "text": "Ⅱ",
+            "label": "Pausa y controles",
+            "box": {
+              "x": 378,
+              "y": 63,
+              "width": 48,
+              "height": 48,
+              "top": 63,
+              "right": 426,
+              "bottom": 111,
+              "left": 378
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "real game 568x320 DPR 1 safe 0,0,0,0",
+      "passed": true,
+      "evidence": {
+        "viewport": [
+          568,
+          320
+        ],
+        "buffer": [
+          568,
+          320
+        ],
+        "canvas": {
+          "x": 0,
+          "y": 0,
+          "width": 568,
+          "height": 320,
+          "top": 0,
+          "right": 568,
+          "bottom": 320,
+          "left": 0
+        },
+        "safe": {
+          "x": 0,
+          "y": 0,
+          "width": 568,
+          "height": 320,
+          "top": 0,
+          "right": 568,
+          "bottom": 320,
+          "left": 0
+        },
+        "hud": {
+          "x": 8,
+          "y": 6,
+          "width": 240,
+          "height": 44,
+          "top": 6,
+          "right": 248,
+          "bottom": 50,
+          "left": 8
+        },
+        "numbers": [
+          {
+            "id": "hudHealth",
+            "text": "100",
+            "font": 24,
+            "clipped": false
+          },
+          {
+            "id": "hudAmmo",
+            "text": "170",
+            "font": 24,
+            "clipped": false
+          },
+          {
+            "id": "hudArmor",
+            "text": "200",
+            "font": 24,
+            "clipped": false
+          }
+        ],
+        "crosshair": {
+          "x": 274,
+          "y": 150,
+          "width": 20,
+          "height": 20,
+          "top": 150,
+          "right": 294,
+          "bottom": 170,
+          "left": 274
+        },
+        "weaponGroup": "ARMAS",
+        "buttons": [
+          {
+            "id": "fireBtnRight",
+            "text": "DISPARAR",
+            "label": "Mantener para disparar",
+            "box": {
+              "x": 468,
+              "y": 220,
+              "width": 88,
+              "height": 88,
+              "top": 220,
+              "right": 556,
+              "bottom": 308,
+              "left": 468
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 8,
+            "clipped": false
+          },
+          {
+            "id": "jumpBtn",
+            "text": "SALTAR",
+            "label": "Saltar",
+            "box": {
+              "x": 476,
+              "y": 162,
+              "width": 72,
+              "height": 56,
+              "top": 162,
+              "right": 548,
+              "bottom": 218,
+              "left": 476
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "weaponPrev",
+            "text": "ANT.",
+            "label": "Arma anterior",
+            "box": {
+              "x": 320,
+              "y": 68,
+              "width": 52,
+              "height": 48,
+              "top": 68,
+              "right": 372,
+              "bottom": 116,
+              "left": 320
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "weaponNext",
+            "text": "SIG.",
+            "label": "Arma siguiente",
+            "box": {
+              "x": 372,
+              "y": 68,
+              "width": 52,
+              "height": 48,
+              "top": 68,
+              "right": 424,
+              "bottom": 116,
+              "left": 372
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "crouchBtn",
+            "text": "AGACHAR",
+            "label": "Mantener para agacharse",
+            "box": {
+              "x": 428,
+              "y": 68,
+              "width": 80,
+              "height": 48,
+              "top": 68,
+              "right": 508,
+              "bottom": 116,
+              "left": 428
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "useBtn",
+            "text": "USAR",
+            "label": "Usar objeto",
+            "box": {
+              "x": 512,
+              "y": 68,
+              "width": 52,
+              "height": 48,
+              "top": 68,
+              "right": 564,
+              "bottom": 116,
+              "left": 512
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "pauseBtn",
+            "text": "Ⅱ",
+            "label": "Pausa y controles",
+            "box": {
+              "x": 516,
+              "y": 4,
+              "width": 48,
+              "height": 48,
+              "top": 4,
+              "right": 564,
+              "bottom": 52,
+              "left": 516
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "real game 667x375 DPR 1 safe 0,0,21,0",
+      "passed": true,
+      "evidence": {
+        "viewport": [
+          667,
+          375
+        ],
+        "buffer": [
+          667,
+          354
+        ],
+        "canvas": {
+          "x": 0,
+          "y": 0,
+          "width": 667,
+          "height": 354,
+          "top": 0,
+          "right": 667,
+          "bottom": 354,
+          "left": 0
+        },
+        "safe": {
+          "x": 0,
+          "y": 0,
+          "width": 667,
+          "height": 354,
+          "top": 0,
+          "right": 667,
+          "bottom": 354,
+          "left": 0
+        },
+        "hud": {
+          "x": 8,
+          "y": 6,
+          "width": 240,
+          "height": 44,
+          "top": 6,
+          "right": 248,
+          "bottom": 50,
+          "left": 8
+        },
+        "numbers": [
+          {
+            "id": "hudHealth",
+            "text": "100",
+            "font": 24,
+            "clipped": false
+          },
+          {
+            "id": "hudAmmo",
+            "text": "170",
+            "font": 24,
+            "clipped": false
+          },
+          {
+            "id": "hudArmor",
+            "text": "200",
+            "font": 24,
+            "clipped": false
+          }
+        ],
+        "crosshair": {
+          "x": 323.5,
+          "y": 167,
+          "width": 20,
+          "height": 20,
+          "top": 167,
+          "right": 343.5,
+          "bottom": 187,
+          "left": 323.5
+        },
+        "weaponGroup": "ARMAS",
+        "buttons": [
+          {
+            "id": "fireBtnRight",
+            "text": "DISPARAR",
+            "label": "Mantener para disparar",
+            "box": {
+              "x": 567,
+              "y": 254,
+              "width": 88,
+              "height": 88,
+              "top": 254,
+              "right": 655,
+              "bottom": 342,
+              "left": 567
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 8,
+            "clipped": false
+          },
+          {
+            "id": "jumpBtn",
+            "text": "SALTAR",
+            "label": "Saltar",
+            "box": {
+              "x": 575,
+              "y": 196,
+              "width": 72,
+              "height": 56,
+              "top": 196,
+              "right": 647,
+              "bottom": 252,
+              "left": 575
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "weaponPrev",
+            "text": "ANT.",
+            "label": "Arma anterior",
+            "box": {
+              "x": 419,
+              "y": 68,
+              "width": 52,
+              "height": 48,
+              "top": 68,
+              "right": 471,
+              "bottom": 116,
+              "left": 419
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "weaponNext",
+            "text": "SIG.",
+            "label": "Arma siguiente",
+            "box": {
+              "x": 471,
+              "y": 68,
+              "width": 52,
+              "height": 48,
+              "top": 68,
+              "right": 523,
+              "bottom": 116,
+              "left": 471
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "crouchBtn",
+            "text": "AGACHAR",
+            "label": "Mantener para agacharse",
+            "box": {
+              "x": 527,
+              "y": 68,
+              "width": 80,
+              "height": 48,
+              "top": 68,
+              "right": 607,
+              "bottom": 116,
+              "left": 527
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "useBtn",
+            "text": "USAR",
+            "label": "Usar objeto",
+            "box": {
+              "x": 611,
+              "y": 68,
+              "width": 52,
+              "height": 48,
+              "top": 68,
+              "right": 663,
+              "bottom": 116,
+              "left": 611
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "pauseBtn",
+            "text": "Ⅱ",
+            "label": "Pausa y controles",
+            "box": {
+              "x": 615,
+              "y": 4,
+              "width": 48,
+              "height": 48,
+              "top": 4,
+              "right": 663,
+              "bottom": 52,
+              "left": 615
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "real game 844x390 DPR 1 safe 0,47,21,47",
+      "passed": true,
+      "evidence": {
+        "viewport": [
+          844,
+          390
+        ],
+        "buffer": [
+          750,
+          369
+        ],
+        "canvas": {
+          "x": 47,
+          "y": 0,
+          "width": 750,
+          "height": 369,
+          "top": 0,
+          "right": 797,
+          "bottom": 369,
+          "left": 47
+        },
+        "safe": {
+          "x": 47,
+          "y": 0,
+          "width": 750,
+          "height": 369,
+          "top": 0,
+          "right": 797,
+          "bottom": 369,
+          "left": 47
+        },
+        "hud": {
+          "x": 55,
+          "y": 6,
+          "width": 240,
+          "height": 44,
+          "top": 6,
+          "right": 295,
+          "bottom": 50,
+          "left": 55
+        },
+        "numbers": [
+          {
+            "id": "hudHealth",
+            "text": "100",
+            "font": 24,
+            "clipped": false
+          },
+          {
+            "id": "hudAmmo",
+            "text": "170",
+            "font": 24,
+            "clipped": false
+          },
+          {
+            "id": "hudArmor",
+            "text": "200",
+            "font": 24,
+            "clipped": false
+          }
+        ],
+        "crosshair": {
+          "x": 412,
+          "y": 174.5,
+          "width": 20,
+          "height": 20,
+          "top": 174.5,
+          "right": 432,
+          "bottom": 194.5,
+          "left": 412
+        },
+        "weaponGroup": "ARMAS",
+        "buttons": [
+          {
+            "id": "fireBtnRight",
+            "text": "DISPARAR",
+            "label": "Mantener para disparar",
+            "box": {
+              "x": 697,
+              "y": 269,
+              "width": 88,
+              "height": 88,
+              "top": 269,
+              "right": 785,
+              "bottom": 357,
+              "left": 697
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 8,
+            "clipped": false
+          },
+          {
+            "id": "jumpBtn",
+            "text": "SALTAR",
+            "label": "Saltar",
+            "box": {
+              "x": 705,
+              "y": 211,
+              "width": 72,
+              "height": 56,
+              "top": 211,
+              "right": 777,
+              "bottom": 267,
+              "left": 705
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "weaponPrev",
+            "text": "ANT.",
+            "label": "Arma anterior",
+            "box": {
+              "x": 549,
+              "y": 68,
+              "width": 52,
+              "height": 48,
+              "top": 68,
+              "right": 601,
+              "bottom": 116,
+              "left": 549
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "weaponNext",
+            "text": "SIG.",
+            "label": "Arma siguiente",
+            "box": {
+              "x": 601,
+              "y": 68,
+              "width": 52,
+              "height": 48,
+              "top": 68,
+              "right": 653,
+              "bottom": 116,
+              "left": 601
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "crouchBtn",
+            "text": "AGACHAR",
+            "label": "Mantener para agacharse",
+            "box": {
+              "x": 657,
+              "y": 68,
+              "width": 80,
+              "height": 48,
+              "top": 68,
+              "right": 737,
+              "bottom": 116,
+              "left": 657
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "useBtn",
+            "text": "USAR",
+            "label": "Usar objeto",
+            "box": {
+              "x": 741,
+              "y": 68,
+              "width": 52,
+              "height": 48,
+              "top": 68,
+              "right": 793,
+              "bottom": 116,
+              "left": 741
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "pauseBtn",
+            "text": "Ⅱ",
+            "label": "Pausa y controles",
+            "box": {
+              "x": 745,
+              "y": 4,
+              "width": 48,
+              "height": 48,
+              "top": 4,
+              "right": 793,
+              "bottom": 52,
+              "left": 745
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "real game 932x430 DPR 1 safe 0,59,21,59",
+      "passed": true,
+      "evidence": {
+        "viewport": [
+          932,
+          430
+        ],
+        "buffer": [
+          814,
+          409
+        ],
+        "canvas": {
+          "x": 59,
+          "y": 0,
+          "width": 814,
+          "height": 409,
+          "top": 0,
+          "right": 873,
+          "bottom": 409,
+          "left": 59
+        },
+        "safe": {
+          "x": 59,
+          "y": 0,
+          "width": 814,
+          "height": 409,
+          "top": 0,
+          "right": 873,
+          "bottom": 409,
+          "left": 59
+        },
+        "hud": {
+          "x": 67,
+          "y": 6,
+          "width": 240,
+          "height": 44,
+          "top": 6,
+          "right": 307,
+          "bottom": 50,
+          "left": 67
+        },
+        "numbers": [
+          {
+            "id": "hudHealth",
+            "text": "100",
+            "font": 24,
+            "clipped": false
+          },
+          {
+            "id": "hudAmmo",
+            "text": "170",
+            "font": 24,
+            "clipped": false
+          },
+          {
+            "id": "hudArmor",
+            "text": "200",
+            "font": 24,
+            "clipped": false
+          }
+        ],
+        "crosshair": {
+          "x": 456,
+          "y": 194.5,
+          "width": 20,
+          "height": 20,
+          "top": 194.5,
+          "right": 476,
+          "bottom": 214.5,
+          "left": 456
+        },
+        "weaponGroup": "ARMAS",
+        "buttons": [
+          {
+            "id": "fireBtnRight",
+            "text": "DISPARAR",
+            "label": "Mantener para disparar",
+            "box": {
+              "x": 773,
+              "y": 309,
+              "width": 88,
+              "height": 88,
+              "top": 309,
+              "right": 861,
+              "bottom": 397,
+              "left": 773
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 8,
+            "clipped": false
+          },
+          {
+            "id": "jumpBtn",
+            "text": "SALTAR",
+            "label": "Saltar",
+            "box": {
+              "x": 781,
+              "y": 251,
+              "width": 72,
+              "height": 56,
+              "top": 251,
+              "right": 853,
+              "bottom": 307,
+              "left": 781
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "weaponPrev",
+            "text": "ANT.",
+            "label": "Arma anterior",
+            "box": {
+              "x": 625,
+              "y": 68,
+              "width": 52,
+              "height": 48,
+              "top": 68,
+              "right": 677,
+              "bottom": 116,
+              "left": 625
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "weaponNext",
+            "text": "SIG.",
+            "label": "Arma siguiente",
+            "box": {
+              "x": 677,
+              "y": 68,
+              "width": 52,
+              "height": 48,
+              "top": 68,
+              "right": 729,
+              "bottom": 116,
+              "left": 677
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "crouchBtn",
+            "text": "AGACHAR",
+            "label": "Mantener para agacharse",
+            "box": {
+              "x": 733,
+              "y": 68,
+              "width": 80,
+              "height": 48,
+              "top": 68,
+              "right": 813,
+              "bottom": 116,
+              "left": 733
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "useBtn",
+            "text": "USAR",
+            "label": "Usar objeto",
+            "box": {
+              "x": 817,
+              "y": 68,
+              "width": 52,
+              "height": 48,
+              "top": 68,
+              "right": 869,
+              "bottom": 116,
+              "left": 817
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "pauseBtn",
+            "text": "Ⅱ",
+            "label": "Pausa y controles",
+            "box": {
+              "x": 821,
+              "y": 4,
+              "width": 48,
+              "height": 48,
+              "top": 4,
+              "right": 869,
+              "bottom": 52,
+              "left": 821
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "real game 768x1024 DPR 1 safe 24,0,20,0",
+      "passed": true,
+      "evidence": {
+        "viewport": [
+          768,
+          1024
+        ],
+        "buffer": [
+          768,
+          980
+        ],
+        "canvas": {
+          "x": 0,
+          "y": 24,
+          "width": 768,
+          "height": 980,
+          "top": 24,
+          "right": 768,
+          "bottom": 1004,
+          "left": 0
+        },
+        "safe": {
+          "x": 0,
+          "y": 24,
+          "width": 768,
+          "height": 980,
+          "top": 24,
+          "right": 768,
+          "bottom": 1004,
+          "left": 0
+        },
+        "hud": {
+          "x": 8,
+          "y": 30,
+          "width": 240,
+          "height": 44,
+          "top": 30,
+          "right": 248,
+          "bottom": 74,
+          "left": 8
+        },
+        "numbers": [
+          {
+            "id": "hudHealth",
+            "text": "100",
+            "font": 24,
+            "clipped": false
+          },
+          {
+            "id": "hudAmmo",
+            "text": "170",
+            "font": 24,
+            "clipped": false
+          },
+          {
+            "id": "hudArmor",
+            "text": "200",
+            "font": 24,
+            "clipped": false
+          }
+        ],
+        "crosshair": {
+          "x": 374,
+          "y": 504,
+          "width": 20,
+          "height": 20,
+          "top": 504,
+          "right": 394,
+          "bottom": 524,
+          "left": 374
+        },
+        "weaponGroup": "ARMAS",
+        "buttons": [
+          {
+            "id": "fireBtnRight",
+            "text": "DISPARAR",
+            "label": "Mantener para disparar",
+            "box": {
+              "x": 668,
+              "y": 904,
+              "width": 88,
+              "height": 88,
+              "top": 904,
+              "right": 756,
+              "bottom": 992,
+              "left": 668
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 8,
+            "clipped": false
+          },
+          {
+            "id": "jumpBtn",
+            "text": "SALTAR",
+            "label": "Saltar",
+            "box": {
+              "x": 676,
+              "y": 846,
+              "width": 72,
+              "height": 56,
+              "top": 846,
+              "right": 748,
+              "bottom": 902,
+              "left": 676
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "weaponPrev",
+            "text": "ANT.",
+            "label": "Arma anterior",
+            "box": {
+              "x": 520,
+              "y": 92,
+              "width": 52,
+              "height": 48,
+              "top": 92,
+              "right": 572,
+              "bottom": 140,
+              "left": 520
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "weaponNext",
+            "text": "SIG.",
+            "label": "Arma siguiente",
+            "box": {
+              "x": 572,
+              "y": 92,
+              "width": 52,
+              "height": 48,
+              "top": 92,
+              "right": 624,
+              "bottom": 140,
+              "left": 572
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "crouchBtn",
+            "text": "AGACHAR",
+            "label": "Mantener para agacharse",
+            "box": {
+              "x": 628,
+              "y": 92,
+              "width": 80,
+              "height": 48,
+              "top": 92,
+              "right": 708,
+              "bottom": 140,
+              "left": 628
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "useBtn",
+            "text": "USAR",
+            "label": "Usar objeto",
+            "box": {
+              "x": 712,
+              "y": 92,
+              "width": 52,
+              "height": 48,
+              "top": 92,
+              "right": 764,
+              "bottom": 140,
+              "left": 712
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          },
+          {
+            "id": "pauseBtn",
+            "text": "Ⅱ",
+            "label": "Pausa y controles",
+            "box": {
+              "x": 716,
+              "y": 28,
+              "width": 48,
+              "height": 48,
+              "top": 28,
+              "right": 764,
+              "bottom": 76,
+              "left": 716
+            },
+            "hit": true,
+            "paddingHit": true,
+            "faceInset": 4,
+            "clipped": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "container-only height changes resize the native buffer",
+      "passed": true,
+      "evidence": {
+        "innerHeight": 1024,
+        "bufferHeight": 980
+      }
+    },
+    {
+      "name": "rotate with held fire cancels input and keeps the current map",
+      "passed": true,
+      "evidence": {
+        "health": 100,
+        "ammo": 170,
+        "armor": 200
+      }
+    },
+    {
+      "name": "desktop native HUD, keyboard movement, mouse fire and pointer capture",
+      "passed": true,
+      "evidence": {
+        "pointerLocked": true,
+        "before": {
+          "health": 100,
+          "ammo": 200,
+          "armor": 200
+        },
+        "after": {
+          "health": 100,
+          "ammo": 196,
+          "armor": 200
+        },
+        "posBefore": "position: -1184 -299 129, angles: 0 90 0",
+        "posAfter": "position: -1099 -300 129, angles: 0 88 0",
+        "buffer": [
+          800,
+          600
+        ]
+      }
+    },
+    {
+      "name": "browser layout harness (engine blocked)",
+      "passed": true,
+      "evidence": {
+        "done": true,
+        "passed": 8,
+        "failed": 0,
+        "cases": [
+          {
+            "name": "small portrait",
+            "passed": true
+          },
+          {
+            "name": "portrait with browser chrome and notch",
+            "passed": true
+          },
+          {
+            "name": "short landscape",
+            "passed": true
+          },
+          {
+            "name": "landscape wider than 768px",
+            "passed": true
+          },
+          {
+            "name": "large phone landscape",
+            "passed": true
+          },
+          {
+            "name": "tablet portrait",
+            "passed": true
+          },
+          {
+            "name": "tablet landscape",
+            "passed": true
+          },
+          {
+            "name": "desktop",
+            "passed": true
+          }
+        ]
+      }
+    }
+  ],
+  "limitations": [
+    "Desktop Chromium touch emulation, not physical Android/iOS or Safari.",
+    "Insets are CSS fixtures, not actual OS safe-area reports. Fullscreen is rejected during fixed-size cases.",
+    "Software WebGL demonstrates functionality, not phone GPU speed, heat, memory use, audio or finger ergonomics.",
+    "give all/give health are test-only native console fixtures; production startup does not enable cheats or supply inventory."
+  ],
+  "passed": 19,
+  "failed": 0,
+  "date": "2026-09-10T09:25:57.384Z"
+}

@@ -1,5 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 const { createBrowser: baseBrowser, BrowserEvent } = require('./helpers/browser.cjs');
 
 function createBrowser(options) {
@@ -17,6 +19,36 @@ function touch(browser, id, type, changedTouches, touches = changedTouches) {
 }
 function keys(browser) { return browser.events.filter(event => event.type.startsWith('key')).map(event => [event.type, event.code]); }
 function fire(browser) { return browser.events.filter(event => /^(mousedown|mouseup)$/.test(event.type)).map(event => [event.type, event.buttons]); }
+
+test('only the right fire target exists and moving on the left cannot fire', () => {
+    const browser = createBrowser({ mobile: true });
+    assert.equal(browser.element('fireBtnLeft'), null);
+    assert(browser.element('fireBtnRight'));
+    touch(browser, 'moveZone', 'touchstart', [finger(1, 36, 110)]);
+    touch(browser, 'moveZone', 'touchmove', [finger(1, 70, 110)]);
+    touch(browser, 'moveZone', 'touchend', [finger(1)]);
+    assert.deepEqual(keys(browser), [['keydown', 'KeyD'], ['keyup', 'KeyD']]);
+    assert.deepEqual(fire(browser), []);
+});
+
+test('previous/next controls use the actual packaged weapon bindings, and use activates inventory', () => {
+    const runtime = fs.readFileSync(path.join(__dirname, '../index.js'), 'utf8');
+    const data = fs.readFileSync(path.join(__dirname, '../index.data'));
+    const [, start, end] = runtime.match(/filename:"\/baseq2\/config.cfg",start:(\d+),end:(\d+)/);
+    const config = data.subarray(Number(start), Number(end)).toString();
+    for (const [id, code, key, command] of [
+        ['weaponPrev', 'KeyR', 'r', 'weapprev'],
+        ['weaponNext', 'KeyF', 'f', 'weapnext'],
+        ['useBtn', 'KeyE', 'e', 'invuse']
+    ]) {
+        assert.match(config, new RegExp('^bind ' + key + ' "' + command + '"$', 'm'));
+        const browser = createBrowser({ mobile: true });
+        touch(browser, id, 'touchstart', [finger(1)]);
+        touch(browser, id, 'touchend', [finger(1)]);
+        assert.deepEqual(keys(browser), [['keydown', code], ['keyup', code]]);
+        assert.deepEqual(fire(browser), []);
+    }
+});
 
 test('movement follows its own finger even when a look finger arrived first', () => {
     const browser = createBrowser({ mobile: true });
@@ -49,25 +81,40 @@ test('look cancellation does not shoot and frees the next look gesture', () => {
     assert.deepEqual(fire(browser), []);
 });
 
-test('fire remains held until all fingers on both buttons release', () => {
+test('the single right fire button stays held until its last finger releases', () => {
     const browser = createBrowser({ mobile: true });
-    touch(browser, 'fireBtnLeft', 'touchstart', [finger(1), finger(2)]);
+    touch(browser, 'fireBtnRight', 'touchstart', [finger(1), finger(2)]);
     touch(browser, 'fireBtnRight', 'touchstart', [finger(3)]);
-    touch(browser, 'fireBtnLeft', 'touchend', [finger(1)]);
+    touch(browser, 'fireBtnRight', 'touchend', [finger(1)]);
     touch(browser, 'fireBtnRight', 'touchcancel', [finger(3)]);
     assert.deepEqual(fire(browser), [['mousedown', 1]]);
-    touch(browser, 'fireBtnLeft', 'touchcancel', [finger(2)]);
+    touch(browser, 'fireBtnRight', 'touchcancel', [finger(2)]);
     assert.deepEqual(fire(browser), [['mousedown', 1], ['mouseup', 0]]);
 });
 
 test('a look tap cannot release a held fire button', () => {
     const browser = createBrowser({ mobile: true });
-    touch(browser, 'fireBtnLeft', 'touchstart', [finger(1)]);
+    touch(browser, 'fireBtnRight', 'touchstart', [finger(1)]);
     touch(browser, 'lookZone', 'touchstart', [finger(2)]);
     touch(browser, 'lookZone', 'touchend', [finger(2)]);
     browser.runTimers();
     assert.deepEqual(fire(browser), [['mousedown', 1]]);
-    touch(browser, 'fireBtnLeft', 'touchend', [finger(1)]);
+    touch(browser, 'fireBtnRight', 'touchend', [finger(1)]);
+    assert.deepEqual(fire(browser), [['mousedown', 1], ['mouseup', 0]]);
+});
+
+test('relative look reports held fire until the last right-button finger releases', () => {
+    const browser = createBrowser({ mobile: true });
+    touch(browser, 'lookZone', 'touchstart', [finger(1, 500, 200)]);
+    touch(browser, 'fireBtnRight', 'touchstart', [finger(2), finger(3)]);
+    touch(browser, 'lookZone', 'touchmove', [finger(1, 505, 202)]);
+    touch(browser, 'fireBtnRight', 'touchend', [finger(2)]);
+    touch(browser, 'lookZone', 'touchmove', [finger(1, 508, 199)]);
+    touch(browser, 'fireBtnRight', 'touchcancel', [finger(3)]);
+    touch(browser, 'lookZone', 'touchmove', [finger(1, 510, 200)]);
+    assert.deepEqual(browser.events.filter(e => e.type === 'mousemove').map(e => [e.movementX, e.movementY, e.buttons]), [
+        [40, 16, 1], [24, -24, 1], [16, 8, 0]
+    ]);
     assert.deepEqual(fire(browser), [['mousedown', 1], ['mouseup', 0]]);
 });
 
@@ -94,18 +141,18 @@ test('jump tracks fingers and releases on cancellation', () => {
 test('late events from before a reset cannot release a new gesture', () => {
     const browser = createBrowser({ mobile: true });
     touch(browser, 'moveZone', 'touchstart', [finger(1)]);
-    touch(browser, 'fireBtnLeft', 'touchstart', [finger(2)]);
+    touch(browser, 'fireBtnRight', 'touchstart', [finger(2)]);
     browser.context.resetTouchControls();
     browser.events.length = 0;
     touch(browser, 'moveZone', 'touchstart', [finger(3)]);
     touch(browser, 'moveZone', 'touchmove', [finger(3, 100, 60)]);
-    touch(browser, 'fireBtnLeft', 'touchstart', [finger(4)]);
+    touch(browser, 'fireBtnRight', 'touchstart', [finger(4)]);
     touch(browser, 'moveZone', 'touchend', [finger(1)]);
-    touch(browser, 'fireBtnLeft', 'touchcancel', [finger(2)]);
+    touch(browser, 'fireBtnRight', 'touchcancel', [finger(2)]);
     assert.deepEqual(keys(browser), [['keydown', 'KeyW']]);
     assert.deepEqual(fire(browser), [['mousedown', 1]]);
     touch(browser, 'moveZone', 'touchend', [finger(3)]);
-    touch(browser, 'fireBtnLeft', 'touchend', [finger(4)]);
+    touch(browser, 'fireBtnRight', 'touchend', [finger(4)]);
     assert.deepEqual(keys(browser), [['keydown', 'KeyW'], ['keyup', 'KeyW']]);
     assert.deepEqual(fire(browser), [['mousedown', 1], ['mouseup', 0]]);
 });
@@ -211,12 +258,12 @@ test('visual viewport resize releases controls and clears pressed feedback', () 
     const browser = createBrowser({ mobile: true, globals: {
         visualViewport: { addEventListener: (type, callback) => { if (type === 'resize') resize = callback; } }
     } });
-    touch(browser, 'fireBtnLeft', 'touchstart', [finger(1)]);
+    touch(browser, 'fireBtnRight', 'touchstart', [finger(1)]);
     touch(browser, 'jumpBtn', 'touchstart', [finger(2)]);
     resize();
     assert.deepEqual(fire(browser), [['mousedown', 1], ['mouseup', 0]]);
     assert.deepEqual(keys(browser), [['keydown', 'Space'], ['keyup', 'Space']]);
-    assert.equal(browser.element('fireBtnLeft').classList.contains('pressed'), false);
+    assert.equal(browser.element('fireBtnRight').classList.contains('pressed'), false);
     assert.equal(browser.element('jumpBtn').classList.contains('pressed'), false);
 });
 

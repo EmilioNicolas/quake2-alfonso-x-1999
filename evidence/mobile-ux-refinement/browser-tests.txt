@@ -1,0 +1,13 @@
+[TypeError: fetch failed] {
+  [cause]: Error: connect EPERM 127.0.0.1:9476 - Local (undefined:undefined)
+      at internalConnect (node:net:1169:16)
+      at defaultTriggerAsyncIdScope (node:internal/async_hooks:472:18)
+      at node:net:1415:9
+      at process.processTicksAndRejections (node:internal/process/task_queues:85:11) {
+    errno: -1,
+    code: 'EPERM',
+    syscall: 'connect',
+    address: '127.0.0.1',
+    port: 9476
+  }
+}

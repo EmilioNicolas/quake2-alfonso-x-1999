@@ -96,6 +96,13 @@ window.layoutTestRun = (async function() {
                 const controls = rect(el('touchControls'));
                 const hud = rect(el('mobileHud'));
                 assert(hud.left >= left && hud.top >= top && hud.right <= scenario.width - right, 'HUD must respect safe areas');
+                assert(hud.width <= 240 && hud.height <= 44, 'HUD must stay compact');
+                assert(!el('fireBtnLeft'), 'Only the right fire target may exist');
+                assert(doc.querySelectorAll('#touchControls button[aria-label*="disparar"]').length === 1, 'Exactly one explicit fire action');
+                assert(el('weaponSelector').getAttribute('aria-labelledby') === 'weaponSelectorLabel' && el('weaponSelectorLabel').textContent === 'ARMAS', 'Weapon controls must be visibly and accessibly grouped');
+                for (const [id, label] of [['fireBtnRight', 'DISPARAR'], ['jumpBtn', 'SALTAR'], ['weaponPrev', 'ANT.'], ['weaponNext', 'SIG.'], ['crouchBtn', 'AGACHAR'], ['useBtn', 'USAR']]) {
+                    assert(el(id).textContent.trim() === label, 'Action labels must explain the control in Spanish: ' + id);
+                }
                 for (const id of ['hudHealth', 'hudAmmo', 'hudArmor']) {
                     assert(el(id).scrollWidth <= el(id).clientWidth, 'Three-digit HUD values must not clip');
                     assert(parseFloat(win.getComputedStyle(el(id)).fontSize) >= 24, 'HUD numbers must be legible on phones');
@@ -104,9 +111,15 @@ window.layoutTestRun = (async function() {
                 for (const button of buttons) {
                     const box = rect(button);
                     assert(box.right <= hud.left || box.left >= hud.right || box.bottom <= hud.top || box.top >= hud.bottom, 'Actions must not overlap the HUD');
-                    assert(box.width >= 44 && box.height >= 44, 'Every action must have a 44px touch target');
+                    assert(box.width >= 48 && box.height >= 48, 'Every action must have a 48px touch target');
                     assert(box.left >= controls.left && box.right <= controls.right && box.top >= controls.top && box.bottom <= controls.bottom, 'Actions must stay inside safe areas');
                     assert(doc.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2) === button, 'Action must receive touches above the look/move zones');
+                    const face = win.getComputedStyle(button, '::before');
+                    assert(parseFloat(face.left) >= 4 && parseFloat(face.right) >= 4, 'Visible control face must be smaller than its touch target');
+                    for (const [x, y] of [[box.left + 1, box.top + box.height / 2], [box.right - 1, box.top + box.height / 2], [box.left + box.width / 2, box.top + 1], [box.left + box.width / 2, box.bottom - 1]]) {
+                        assert(doc.elementFromPoint(x, y) === button, 'Invisible target padding must receive touches: ' + button.id);
+                    }
+                    assert(button.scrollWidth <= button.clientWidth, 'Control labels must not clip');
                     for (const other of buttons) {
                         if (button === other) continue;
                         const b = rect(other);

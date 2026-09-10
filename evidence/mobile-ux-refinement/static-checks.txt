@@ -1,0 +1,13 @@
+PASS inline JavaScript syntax: index.html
+PASS inline JavaScript syntax: tests/responsive.html
+PASS node --check: tests/mobile-browser.cjs, mobile-runtime.js, index.js
+PASS git diff --check (direct shell command)
+PASS preserved HEAD: 8397b51dcb434f4c6e39a421864b56f294050dc6
+PASS byte-identical to HEAD (git diff HEAD --exit-code): index.js
+PASS byte-identical to HEAD (git diff HEAD --exit-code): index.data
+PASS byte-identical to HEAD (git diff HEAD --exit-code): mobile-runtime.js
+PASS byte-identical to HEAD (git diff HEAD --exit-code): index.wasm
+PASS byte-identical to HEAD (git diff HEAD --exit-code): game_baseq2.wasm
+PASS byte-identical to HEAD (git diff HEAD --exit-code): ref_gl1.wasm
+PASS byte-identical to HEAD (git diff HEAD --exit-code): ref_gles3.wasm
+PASS byte-identical to HEAD (git diff HEAD --exit-code): ref_soft.wasm

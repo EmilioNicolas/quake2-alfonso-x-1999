@@ -1,0 +1,19 @@
+{
+  "engine": "Bundled Quake II WASM + WebGL, Chromium CDP, SwiftShader",
+  "cases": [
+    {
+      "name": "browser setup or navigation",
+      "passed": false,
+      "error": "fetch failed"
+    }
+  ],
+  "limitations": [
+    "Desktop Chromium touch emulation, not physical Android/iOS or Safari.",
+    "Insets are CSS fixtures, not actual OS safe-area reports. Fullscreen is rejected during fixed-size cases.",
+    "Software WebGL demonstrates functionality, not phone GPU speed, heat, memory use, audio or finger ergonomics.",
+    "give all/give health are test-only native console fixtures; production startup does not enable cheats or supply inventory."
+  ],
+  "passed": 0,
+  "failed": 1,
+  "date": "2026-09-10T09:18:36.679Z"
+}

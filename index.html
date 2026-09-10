@@ -169,19 +169,23 @@
             padding: 10px;
         }
 
-        /* A safe-area HUD above the thumb controls. Values come from game API v3. */
+        /* Compact field instruments. Values come from game API v3. */
         #mobileHud {
             display: none; position: fixed; z-index: 110; pointer-events: none;
-            top: calc(var(--safe-top) + 8px); left: calc(var(--safe-left) + 8px);
-            width: min(348px, calc(100% - var(--safe-left) - var(--safe-right) - 72px));
-            grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px;
-            background: #46515b; border: 1px solid #7a8993; border-radius: 8px; overflow: hidden;
+            top: calc(var(--safe-top) + 6px); left: calc(var(--safe-left) + 8px);
+            width: min(240px, calc(100% - var(--safe-left) - var(--safe-right) - 72px));
+            grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px;
             font-family: system-ui, sans-serif;
         }
-        .hud-stat { background: rgba(8, 15, 20, .94); padding: 5px 8px; }
-        .hud-stat span { display: block; font-size: 10px; line-height: 14px; color: #cbd5dd; }
-        .hud-stat strong { display: block; color: #fff; font-size: 26px; line-height: 29px; font-variant-numeric: tabular-nums; }
-        #mobileHud.low-health #hudHealth { color: #ff8d7b; }
+        .hud-stat {
+            background: rgba(16, 18, 17, .82); padding: 3px 7px 4px;
+            border-top: 1px solid #95836a;
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%);
+        }
+        .hud-stat span { display: block; font-size: 10px; line-height: 11px; color: #d3c9b9; }
+        .hud-stat strong { display: block; color: #f6f1e7; font-size: 24px; line-height: 25px; font-variant-numeric: tabular-nums; }
+        #mobileHud.low-health .hud-stat:first-child { border-color: #ff947b; background: rgba(65, 20, 12, .9); }
+        #mobileHud.low-health #hudHealth { color: #ffab95; }
         #mobileCrosshair {
             display: none; position: absolute; left: 50%; top: 50%; width: 20px; height: 20px;
             transform: translate(-50%, -50%); pointer-events: none; z-index: 10;
@@ -198,39 +202,57 @@
             z-index: 100; pointer-events: none; user-select: none; -webkit-user-select: none;
             -webkit-touch-callout: none; touch-action: none;
         }
-        .touch-zone { position: absolute; pointer-events: auto; top: 72px; bottom: 0; width: 50%; }
+        .touch-zone { position: absolute; pointer-events: auto; top: 60px; bottom: 0; width: 50%; }
         #moveZone { left: 0; }
         #lookZone { right: 0; }
         #touchControls button {
             position: absolute; pointer-events: auto; touch-action: none; z-index: 200;
             display: flex; align-items: center; justify-content: center;
-            min-width: 44px; height: 44px; padding: 0 6px;
-            font: 11px system-ui, sans-serif; color: #eef3f6;
-            border: 1px solid rgba(230,240,255,.45); border-radius: 8px;
-            background: rgba(12,20,27,.62); -webkit-tap-highlight-color: transparent;
+            min-width: 48px; height: 48px; padding: 0 8px; isolation: isolate;
+            font: 600 10px system-ui, sans-serif; letter-spacing: .3px; color: #eee7dc;
+            border: 0; background: transparent; -webkit-tap-highlight-color: transparent;
         }
-        #touchControls #fireBtnLeft, #touchControls #fireBtnRight {
-            border: 2px solid #f39751; background: rgba(75,32,8,.72);
-            color: #fff2e6; font-size: 13px; font-weight: 700;
+        /* The inset face is deliberately smaller than its transparent touch target. */
+        #touchControls button::before {
+            content: ''; position: absolute; inset: 4px; z-index: -1; pointer-events: none;
+            border: 1px solid rgba(193, 178, 153, .5); border-radius: 3px;
+            background: rgba(20, 22, 20, .64); box-shadow: inset 0 1px rgba(255, 241, 214, .07);
         }
-        #touchControls #fireBtnLeft { left: 8px; top: 80px; width: 56px; height: 64px; }
-        #touchControls #fireBtnRight { right: 18px; bottom: 24px; width: 76px; height: 76px; border-radius: 50%; }
-        #touchControls #jumpBtn { right: 24px; bottom: 112px; width: 56px; height: 48px; border-radius: 24px; }
-        #touchControls #pauseBtn { right: 8px; top: 8px; }
-        #secondaryActions { position: absolute; top: 76px; right: 8px; display: flex; gap: 6px; }
+        #touchControls button > * { pointer-events: none; }
+        #touchControls #fireBtnRight {
+            right: 12px; bottom: 12px; width: 88px; height: 88px; flex-direction: column; gap: 4px;
+            color: #f5dfc2;
+        }
+        #touchControls #fireBtnRight::before {
+            inset: 8px; border: 1.5px solid #b78c59; border-radius: 50%; background: rgba(46, 32, 18, .68);
+        }
+        #fireBtnRight svg { width: 22px; height: 22px; }
+        #touchControls #jumpBtn { right: 20px; bottom: 102px; width: 72px; height: 56px; }
+        #touchControls #jumpBtn::before { border-radius: 22px; }
+        #touchControls #pauseBtn { right: 4px; top: 4px; font-size: 16px; font-weight: 400; }
+        #secondaryActions { position: absolute; top: 56px; right: 4px; display: flex; align-items: flex-end; gap: 4px; }
         #touchControls #secondaryActions button { position: relative; }
-        #touchControls .pressed { background: #b95317; border-color: #fff; }
+        #weaponSelector { position: relative; display: flex; padding-top: 12px; }
+        #weaponSelectorLabel {
+            position: absolute; top: 0; left: 0; width: 100%; text-align: center;
+            font: 600 10px/12px system-ui, sans-serif; letter-spacing: 1px; color: #ead7b9;
+            text-shadow: 0 1px 2px #000, 0 0 4px #000; pointer-events: none;
+        }
+        #touchControls #weaponSelector button { width: 52px; }
+        #touchControls #crouchBtn { width: 80px; }
+        #touchControls #useBtn { width: 52px; }
+        #touchControls button.pressed::before { background: rgba(113, 72, 32, .9); border-color: #ffe0ad; }
         #touchControls button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
         #joystickHome, #joystickIndicator {
             position: absolute; width: 100px; height: 100px; border-radius: 50%;
-            border: 2px solid rgba(230,240,255,.4); background: rgba(8,15,20,.18);
+            border: 1px solid rgba(217,205,183,.38); background: rgba(16,18,17,.14);
             pointer-events: none; z-index: 150;
         }
         #joystickHome { left: 24px; bottom: 24px; }
-        #joystickHome::after { content: ''; position: absolute; inset: 29px; border-radius: 50%; background: rgba(230,240,255,.25); }
+        #joystickHome::after { content: ''; position: absolute; inset: 29px; border-radius: 50%; border: 1px solid rgba(217,205,183,.25); background: rgba(217,205,183,.14); }
         #joystickIndicator { display: none; }
         #joystickKnob {
-            position: absolute; width: 36px; height: 36px; border-radius: 50%; background: rgba(240,248,255,.65);
+            position: absolute; width: 36px; height: 36px; border-radius: 50%; background: rgba(235,222,199,.55);
             top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none;
         }
         #mobilePause {
@@ -238,8 +260,10 @@
             padding: max(16px, var(--safe-top)) max(16px, var(--safe-right)) max(16px, var(--safe-bottom)) max(16px, var(--safe-left));
             background: rgba(0,0,0,.86); align-items: center; justify-content: center; text-align: center;
         }
-        #mobilePause p { line-height: 1.6; font-size: 14px; margin-bottom: 16px; }
-        #resumeBtn { min-height: 48px; padding: 12px 24px; border: 1px solid #f39751; background: #542808; color: #fff; font: inherit; }
+        #mobilePause > div { max-width: 400px; padding: 20px; border-top: 1px solid #95836a; background: #171a17; }
+        #mobilePause h2 { font-size: 18px; font-weight: 400; letter-spacing: 3px; color: #ead7b9; margin-bottom: 12px; }
+        #mobilePause p { line-height: 1.6; font-size: 12px; margin-bottom: 16px; color: #d3c9b9; }
+        #resumeBtn { min-height: 48px; padding: 12px 24px; border: 1px solid #b78c59; background: #302416; color: #f6f1e7; font: inherit; }
 
         /* Victory overlay */
         #victoryOverlay {
@@ -371,7 +395,7 @@
         <div id="statusText" role="status" aria-live="polite"></div>
         <div class="progress-bar" id="progressBar" role="progressbar" aria-label="Descarga de recursos" aria-valuemin="0" aria-valuemax="100"><div class="fill" id="progressFill"></div></div>
         <p id="loadingHint">Descarga inicial: aprox. 188 MB. Puede tardar varios minutos.</p>
-        <p class="mobile-note">En m&oacute;vil, mejor en horizontal.<br>Izquierda: mover &middot; Derecha: mirar<br>Mant&eacute;n FIRE para disparar &middot; JUMP para saltar.</p>
+        <p class="mobile-note">En m&oacute;vil, mejor en horizontal.<br>Izquierda: mover &middot; Derecha: mirar<br>Mant&eacute;n DISPARAR &middot; SALTAR para saltar.</p>
         <div class="credits">
             <a href="https://x.com/emailnicolas" target="_blank">@emailnicolas</a> &amp; <a href="https://x.com/javilop" target="_blank">@javilop</a><br>
             <a href="https://github.com/GMH-Code/Qwasm2" target="_blank">Qwasm2</a> / id Software<br>
@@ -417,19 +441,24 @@
         <div id="lookZone" class="touch-zone" aria-label="Arrastra para mirar"></div>
         <div id="joystickHome" aria-hidden="true"></div>
         <div id="joystickIndicator" aria-hidden="true"><div id="joystickKnob"></div></div>
-        <button type="button" id="fireBtnLeft" aria-label="Mantener para disparar, izquierda">FIRE</button>
-        <button type="button" id="fireBtnRight" aria-label="Mantener para disparar, derecha">FIRE</button>
-        <button type="button" id="jumpBtn" aria-label="Saltar">JUMP</button>
+        <button type="button" id="fireBtnRight" aria-label="Mantener para disparar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="6"/><path d="M12 2v6m0 8v6M2 12h6m8 0h6"/></svg>
+            <span>DISPARAR</span>
+        </button>
+        <button type="button" id="jumpBtn" aria-label="Saltar">SALTAR</button>
         <div id="secondaryActions">
-            <button type="button" id="weaponPrev" aria-label="Arma anterior">◀</button>
-            <button type="button" id="weaponNext" aria-label="Arma siguiente">▶</button>
-            <button type="button" id="crouchBtn" aria-label="Mantener para agacharse">BAJAR</button>
+            <div id="weaponSelector" role="group" aria-labelledby="weaponSelectorLabel">
+                <span id="weaponSelectorLabel">ARMAS</span>
+                <button type="button" id="weaponPrev" aria-label="Arma anterior">ANT.</button>
+                <button type="button" id="weaponNext" aria-label="Arma siguiente">SIG.</button>
+            </div>
+            <button type="button" id="crouchBtn" aria-label="Mantener para agacharse">AGACHAR</button>
             <button type="button" id="useBtn" aria-label="Usar objeto">USAR</button>
         </div>
         <button type="button" id="pauseBtn" aria-label="Pausa y controles" onclick="setMobilePaused(true)">Ⅱ</button>
     </div>
     <div id="mobilePause" role="dialog" aria-modal="true" aria-label="Juego en pausa">
-        <div><p>PAUSA<br>Izquierda: mover · Derecha: mirar<br>Mantén FIRE para disparar · JUMP para saltar<br>◀ ▶ Armas · BAJAR Agacharse · USAR Objeto</p>
+        <div><h2>PAUSA</h2><p>Izquierda: mover · Derecha: mirar<br>Mantén DISPARAR para abrir fuego.<br>SALTAR · Mantén AGACHAR para agacharte.<br>ARMAS: anterior / siguiente · USAR: objeto</p>
         <button type="button" id="resumeBtn" onclick="setMobilePaused(false)">CONTINUAR</button></div>
     </div>
     <script src="mobile-runtime.js"></script>
@@ -740,6 +769,7 @@
         'Space': 32, 'ShiftLeft': 16, 'KeyE': 69, 'KeyR': 82, 'KeyF': 70
     };
     var moveKeys = { up: false, down: false, left: false, right: false };
+    var touchFireDown = false;
 
     function updateMoveKeys(dx, dy) {
         var threshold = 20;
@@ -759,11 +789,12 @@
     function sendMouseMove(dx, dy) {
         var canvas = document.getElementById('canvas');
         canvas.dispatchEvent(new MouseEvent('mousemove', {
-            movementX: dx, movementY: dy, buttons: fireSources && fireSources.size ? 1 : 0, bubbles: true
+            movementX: dx, movementY: dy, buttons: touchFireDown ? 1 : 0, bubbles: true
         }));
     }
 
     function sendMouseButton(down) {
+        touchFireDown = down;
         var canvas = document.getElementById('canvas');
         var type = down ? 'mousedown' : 'mouseup';
         canvas.dispatchEvent(new MouseEvent(type, { button: 0, buttons: down ? 1 : 0, bubbles: true }));
@@ -960,14 +991,6 @@
             });
         }
 
-        var fireSources = new Set();
-        function setTouchFire(source, down) {
-            var wasDown = fireSources.size > 0;
-            if (down) fireSources.add(source);
-            else fireSources.delete(source);
-            if (wasDown !== (fireSources.size > 0)) sendMouseButton(fireSources.size > 0);
-        }
-
         // Move joystick - left half of screen
         var moveTouchId = null;
         var moveOrigin = null;
@@ -984,7 +1007,7 @@
             document.getElementById('joystickHome').style.display = 'none';
             joystick.style.display = 'block';
             joystick.style.left = Math.max(0, Math.min(bounds.width / 2 - 100, t.clientX - bounds.left - 50)) + 'px';
-            joystick.style.top = Math.max(72, Math.min(bounds.height - 100, t.clientY - bounds.top - 50)) + 'px';
+            joystick.style.top = Math.max(60, Math.min(bounds.height - 100, t.clientY - bounds.top - 50)) + 'px';
         }, { passive: false });
 
         document.getElementById('moveZone').addEventListener('touchmove', function(e) {
@@ -1049,11 +1072,9 @@
             }, { passive: false });
         });
 
-        // Fire buttons (both sides)
-        ['fireBtnLeft', 'fireBtnRight'].forEach(function(id) {
-            bindTouchButton(document.getElementById(id), function(down) {
-                setTouchFire(id, down);
-            });
+        // One right fire target; bindTouchButton retains each finger independently.
+        bindTouchButton(document.getElementById('fireBtnRight'), function(down) {
+            sendMouseButton(down);
         });
 
         // Jump button

@@ -1,0 +1,39 @@
+{
+  "date": "2026-09-10T09:23:02.500Z",
+  "head": "8397b51dcb434f4c6e39a421864b56f294050dc6",
+  "node": "v24.15.0",
+  "browser": "Chrome for Testing 151.0.7922.34 (startup blocked)",
+  "unchangedFromHead": [
+    "index.js",
+    "index.data",
+    "mobile-runtime.js",
+    "index.wasm",
+    "game_baseq2.wasm",
+    "ref_gl1.wasm",
+    "ref_gles3.wasm",
+    "ref_soft.wasm"
+  ],
+  "sha256": {
+    "index.html": "1d9ac239ecd145907387efa543410da6b7c015925c75416c5741d33c99a5750c",
+    "tests/touch.test.cjs": "e4d1ce9c904f05d24c1c0249eec05bbcbf1ee91c11fc48cdcaf8898762065f8c",
+    "tests/mobile-browser.cjs": "41e11cf3bacc29fa516a4862489f0c1ac93f3076a465f31117284cabc9ebd1bf",
+    "tests/responsive.html": "d68a5fcf218d6fa1fd422b3842817818c8f0a068af87654102c15b10a801b9d1",
+    "README.md": "d1a7e9e8e8e647f3690f48548d9f5d2b9aee53fec1dbfaa3d5145b366fb26298",
+    "docs/mobile-ux-review.md": "d4aad2109068564c305446751534c8bcef9fd1ca8afe4df155cf2b4259640c22",
+    "docs/mobile-ux-refinement.md": "cf242924d7c72ef41c0d1380066e6925fe37b6b27568801d24aa5ed58a2fa114",
+    "index.js": "16efd1a8015e6cb851b89f2e49956d880f77fda17083731b775c0c0fbd80305f",
+    "index.data": "253d17327c22a91aaf4880ff075362ba1634b8a69694efba98fe1c77ba317a1e",
+    "mobile-runtime.js": "c9c6636adbc37493aea91620bc26eb57396dd1c6898afbf7fb7343a49c2f3cd0",
+    "index.wasm": "bc27be1b379f9a45650dfa0dd1c1c99df852561a3ed0b842ab369f1547dc644c",
+    "game_baseq2.wasm": "8fdf02778bf426d1b973f456bf91f9e63d88b6f51f734231a728d5ada971ab4c",
+    "ref_gl1.wasm": "205d7101a0ac8fce9bb4a704593f5f2ccd4f2f5806bc4cdfc6c9442ee1ab7402",
+    "ref_gles3.wasm": "00f4087106c1a47509273033606e40f824bf92de7eef3f50cc21d0a5f9e7d345",
+    "ref_soft.wasm": "a5c0bf9103b2e1692c590cecc9764b95bffecdd5af79facf93bcbf2eed9ab8f7"
+  },
+  "tests": {
+    "baseline": 122,
+    "finalPassed": 125,
+    "finalFailed": 0,
+    "browser": "setup blocked by EPERM; no gameplay/layout checks or new screenshots"
+  }
+}

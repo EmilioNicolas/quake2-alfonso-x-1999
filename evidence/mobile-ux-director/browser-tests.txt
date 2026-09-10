@@ -1,0 +1,1092 @@
+PASS live HUD at fresh spawn { health: 100, ammo: null, armor: 0 }
+PASS native jump, crouch and weapon cycling respond to their touch buttons {
+  before: 'position: -1184 -299 129, angles: 0 90 0',
+  jumped: 'position: -1184 -299 161, angles: 0 90 0',
+  standing: 'position: -1184 -299 129, angles: 0 90 0',
+  crouched: 'position: -1184 -299 105, angles: 0 90 0',
+  jumpSamples: [
+    'position: -1184 -299 129, angles: 0 90 0',
+    'position: -1184 -299 129, angles: 0 90 0',
+    'position: -1184 -299 145, angles: 0 90 0',
+    'position: -1184 -299 156, angles: 0 90 0',
+    'position: -1184 -299 156, angles: 0 90 0',
+    'position: -1184 -299 161, angles: 0 90 0',
+    'position: -1184 -299 161, angles: 0 90 0',
+    'position: -1184 -299 155, angles: 0 90 0',
+    'position: -1184 -299 155, angles: 0 90 0',
+    'position: -1184 -299 133, angles: 0 90 0',
+    'position: -1184 -299 129, angles: 0 90 0',
+    'position: -1184 -299 129, angles: 0 90 0',
+    'position: -1184 -299 129, angles: 0 90 0',
+    'position: -1184 -299 129, angles: 0 90 0',
+    'position: -1184 -299 129, angles: 0 90 0',
+    'position: -1184 -299 129, angles: 0 90 0',
+    'position: -1184 -299 129, angles: 0 90 0',
+    'position: -1184 -299 129, angles: 0 90 0',
+    'position: -1184 -299 129, angles: 0 90 0',
+    'position: -1184 -299 129, angles: 0 90 0'
+  ],
+  crouchSamples: [
+    'position: -1184 -299 129, angles: 0 90 0',
+    'position: -1184 -299 129, angles: 0 90 0',
+    'position: -1184 -299 129, angles: 0 90 0',
+    'position: -1184 -299 112, angles: 0 90 0',
+    'position: -1184 -299 105, angles: 0 90 0',
+    'position: -1184 -299 105, angles: 0 90 0',
+    'position: -1184 -299 105, angles: 0 90 0',
+    'position: -1184 -299 105, angles: 0 90 0',
+    'position: -1184 -299 105, angles: 0 90 0',
+    'position: -1184 -299 105, angles: 0 90 0',
+    'position: -1184 -299 105, angles: 0 90 0',
+    'position: -1184 -299 105, angles: 0 90 0',
+    'position: -1184 -299 105, angles: 0 90 0',
+    'position: -1184 -299 105, angles: 0 90 0',
+    'position: -1184 -299 105, angles: 0 90 0',
+    'position: -1184 -299 105, angles: 0 90 0',
+    'position: -1184 -299 105, angles: 0 90 0',
+    'position: -1184 -299 105, angles: 0 90 0',
+    'position: -1184 -299 105, angles: 0 90 0',
+    'position: -1184 -299 105, angles: 0 90 0'
+  ],
+  weaponCycle: 'Machinegun → Super Shotgun (100 shells) → Machinegun (200 bullets)'
+}
+PASS former left fire area moves without shooting; right fire padding is active {
+  before: { health: 100, ammo: 200, armor: 200 },
+  held: { health: 100, ammo: 195, armor: 200 },
+  released: { health: 100, ammo: 192, armor: 200 },
+  posBefore: 'position: -1184 -299 129, angles: 0 90 0',
+  posAfter: 'position: -1067 -299 130, angles: 0 90 1'
+}
+PASS look taps, jitter and drag never fire; real camera yaw changes {
+  before: 'position: -1023 -299 129, angles: 0 90 0',
+  after: 'position: -1023 -299 129, angles: 1 60 0',
+  ammo: 192
+}
+PASS three real contacts simultaneously move, look and hold fire {
+  before: { health: 100, ammo: 192, armor: 200 },
+  held: { health: 100, ammo: 183, armor: 200 },
+  afterLookRelease: { health: 100, ammo: 173, armor: 200 },
+  released: { health: 100, ammo: 172, armor: 200 },
+  posBefore: 'position: -1023 -299 129, angles: 1 60 0',
+  posHeld: 'position: -894 -330 128, angles: -4 42 0',
+  trusted: [
+    { trusted: true, count: 1 },
+    { trusted: true, count: 1 },
+    { trusted: true, count: 1 },
+    { trusted: true, count: 1 },
+    { trusted: true, count: 1 },
+    { trusted: true, count: 1 },
+    { trusted: true, count: 1 },
+    { trusted: true, count: 1 },
+    { trusted: true, count: 1 },
+    { trusted: true, count: 1 },
+    { trusted: true, count: 2 },
+    { trusted: true, count: 3 }
+  ]
+}
+PASS touchcancel and pause release held controls {
+  canceledAmmo: 170,
+  blur: 'synthetic browser blur, native engine pause'
+}
+PASS live health, armor and finite ammo match native state { health: 18, ammo: 170, armor: 200 }
+PASS real game 320x568 DPR 1 safe 0,0,0,0 {
+  viewport: [ 320, 568 ],
+  buffer: [ 320, 568 ],
+  canvas: {
+    x: 0,
+    y: 0,
+    width: 320,
+    height: 568,
+    top: 0,
+    right: 320,
+    bottom: 568,
+    left: 0
+  },
+  safe: {
+    x: 0,
+    y: 0,
+    width: 320,
+    height: 568,
+    top: 0,
+    right: 320,
+    bottom: 568,
+    left: 0
+  },
+  hud: {
+    x: 8,
+    y: 6,
+    width: 240,
+    height: 44,
+    top: 6,
+    right: 248,
+    bottom: 50,
+    left: 8
+  },
+  numbers: [
+    { id: 'hudHealth', text: '100', font: 24, clipped: false },
+    { id: 'hudAmmo', text: '170', font: 24, clipped: false },
+    { id: 'hudArmor', text: '200', font: 24, clipped: false }
+  ],
+  crosshair: {
+    x: 150,
+    y: 274,
+    width: 20,
+    height: 20,
+    top: 274,
+    right: 170,
+    bottom: 294,
+    left: 150
+  },
+  weaponGroup: 'ARMAS',
+  buttons: [
+    {
+      id: 'fireBtnRight',
+      text: 'DISPARAR',
+      label: 'Mantener para disparar',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 8,
+      clipped: false
+    },
+    {
+      id: 'jumpBtn',
+      text: 'SALTAR',
+      label: 'Saltar',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'weaponPrev',
+      text: 'ANT.',
+      label: 'Arma anterior',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'weaponNext',
+      text: 'SIG.',
+      label: 'Arma siguiente',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'crouchBtn',
+      text: 'AGACHAR',
+      label: 'Mantener para agacharse',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'useBtn',
+      text: 'USAR',
+      label: 'Usar objeto',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'pauseBtn',
+      text: 'Ⅱ',
+      label: 'Pausa y controles',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    }
+  ]
+}
+PASS real game 390x664 DPR 3 safe 47,0,34,0 {
+  viewport: [ 390, 664 ],
+  buffer: [ 390, 583 ],
+  canvas: {
+    x: 0,
+    y: 47,
+    width: 390,
+    height: 583,
+    top: 47,
+    right: 390,
+    bottom: 630,
+    left: 0
+  },
+  safe: {
+    x: 0,
+    y: 47,
+    width: 390,
+    height: 583,
+    top: 47,
+    right: 390,
+    bottom: 630,
+    left: 0
+  },
+  hud: {
+    x: 8,
+    y: 53,
+    width: 240,
+    height: 44,
+    top: 53,
+    right: 248,
+    bottom: 97,
+    left: 8
+  },
+  numbers: [
+    { id: 'hudHealth', text: '100', font: 24, clipped: false },
+    { id: 'hudAmmo', text: '170', font: 24, clipped: false },
+    { id: 'hudArmor', text: '200', font: 24, clipped: false }
+  ],
+  crosshair: {
+    x: 185,
+    y: 328.5,
+    width: 20,
+    height: 20,
+    top: 328.5,
+    right: 205,
+    bottom: 348.5,
+    left: 185
+  },
+  weaponGroup: 'ARMAS',
+  buttons: [
+    {
+      id: 'fireBtnRight',
+      text: 'DISPARAR',
+      label: 'Mantener para disparar',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 8,
+      clipped: false
+    },
+    {
+      id: 'jumpBtn',
+      text: 'SALTAR',
+      label: 'Saltar',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'weaponPrev',
+      text: 'ANT.',
+      label: 'Arma anterior',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'weaponNext',
+      text: 'SIG.',
+      label: 'Arma siguiente',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'crouchBtn',
+      text: 'AGACHAR',
+      label: 'Mantener para agacharse',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'useBtn',
+      text: 'USAR',
+      label: 'Usar objeto',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'pauseBtn',
+      text: 'Ⅱ',
+      label: 'Pausa y controles',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    }
+  ]
+}
+PASS real game 430x932 DPR 1 safe 59,0,34,0 {
+  viewport: [ 430, 932 ],
+  buffer: [ 430, 839 ],
+  canvas: {
+    x: 0,
+    y: 59,
+    width: 430,
+    height: 839,
+    top: 59,
+    right: 430,
+    bottom: 898,
+    left: 0
+  },
+  safe: {
+    x: 0,
+    y: 59,
+    width: 430,
+    height: 839,
+    top: 59,
+    right: 430,
+    bottom: 898,
+    left: 0
+  },
+  hud: {
+    x: 8,
+    y: 65,
+    width: 240,
+    height: 44,
+    top: 65,
+    right: 248,
+    bottom: 109,
+    left: 8
+  },
+  numbers: [
+    { id: 'hudHealth', text: '100', font: 24, clipped: false },
+    { id: 'hudAmmo', text: '170', font: 24, clipped: false },
+    { id: 'hudArmor', text: '200', font: 24, clipped: false }
+  ],
+  crosshair: {
+    x: 205,
+    y: 468.5,
+    width: 20,
+    height: 20,
+    top: 468.5,
+    right: 225,
+    bottom: 488.5,
+    left: 205
+  },
+  weaponGroup: 'ARMAS',
+  buttons: [
+    {
+      id: 'fireBtnRight',
+      text: 'DISPARAR',
+      label: 'Mantener para disparar',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 8,
+      clipped: false
+    },
+    {
+      id: 'jumpBtn',
+      text: 'SALTAR',
+      label: 'Saltar',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'weaponPrev',
+      text: 'ANT.',
+      label: 'Arma anterior',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'weaponNext',
+      text: 'SIG.',
+      label: 'Arma siguiente',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'crouchBtn',
+      text: 'AGACHAR',
+      label: 'Mantener para agacharse',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'useBtn',
+      text: 'USAR',
+      label: 'Usar objeto',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'pauseBtn',
+      text: 'Ⅱ',
+      label: 'Pausa y controles',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    }
+  ]
+}
+PASS real game 568x320 DPR 1 safe 0,0,0,0 {
+  viewport: [ 568, 320 ],
+  buffer: [ 568, 320 ],
+  canvas: {
+    x: 0,
+    y: 0,
+    width: 568,
+    height: 320,
+    top: 0,
+    right: 568,
+    bottom: 320,
+    left: 0
+  },
+  safe: {
+    x: 0,
+    y: 0,
+    width: 568,
+    height: 320,
+    top: 0,
+    right: 568,
+    bottom: 320,
+    left: 0
+  },
+  hud: {
+    x: 8,
+    y: 6,
+    width: 240,
+    height: 44,
+    top: 6,
+    right: 248,
+    bottom: 50,
+    left: 8
+  },
+  numbers: [
+    { id: 'hudHealth', text: '100', font: 24, clipped: false },
+    { id: 'hudAmmo', text: '170', font: 24, clipped: false },
+    { id: 'hudArmor', text: '200', font: 24, clipped: false }
+  ],
+  crosshair: {
+    x: 274,
+    y: 150,
+    width: 20,
+    height: 20,
+    top: 150,
+    right: 294,
+    bottom: 170,
+    left: 274
+  },
+  weaponGroup: 'ARMAS',
+  buttons: [
+    {
+      id: 'fireBtnRight',
+      text: 'DISPARAR',
+      label: 'Mantener para disparar',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 8,
+      clipped: false
+    },
+    {
+      id: 'jumpBtn',
+      text: 'SALTAR',
+      label: 'Saltar',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'weaponPrev',
+      text: 'ANT.',
+      label: 'Arma anterior',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'weaponNext',
+      text: 'SIG.',
+      label: 'Arma siguiente',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'crouchBtn',
+      text: 'AGACHAR',
+      label: 'Mantener para agacharse',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'useBtn',
+      text: 'USAR',
+      label: 'Usar objeto',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'pauseBtn',
+      text: 'Ⅱ',
+      label: 'Pausa y controles',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    }
+  ]
+}
+PASS real game 667x375 DPR 1 safe 0,0,21,0 {
+  viewport: [ 667, 375 ],
+  buffer: [ 667, 354 ],
+  canvas: {
+    x: 0,
+    y: 0,
+    width: 667,
+    height: 354,
+    top: 0,
+    right: 667,
+    bottom: 354,
+    left: 0
+  },
+  safe: {
+    x: 0,
+    y: 0,
+    width: 667,
+    height: 354,
+    top: 0,
+    right: 667,
+    bottom: 354,
+    left: 0
+  },
+  hud: {
+    x: 8,
+    y: 6,
+    width: 240,
+    height: 44,
+    top: 6,
+    right: 248,
+    bottom: 50,
+    left: 8
+  },
+  numbers: [
+    { id: 'hudHealth', text: '100', font: 24, clipped: false },
+    { id: 'hudAmmo', text: '170', font: 24, clipped: false },
+    { id: 'hudArmor', text: '200', font: 24, clipped: false }
+  ],
+  crosshair: {
+    x: 323.5,
+    y: 167,
+    width: 20,
+    height: 20,
+    top: 167,
+    right: 343.5,
+    bottom: 187,
+    left: 323.5
+  },
+  weaponGroup: 'ARMAS',
+  buttons: [
+    {
+      id: 'fireBtnRight',
+      text: 'DISPARAR',
+      label: 'Mantener para disparar',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 8,
+      clipped: false
+    },
+    {
+      id: 'jumpBtn',
+      text: 'SALTAR',
+      label: 'Saltar',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'weaponPrev',
+      text: 'ANT.',
+      label: 'Arma anterior',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'weaponNext',
+      text: 'SIG.',
+      label: 'Arma siguiente',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'crouchBtn',
+      text: 'AGACHAR',
+      label: 'Mantener para agacharse',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'useBtn',
+      text: 'USAR',
+      label: 'Usar objeto',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'pauseBtn',
+      text: 'Ⅱ',
+      label: 'Pausa y controles',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    }
+  ]
+}
+PASS real game 844x390 DPR 1 safe 0,47,21,47 {
+  viewport: [ 844, 390 ],
+  buffer: [ 750, 369 ],
+  canvas: {
+    x: 47,
+    y: 0,
+    width: 750,
+    height: 369,
+    top: 0,
+    right: 797,
+    bottom: 369,
+    left: 47
+  },
+  safe: {
+    x: 47,
+    y: 0,
+    width: 750,
+    height: 369,
+    top: 0,
+    right: 797,
+    bottom: 369,
+    left: 47
+  },
+  hud: {
+    x: 55,
+    y: 6,
+    width: 240,
+    height: 44,
+    top: 6,
+    right: 295,
+    bottom: 50,
+    left: 55
+  },
+  numbers: [
+    { id: 'hudHealth', text: '100', font: 24, clipped: false },
+    { id: 'hudAmmo', text: '170', font: 24, clipped: false },
+    { id: 'hudArmor', text: '200', font: 24, clipped: false }
+  ],
+  crosshair: {
+    x: 412,
+    y: 174.5,
+    width: 20,
+    height: 20,
+    top: 174.5,
+    right: 432,
+    bottom: 194.5,
+    left: 412
+  },
+  weaponGroup: 'ARMAS',
+  buttons: [
+    {
+      id: 'fireBtnRight',
+      text: 'DISPARAR',
+      label: 'Mantener para disparar',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 8,
+      clipped: false
+    },
+    {
+      id: 'jumpBtn',
+      text: 'SALTAR',
+      label: 'Saltar',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'weaponPrev',
+      text: 'ANT.',
+      label: 'Arma anterior',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'weaponNext',
+      text: 'SIG.',
+      label: 'Arma siguiente',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'crouchBtn',
+      text: 'AGACHAR',
+      label: 'Mantener para agacharse',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'useBtn',
+      text: 'USAR',
+      label: 'Usar objeto',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'pauseBtn',
+      text: 'Ⅱ',
+      label: 'Pausa y controles',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    }
+  ]
+}
+PASS real game 932x430 DPR 1 safe 0,59,21,59 {
+  viewport: [ 932, 430 ],
+  buffer: [ 814, 409 ],
+  canvas: {
+    x: 59,
+    y: 0,
+    width: 814,
+    height: 409,
+    top: 0,
+    right: 873,
+    bottom: 409,
+    left: 59
+  },
+  safe: {
+    x: 59,
+    y: 0,
+    width: 814,
+    height: 409,
+    top: 0,
+    right: 873,
+    bottom: 409,
+    left: 59
+  },
+  hud: {
+    x: 67,
+    y: 6,
+    width: 240,
+    height: 44,
+    top: 6,
+    right: 307,
+    bottom: 50,
+    left: 67
+  },
+  numbers: [
+    { id: 'hudHealth', text: '100', font: 24, clipped: false },
+    { id: 'hudAmmo', text: '170', font: 24, clipped: false },
+    { id: 'hudArmor', text: '200', font: 24, clipped: false }
+  ],
+  crosshair: {
+    x: 456,
+    y: 194.5,
+    width: 20,
+    height: 20,
+    top: 194.5,
+    right: 476,
+    bottom: 214.5,
+    left: 456
+  },
+  weaponGroup: 'ARMAS',
+  buttons: [
+    {
+      id: 'fireBtnRight',
+      text: 'DISPARAR',
+      label: 'Mantener para disparar',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 8,
+      clipped: false
+    },
+    {
+      id: 'jumpBtn',
+      text: 'SALTAR',
+      label: 'Saltar',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'weaponPrev',
+      text: 'ANT.',
+      label: 'Arma anterior',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'weaponNext',
+      text: 'SIG.',
+      label: 'Arma siguiente',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'crouchBtn',
+      text: 'AGACHAR',
+      label: 'Mantener para agacharse',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'useBtn',
+      text: 'USAR',
+      label: 'Usar objeto',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'pauseBtn',
+      text: 'Ⅱ',
+      label: 'Pausa y controles',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    }
+  ]
+}
+PASS real game 768x1024 DPR 1 safe 24,0,20,0 {
+  viewport: [ 768, 1024 ],
+  buffer: [ 768, 980 ],
+  canvas: {
+    x: 0,
+    y: 24,
+    width: 768,
+    height: 980,
+    top: 24,
+    right: 768,
+    bottom: 1004,
+    left: 0
+  },
+  safe: {
+    x: 0,
+    y: 24,
+    width: 768,
+    height: 980,
+    top: 24,
+    right: 768,
+    bottom: 1004,
+    left: 0
+  },
+  hud: {
+    x: 8,
+    y: 30,
+    width: 240,
+    height: 44,
+    top: 30,
+    right: 248,
+    bottom: 74,
+    left: 8
+  },
+  numbers: [
+    { id: 'hudHealth', text: '100', font: 24, clipped: false },
+    { id: 'hudAmmo', text: '170', font: 24, clipped: false },
+    { id: 'hudArmor', text: '200', font: 24, clipped: false }
+  ],
+  crosshair: {
+    x: 374,
+    y: 504,
+    width: 20,
+    height: 20,
+    top: 504,
+    right: 394,
+    bottom: 524,
+    left: 374
+  },
+  weaponGroup: 'ARMAS',
+  buttons: [
+    {
+      id: 'fireBtnRight',
+      text: 'DISPARAR',
+      label: 'Mantener para disparar',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 8,
+      clipped: false
+    },
+    {
+      id: 'jumpBtn',
+      text: 'SALTAR',
+      label: 'Saltar',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'weaponPrev',
+      text: 'ANT.',
+      label: 'Arma anterior',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'weaponNext',
+      text: 'SIG.',
+      label: 'Arma siguiente',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'crouchBtn',
+      text: 'AGACHAR',
+      label: 'Mantener para agacharse',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'useBtn',
+      text: 'USAR',
+      label: 'Usar objeto',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    },
+    {
+      id: 'pauseBtn',
+      text: 'Ⅱ',
+      label: 'Pausa y controles',
+      box: [Object],
+      hit: true,
+      paddingHit: true,
+      faceInset: 4,
+      clipped: false
+    }
+  ]
+}
+PASS container-only height changes resize the native buffer { innerHeight: 1024, bufferHeight: 980 }
+PASS rotate with held fire cancels input and keeps the current map { health: 100, ammo: 170, armor: 200 }
+PASS desktop native HUD, keyboard movement, mouse fire and pointer capture {
+  pointerLocked: true,
+  before: { health: 100, ammo: 200, armor: 200 },
+  after: { health: 100, ammo: 196, armor: 200 },
+  posBefore: 'position: -1184 -299 129, angles: 0 90 0',
+  posAfter: 'position: -1099 -300 129, angles: 0 88 0',
+  buffer: [ 800, 600 ]
+}
+PASS browser layout harness (engine blocked) {
+  done: true,
+  passed: 8,
+  failed: 0,
+  cases: [
+    { name: 'small portrait', passed: true },
+    { name: 'portrait with browser chrome and notch', passed: true },
+    { name: 'short landscape', passed: true },
+    { name: 'landscape wider than 768px', passed: true },
+    { name: 'large phone landscape', passed: true },
+    { name: 'tablet portrait', passed: true },
+    { name: 'tablet landscape', passed: true },
+    { name: 'desktop', passed: true }
+  ]
+}

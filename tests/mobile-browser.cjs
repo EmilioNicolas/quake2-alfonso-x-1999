@@ -75,9 +75,12 @@ async function touch(type, id, x, y) {
     await c.send('Input.dispatchTouchEvent', { type, touchPoints: [...points.values()] });
 }
 async function tap(id) {
-    const p = await c.evaluate(`(() => { const r = document.getElementById(${JSON.stringify(id)}).getBoundingClientRect(); return {x:r.x+r.width/2,y:r.y+r.height/2}; })()`);
-    await touch('touchStart', 8, p.x, p.y);
+    await press(id, 8);
     await touch('touchEnd', 8);
+}
+async function press(id, fingerId) {
+    const p = await c.evaluate(`(() => { const r = document.getElementById(${JSON.stringify(id)}).getBoundingClientRect(); return {x:r.x+r.width/2,y:r.y+r.height/2}; })()`);
+    await touch('touchStart', fingerId, p.x, p.y);
 }
 async function layout() {
     return c.evaluate(`(() => {
@@ -88,18 +91,34 @@ async function layout() {
             canvas: rect(canvas), safe: rect(controls), hud: rect(hud),
             numbers: ['hudHealth','hudAmmo','hudArmor'].map(id => {const e=document.getElementById(id);return {id,text:e.textContent,font:parseFloat(getComputedStyle(e).fontSize),clipped:e.scrollWidth>e.clientWidth};}),
             crosshair: rect(document.getElementById('mobileCrosshair')),
-            buttons: [...controls.querySelectorAll('button')].map(e => { const box=rect(e);return {id:e.id,box,hit:document.elementFromPoint(box.x+box.width/2,box.y+box.height/2)===e}; }) };
+            weaponGroup: document.getElementById('weaponSelectorLabel').textContent,
+            buttons: [...controls.querySelectorAll('button')].map(e => {
+                const box=rect(e), face=getComputedStyle(e,'::before');
+                const hit=(x,y)=>document.elementFromPoint(x,y)===e;
+                return {id:e.id,text:e.textContent.trim(),label:e.getAttribute('aria-label'),box,
+                    hit:hit(box.x+box.width/2,box.y+box.height/2),
+                    paddingHit:[[box.left+1,box.top+box.height/2],[box.right-1,box.top+box.height/2],[box.left+box.width/2,box.top+1],[box.left+box.width/2,box.bottom-1]].every(([x,y])=>hit(x,y)),
+                    faceInset:parseFloat(face.left),clipped:e.scrollWidth>e.clientWidth};
+            }) };
     })()`);
 }
 function overlaps(a, b) { return a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top; }
 function verifyLayout(l) {
     assert.deepEqual(l.buffer, [Math.round(l.safe.width), Math.round(l.safe.height)]);
     assert(l.hud.left >= l.safe.left && l.hud.right <= l.safe.right && l.hud.top >= l.safe.top);
+    assert(l.hud.width <= 240 && l.hud.height <= 44, 'Compact HUD footprint');
+    assert.equal(l.buttons.filter(a => /disparar/.test(a.label)).length, 1, 'Exactly one explicit fire action');
+    assert(!l.buttons.some(a => a.id === 'fireBtnLeft'), 'No left fire button');
+    assert.equal(l.weaponGroup, 'ARMAS');
+    const labels = { fireBtnRight: 'DISPARAR', jumpBtn: 'SALTAR', weaponPrev: 'ANT.', weaponNext: 'SIG.', crouchBtn: 'AGACHAR', useBtn: 'USAR' };
     for (const n of l.numbers) { assert(n.font >= 24); assert(!n.clipped, n.id + ' clips'); }
     for (const a of l.buttons) {
-        assert(a.box.width >= 44 && a.box.height >= 44, a.id + ' target');
+        assert(a.box.width >= 48 && a.box.height >= 48, a.id + ' target');
         assert(a.box.left >= l.safe.left && a.box.right <= l.safe.right && a.box.top >= l.safe.top && a.box.bottom <= l.safe.bottom, a.id + ' safe area');
         assert(a.hit, a.id + ' hit test');
+        assert(a.paddingHit && a.faceInset >= 4, a.id + ' transparent touch padding');
+        assert(!a.clipped, a.id + ' label clips');
+        if (labels[a.id]) assert.equal(a.text, labels[a.id]);
         assert(!overlaps(a.box, l.hud), a.id + ' overlaps HUD');
         assert(!overlaps(a.box, l.crosshair), a.id + ' overlaps crosshair');
         for (const b of l.buttons) if (a !== b) assert(!overlaps(a.box, b.box), a.id + ' overlaps ' + b.id);
@@ -125,27 +144,53 @@ function verifyLayout(l) {
     await check('native jump, crouch and weapon cycling respond to their touch buttons', async () => {
         const before = await position();
         const z = text => Number(text.match(/position: [^ ]+ [^ ]+ ([^,]+)/)[1]);
-        await touch('touchStart', 7, 788, 254);
+        await press('jumpBtn', 7);
         const jumpSamples = await samplePositions();
         const jumped = jumpSamples.reduce((a,b)=>z(a)>z(b)?a:b, before);
         await touch('touchEnd', 7);
-        assert(z(jumped) > z(before), 'JUMP raises the actual view position');
+        assert(z(jumped) > z(before), 'SALTAR raises the actual view position');
         await delay(900);
         const standing = await position();
-        await touch('touchStart', 7, 762, 98);
+        await press('crouchBtn', 7);
         const crouchSamples = await samplePositions();
         const crouched = crouchSamples.reduce((a,b)=>z(a)<z(b)?a:b, standing);
         await touch('touchEnd', 7);
-        assert(z(crouched) < z(standing), 'BAJAR lowers the actual view position');
+        assert(z(crouched) < z(standing), 'AGACHAR lowers the actual view position');
         await tap('weaponPrev');
         await until('Module.mobileBridge.readStats()?.ammo === 100');
         await tap('weaponNext');
         await until('Module.mobileBridge.readStats()?.ammo === 200');
         return {before, jumped, standing, crouched, jumpSamples, crouchSamples, weaponCycle: 'Machinegun → Super Shotgun (100 shells) → Machinegun (200 bullets)'};
     });
+    await check('former left fire area moves without shooting; right fire padding is active', async () => {
+        const before = await stats();
+        const posBefore = await position();
+        assert.equal(await c.evaluate('document.getElementById("fireBtnLeft")'), null);
+        assert.equal(await c.evaluate('document.elementFromPoint(36,110).id'), 'moveZone');
+        await touch('touchStart', 1, 36, 110);
+        await touch('touchMove', 1, 66, 110);
+        await delay(250);
+        await touch('touchEnd', 1);
+        const posAfter = await position();
+        assert.notEqual(posBefore.split(', angles:')[0], posAfter.split(', angles:')[0]);
+        assert.equal((await stats()).ammo, before.ammo);
+        assert.equal(await c.evaluate('inputEvidence.filter(e=>e.type==="mousedown").length'), 0);
+        const edge = await c.evaluate('(() => {const r=document.getElementById("fireBtnRight").getBoundingClientRect();return {x:r.left+2,y:r.top+r.height/2};})()');
+        await touch('touchStart', 3, edge.x, edge.y);
+        await delay(600);
+        const held = await stats();
+        assert(held.ammo < before.ammo, 'Transparent edge of right fire target shoots');
+        await touch('touchEnd', 3);
+        await delay(350);
+        const released = await stats();
+        await delay(400);
+        assert.equal((await stats()).ammo, released.ammo);
+        return { before, held, released, posBefore, posAfter };
+    });
     await check('look taps, jitter and drag never fire; real camera yaw changes', async () => {
         const before = await stats();
         const posBefore = await position();
+        const attacksBefore = await c.evaluate('inputEvidence.filter(e=>e.type==="mousedown").length');
         await touch('touchStart', 2, 520, 190);
         await touch('touchEnd', 2);
         await touch('touchStart', 2, 520, 190);
@@ -156,7 +201,7 @@ function verifyLayout(l) {
         await touch('touchEnd', 2);
         await delay(400);
         assert.equal((await stats()).ammo, before.ammo);
-        assert.equal(await c.evaluate('inputEvidence.filter(e=>e.type==="mousedown").length'), 0);
+        assert.equal(await c.evaluate('inputEvidence.filter(e=>e.type==="mousedown").length'), attacksBefore);
         const posAfter = await position();
         assert.notEqual(posAfter.split('angles:')[1], posBefore.split('angles:')[1], 'Actual camera must turn');
         return { before: posBefore, after: posAfter, ammo: before.ammo };
@@ -166,7 +211,7 @@ function verifyLayout(l) {
         const posBefore = await position();
         await touch('touchStart', 1, 90, 300);
         await touch('touchStart', 2, 530, 190);
-        await touch('touchStart', 3, 788, 328);
+        await press('fireBtnRight', 3);
         await touch('touchMove', 1, 125, 300); // strafe, avoid the nearby map exit
         await touch('touchMove', 2, 550, 196);
         await delay(600);
@@ -194,14 +239,14 @@ function verifyLayout(l) {
     await check('touchcancel and pause release held controls', async () => {
         await touch('touchStart', 1, 90, 300);
         await touch('touchMove', 1, 125, 300);
-        await touch('touchStart', 3, 788, 328);
+        await press('fireBtnRight', 3);
         await touch('touchCancel');
         await delay(350);
         const stopped = await stats();
         await delay(400);
         assert.equal((await stats()).ammo, stopped.ammo);
         assert.equal(await c.evaluate('document.querySelectorAll(".pressed").length'), 0);
-        await touch('touchStart', 3, 788, 328);
+        await press('fireBtnRight', 3);
         await c.evaluate('window.dispatchEvent(new Event("blur"));true');
         await touch('touchCancel');
         await delay(400);

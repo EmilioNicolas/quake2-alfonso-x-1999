@@ -1,5 +1,7 @@
 # Mobile FPS UX review
 
+Historical review: its screenshots and two-fire-button design predate the [HUD/control refinement based on 8397b51](mobile-ux-refinement.md). See that report for the current controls, tests and screenshot limitation.
+
 Changes are based on the clean `d944fa2` checkout, including its loading feedback, retry/cooldown handling, streaming/memory improvements and safe-area work. No commits or pushes were made.
 
 ## Behavior
