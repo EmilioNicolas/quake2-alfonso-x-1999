@@ -178,11 +178,13 @@
             font-family: system-ui, sans-serif;
         }
         .hud-stat {
-            background: rgba(16, 18, 17, .82); padding: 3px 7px 4px;
+            background: rgba(16, 18, 17, .9); padding: 3px 4px 4px;
             border-top: 1px solid #95836a;
+            display: grid; grid-template-columns: 18px minmax(0, 1fr); column-gap: 3px;
             clip-path: polygon(0 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%);
         }
-        .hud-stat span { display: block; font-size: 10px; line-height: 11px; color: #d3c9b9; }
+        .hud-stat span { grid-column: 1 / -1; display: block; font-size: 10px; line-height: 11px; color: #d3c9b9; }
+        .hud-stat svg { width: 18px; height: 20px; align-self: center; color: #c2ae8d; }
         .hud-stat strong { display: block; color: #f6f1e7; font-size: 24px; line-height: 25px; font-variant-numeric: tabular-nums; }
         #mobileHud.low-health .hud-stat:first-child { border-color: #ff947b; background: rgba(65, 20, 12, .9); }
         #mobileHud.low-health #hudHealth { color: #ffab95; }
@@ -432,9 +434,9 @@
     </div>
 
     <div id="mobileHud" role="group" aria-label="Estado del jugador">
-        <div class="hud-stat"><span>SALUD</span><strong id="hudHealth">—</strong></div>
-        <div class="hud-stat"><span>MUNICIÓN</span><strong id="hudAmmo">—</strong></div>
-        <div class="hud-stat"><span>ARMADURA</span><strong id="hudArmor">—</strong></div>
+        <div class="hud-stat"><span>SALUD</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false"><path d="M12 21 3 12V6l3-3h3l3 3 3-3h3l3 3v6Z"/><path d="M3 11h5l2-3 3 7 2-4h6"/></svg><strong id="hudHealth" role="status" aria-live="off">—</strong></div>
+        <div class="hud-stat"><span>MUNICIÓN</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false"><path d="m3 8 3-5 3 5v13H3Zm12 0 3-5 3 5v13h-6ZM3 9h6M15 9h6M3 17h6m6 0h6"/></svg><strong id="hudAmmo" role="status" aria-live="off">—</strong></div>
+        <div class="hud-stat"><span>ARMADURA</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false"><path d="m12 2 9 4v7l-4 6-5 3-5-3-4-6V6Z"/><path d="M12 6v12M7 8l5-2 5 2"/></svg><strong id="hudArmor" role="status" aria-live="off">—</strong></div>
     </div>
     <div id="touchControls" aria-label="Controles táctiles">
         <div id="moveZone" class="touch-zone" aria-label="Arrastra para moverte"></div>
@@ -827,6 +829,7 @@
         document.getElementById('mobileCrosshair').style.display = 'none';
         ['hudHealth', 'hudAmmo', 'hudArmor'].forEach(function(id) {
             document.getElementById(id).textContent = '—';
+            document.getElementById(id).removeAttribute('aria-label');
         });
         document.getElementById('hudAmmo').removeAttribute('aria-label');
         document.getElementById('mobileHud').classList.remove('low-health');
@@ -935,9 +938,11 @@
             }
             var hud = document.getElementById('mobileHud');
             document.getElementById('hudHealth').textContent = String(Math.max(0, stats.health));
+            document.getElementById('hudHealth').setAttribute('aria-label', 'Salud ' + Math.max(0, stats.health));
             document.getElementById('hudAmmo').textContent = stats.ammo === null ? '∞' : String(stats.ammo);
             document.getElementById('hudAmmo').setAttribute('aria-label', stats.ammo === null ? 'Munición ilimitada' : 'Munición ' + stats.ammo);
             document.getElementById('hudArmor').textContent = String(stats.armor);
+            document.getElementById('hudArmor').setAttribute('aria-label', 'Armadura ' + stats.armor);
             if (stats.health <= 25) hud.classList.add('low-health');
             else hud.classList.remove('low-health');
             hud.style.display = 'grid';

@@ -1,0 +1,36 @@
+{
+  "stats": {
+    "health": 100,
+    "ammo": null,
+    "armor": 0
+  },
+  "icons": 3,
+  "values": [
+    {
+      "value": "100",
+      "label": "Salud 100",
+      "font": "24px"
+    },
+    {
+      "value": "∞",
+      "label": "Munición ilimitada",
+      "font": "24px"
+    },
+    {
+      "value": "0",
+      "label": "Armadura 0",
+      "font": "24px"
+    }
+  ],
+  "hud": {
+    "x": 8,
+    "y": 6,
+    "width": 240,
+    "height": 44,
+    "top": 6,
+    "right": 248,
+    "bottom": 50,
+    "left": 8
+  },
+  "tap": "undefined"
+}
