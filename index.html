@@ -1213,6 +1213,14 @@
             Module._lockPointerOnKey(e);
         });
 
+        if (isMobile) {
+            // SDL defers a real requestPointerLock until the next key/mouse/touch handler,
+            // which is the joystick's synthetic keydown. A granted lock (Chrome Android)
+            // makes every setPointerCapture throw and silently drops all touch controls.
+            // Touch look already reports relative mode through Module.touchRelativeMouse.
+            canvasElement.requestPointerLock = function() { return Promise.resolve(); };
+        }
+
         canvasElement.addEventListener('webglcontextlost', function(e) {
             e.preventDefault();
             showGameError(new Error('Se ha perdido el contexto WebGL. Recarga la pagina.'));
