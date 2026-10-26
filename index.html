@@ -257,15 +257,21 @@
             position: absolute; width: 36px; height: 36px; border-radius: 50%; background: rgba(235,222,199,.55);
             top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none;
         }
-        #mobilePause {
+        #mobilePause, #mobileDeath {
             display: none; position: fixed; inset: 0; z-index: 300;
             padding: max(16px, var(--safe-top)) max(16px, var(--safe-right)) max(16px, var(--safe-bottom)) max(16px, var(--safe-left));
             background: rgba(0,0,0,.86); align-items: center; justify-content: center; text-align: center;
         }
-        #mobilePause > div { max-width: 400px; padding: 20px; border-top: 1px solid #95836a; background: #171a17; }
-        #mobilePause h2 { font-size: 18px; font-weight: 400; letter-spacing: 3px; color: #ead7b9; margin-bottom: 12px; }
-        #mobilePause p { line-height: 1.6; font-size: 12px; margin-bottom: 16px; color: #d3c9b9; }
-        #resumeBtn { min-height: 48px; padding: 12px 24px; border: 1px solid #b78c59; background: #302416; color: #f6f1e7; font: inherit; }
+        #mobileDeath { background: rgba(20,0,0,.8); touch-action: manipulation; }
+        #mobilePause > div, #mobileDeath > div { max-width: 400px; padding: 20px; border-top: 1px solid #95836a; background: #171a17; }
+        #mobileDeath > div { border-top-color: #b4523c; width: min(100%, 360px); }
+        #mobileDeath h2 { font-size: 26px; letter-spacing: 1px; color: #f3e2c6; }
+        #mobileDeath #retryBtn { display: block; width: 100%; min-height: 56px; font-size: 18px; background: #6b3a1f; border-color: #e0a463; }
+        #mobilePause h2, #mobileDeath h2 { font-size: 18px; font-weight: 400; letter-spacing: 3px; color: #ead7b9; margin-bottom: 12px; }
+        #mobilePause p, #mobileDeath p { line-height: 1.6; font-size: 12px; margin-bottom: 16px; color: #d3c9b9; }
+        #resumeBtn, #retryBtn { min-height: 48px; min-width: 48px; padding: 12px 24px; border: 1px solid #b78c59; background: #302416; color: #f6f1e7; font: inherit; }
+        #retryBtn:disabled { opacity: .7; }
+        #retryBtn:focus-visible, #resumeBtn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 
         /* Victory overlay */
         #victoryOverlay {
@@ -463,6 +469,10 @@
         <div><h2>PAUSA</h2><p>Izquierda: mover · Arrastra la derecha: mirar<br>Toque breve a la derecha: disparar.<br>Mantén DISPARAR para fuego continuo.<br>SALTAR · Mantén AGACHAR para agacharte.<br>ARMAS: anterior / siguiente · USAR: objeto</p>
         <button type="button" id="resumeBtn" onclick="setMobilePaused(false)">CONTINUAR</button></div>
     </div>
+    <div id="mobileDeath" role="dialog" aria-modal="true" aria-labelledby="mobileDeathTitle" aria-describedby="mobileDeathText">
+        <div><h2 id="mobileDeathTitle">Has muerto</h2><p id="mobileDeathText">Volverás al principio de este nivel.</p>
+        <button type="button" id="retryBtn" onclick="retryFromDeath()">Reintentar</button></div>
+    </div>
     <script src="mobile-runtime.js"></script>
 
     <script>
@@ -551,6 +561,7 @@
         resetTouchControls();
         hideMobileHud();
         document.getElementById('mobilePause').style.display = 'none';
+        clearMobileDeath();
         releasePointerLock();
         delete window._pakFiles;
         document.getElementById('gameView').style.display = 'none';
@@ -768,7 +779,7 @@
 
     var keyMap = {
         'KeyW': 87, 'KeyA': 65, 'KeyS': 83, 'KeyD': 68,
-        'Space': 32, 'ShiftLeft': 16, 'KeyE': 69, 'KeyR': 82, 'KeyF': 70
+        'Space': 32, 'ShiftLeft': 16, 'KeyE': 69, 'KeyR': 82, 'KeyF': 70, 'Escape': 27
     };
     var moveKeys = { up: false, down: false, left: false, right: false };
     var touchFireDown = false;
@@ -796,6 +807,9 @@
     }
 
     function sendMouseButton(down) {
+        // A dead single-player client turns +attack into the native LOAD GAME menu,
+        // which has no touch navigation. Never press attack while dead.
+        if (down && mobileDead) return;
         touchFireDown = down;
         var canvas = document.getElementById('canvas');
         var type = down ? 'mousedown' : 'mouseup';
@@ -804,11 +818,12 @@
 
     var resetTouchControls = function() {};
     var mobilePaused = false;
+    var mobileDead = false;
     var mobileHudActive = false;
     var mobileResizeTimer = null;
 
     function touchInputEnabled() {
-        return gameState === 'running' && !mobilePaused && !document.hidden &&
+        return gameState === 'running' && !mobilePaused && !mobileDead && !document.hidden &&
             document.getElementById('touchControls').style.display === 'block';
     }
 
@@ -835,7 +850,8 @@
     }
 
     function setMobilePaused(paused) {
-        if (!isMobile || gameState !== 'running' || mobilePaused === paused) return;
+        // Death has its own modal; the engine's pause cvar must stay free for retry.
+        if (!isMobile || gameState !== 'running' || mobilePaused === paused || (paused && mobileDead)) return;
         resetTouchControls();
         try {
             var bridge = window.Module && Module.mobileBridge;
@@ -854,6 +870,143 @@
             document.getElementById('resumeBtn').focus();
         } else document.getElementById('canvas').focus();
         return true;
+    }
+
+    /* ---- Mobile death / retry ----
+     * In single player, any button pressed while dead runs the game's "menu_loadgame",
+     * a native menu with no touch navigation. On mobile, block game input while dead and
+     * offer a modal that reloads the autosave written on entering the current level. */
+    var AUTOSAVE_SLOT = 'save0';
+    var MAX_MENU_ESCAPES = 4; // Escape toggles menus; "paused" is re-checked after each one
+    var lastMapName = null;
+    var deathRetry = null;
+    var retryAttempts = 0;
+
+    function safeMapName(name) {
+        name = String(name || '').replace(/^\*/, '').split('$')[0].replace(/\.bsp$/i, '');
+        // The name is interpolated into a console command: never allow separators.
+        return /^[A-Za-z0-9_\-]{1,63}$/.test(name) ? name : null;
+    }
+
+    function deathRestartCommand(forceMap) {
+        // Prefer the autosave written on entering the level (spawn, health 100, the
+        // inventory carried into the level). A fresh map start is the fallback.
+        if (forceMap && lastMapName) return 'map ' + lastMapName + '\n';
+        return 'load ' + AUTOSAVE_SLOT + '\n';
+    }
+
+    function deathCommand(text) {
+        try {
+            var bridge = window.Module && Module.mobileBridge;
+            if (!bridge || typeof bridge.command !== 'function') throw new Error('Mobile command bridge unavailable');
+            if (bridge.command(text) === false) throw new Error('Command rejected');
+            return true;
+        } catch (error) {
+            console.error('Retry command failed:', error);
+            return false;
+        }
+    }
+
+    function clearDeathRetry() {
+        if (deathRetry) clearTimeout(deathRetry.timer);
+        deathRetry = null;
+        var btn = document.getElementById('retryBtn');
+        btn.disabled = false;
+        btn.removeAttribute('aria-busy');
+    }
+
+    function setMobileDead(dead) {
+        if (!isMobile || mobileDead === dead) return;
+        if (dead) {
+            resetTouchControls();
+            mobileDead = true;
+            clearDeathRetry();
+            document.getElementById('touchControls').style.display = 'none';
+            document.getElementById('mobileDeath').style.display = 'flex';
+            document.getElementById('retryBtn').focus();
+            return;
+        }
+        mobileDead = false;
+        retryAttempts = 0;
+        clearDeathRetry();
+        document.getElementById('mobileDeath').style.display = 'none';
+        if (gameState === 'running' && !mobilePaused) {
+            document.getElementById('touchControls').style.display = 'block';
+            document.getElementById('canvas').focus();
+        }
+    }
+
+    function clearMobileDeath() {
+        // Terminal states (error/end screens) own the page; drop the modal silently.
+        mobileDead = false;
+        retryAttempts = 0;
+        clearDeathRetry();
+        document.getElementById('mobileDeath').style.display = 'none';
+    }
+
+    function restartFromDeath(forceMap) {
+        if (!deathRetry) return;
+        clearTimeout(deathRetry.timer);
+        deathRetry.stage = 'restart';
+        deathRetry.usedMap = forceMap || deathRetry.attempt > 0;
+        // Arm the timeout first: console output may arrive while the command is sent.
+        // Let the player try again (with the map fallback) if no live player appears.
+        var retry = deathRetry;
+        retry.timer = setTimeout(function() {
+            if (deathRetry !== retry) return;
+            clearDeathRetry();
+            retryAttempts = retry.attempt + 1;
+        }, 15000);
+        if (!deathCommand(deathRestartCommand(retry.usedMap)) && deathRetry === retry) clearDeathRetry();
+    }
+
+    function queryNativeMenu() {
+        if (!deathRetry) return;
+        var retry = deathRetry;
+        clearTimeout(retry.timer);
+        retry.stage = 'query';
+        // No reply in time: assume no menu is open and restart anyway.
+        retry.timer = setTimeout(function() { if (deathRetry === retry) restartFromDeath(false); }, 1500);
+        // Our own pause is never active while dead, so paused=1 means a native menu.
+        if (!deathCommand('paused\n') && deathRetry === retry && retry.stage === 'query') restartFromDeath(false);
+    }
+
+    function retryFromDeath() {
+        if (!mobileDead || deathRetry || gameState !== 'running') return;
+        deathRetry = { stage: 'query', escapes: 0, attempt: retryAttempts, timer: null };
+        var btn = document.getElementById('retryBtn');
+        btn.disabled = true;
+        btn.setAttribute('aria-busy', 'true');
+        queryNativeMenu();
+    }
+
+    function handleDeathConsoleOutput(text) {
+        // The engine may flush several console lines in one print call, separated by
+        // \n or a bare \r (seen on the real engine: "Map: alfonsox\rMod_LoadTexinfo: ...").
+        String(text).split(/\r\n|\r|\n/).forEach(handleDeathConsoleLine);
+    }
+
+    function handleDeathConsoleLine(text) {
+        var map = /^Map: (\S+)\s*$/.exec(text);
+        if (map && safeMapName(map[1])) lastMapName = safeMapName(map[1]);
+        if (!deathRetry) return;
+        var paused = /^"paused" is "(\d+)"/.exec(text);
+        if (paused && deathRetry.stage === 'query') {
+            clearTimeout(deathRetry.timer);
+            if (paused[1] !== '0' && deathRetry.escapes < MAX_MENU_ESCAPES) {
+                // Escape closes the native LOAD GAME menu (verified); re-check afterwards.
+                deathRetry.escapes++;
+                sendKey('Escape', true);
+                sendKey('Escape', false);
+                deathRetry.stage = 'escape';
+                deathRetry.timer = setTimeout(queryNativeMenu, 400);
+            } else {
+                restartFromDeath(false);
+            }
+        } else if (deathRetry.stage === 'restart' && !deathRetry.usedMap &&
+            /^(No such savegame|Savegame from an older version|Couldn't (open|read|load)|Bad savegame)/i.test(text)) {
+            restartFromDeath(true);
+        }
     }
 
     function resizeMobileGame() {
@@ -921,7 +1074,14 @@
                 restoreNativeHud();
                 return;
             }
-            if (!touchInputEnabled()) { hideMobileHud(); return; }
+            if (mobileDead && stats.health > 0) {
+                // The reloaded level reports a live player: hand control back.
+                setMobileDead(false);
+            } else if (!mobileDead && stats.health <= 0 && touchInputEnabled()) {
+                setMobileDead(true);
+            }
+            // While dead the HUD keeps reporting 0 health behind the retry dialog.
+            if (!touchInputEnabled() && !(mobileDead && gameState === 'running' && !document.hidden)) { hideMobileHud(); return; }
             if (!mobileHudActive) {
                 // Disable duplicate native indicators only after the live bridge is verified.
                 // Track even a partially accepted command so failure restores both.
@@ -1232,6 +1392,7 @@
             print: function(text) {
                 if (Module._quitting) return;
                 if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+                if (isMobile && text) handleDeathConsoleOutput(text);
                 if (text && text.indexOf('shutting down') !== -1) {
                     Module.onExit();
                     return;
@@ -1267,6 +1428,7 @@
                 hideMobileHud();
                 clearTimeout(mobileResizeTimer);
                 document.getElementById('mobilePause').style.display = 'none';
+                clearMobileDeath();
                 clearTimeout(startupTimer);
                 resetTouchControls();
                 releasePointerLock();
@@ -1289,7 +1451,7 @@
                 clearTimeout(startupTimer);
                 document.getElementById('landing').style.display = 'none';
                 document.getElementById('gameView').style.display = 'block';
-                if (isMobile && !mobilePaused) {
+                if (isMobile && !mobilePaused && !mobileDead) {
                     document.getElementById('touchControls').style.display = 'block';
                 }
                 outputElement.style.display = 'none';
